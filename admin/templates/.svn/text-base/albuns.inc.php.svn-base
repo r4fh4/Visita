@@ -1,0 +1,208 @@
+<h2 class="page-title">Incluír/Editar Álbum</h2>
+<p>Inclua ou edite dados de um álbum.</p>
+<form id="form" name="form" class="input-form" method="POST" action="albuns.php" target="response-form">
+	
+	<!-- HIDDEN INPUTS -->
+	<?if( isset($album_info[get_vars("id")]{"id_album"}) ){?>	
+		<input type="hidden" name="id_album" value="<?=$album_info[get_vars("id")]{"id_album"}?>" />
+	<?}?>
+	<div class="box-form">
+		<!-- NOME -->
+		<label>
+			<b>Título do Álbum*:</b><br /><input type="text" id="titulo" name="titulo_album" value="<?=htmlspecialchars($album_info[get_vars("id")]{"titulo_album"})?>" class="text" />
+		</label>
+		
+		<!-- CATEGORIA -->
+		<label>
+			<b>Categoria:</b><br />
+			<?
+			$selected_categ = ( get_vars("categoria") ? get_vars("categoria") : null ) ;
+			$list_categ = $image_category_list ;	
+			$item_categ = array() ;
+			foreach( $list_categ as $key => $value ){
+				$item_categ{$key} = $value ;		
+			}
+			print  gui_render_select( "categoria" , $album_category , ( $album_info[get_vars("id")]{"categoria"} ? $album_info[get_vars("id")]{"categoria"} : null ) ) ;
+			?>
+			
+			
+		</label>
+		
+		<!-- PUBLICADO -->
+		<label>
+			<?
+			if( $user_info{"user_level"} == $level_municipal_manager ){
+			?>
+			<span class="tip"> (O álbum será publicado mediante aprovação do Gerenciador Geral)</span><br /><input type="checkbox" <?=( $album_info[get_vars("id")]{"publicado"}==1 ? "checked" : "" )?> style="width:10px;vertical-align:middle;border:none;background:none;" name="publicado" disabled="disabled" class="text" />   Álbum publicado<br /><br />
+			<input type="hidden" name="publicado" value="<?=$album_info[get_vars("id")]{"publicado"}==1?>" />
+			<?
+			}
+			else{
+			?>
+			<b>Publicado:</b><span class="tip"> (o álbum só será publicado caso este campo esteja marcado)</span><br /><input type="checkbox" style="width:10px;vertical-align:middle;border:none;background:none;" name="publicado" <?=( $album_info[get_vars("id")]{"publicado"}==1 ? "checked" : "" )?> class="text" /> Álbum publicado
+		
+			<?}?>
+		</label>
+		<div id="list-item">
+			<?if( isset($album_info[get_vars("id")]{"item_album"}) ){?>				
+				<? $i = 1 ; foreach( $album_info[get_vars("id")]{"item_album"} as $item ){?>
+				<fieldset class="item_album_form" id="image_item_<?=$i?>">			
+					<input type="hidden" name="id_imagem[]" value="<?=$item{"id_imagem"}?>" />
+					<input type="hidden" name="credito_imagem[]" value="<?=htmlspecialchars($item{"credito_imagem"})?>" />
+					<legend>Foto <?=$i?></legend>
+					<img src="<?=$base_url_site?>data/images/<?=$item{"id_imagem"}?>-120x90.<?=$default_image_format?>" title="Clique e arraste para mudar a ordem das fotos" alt="" class="image-selected" />			
+					<div class="content-image-box-item">
+						<div class="info-item-album">
+							<p class="actions"><input type="button" name="addPhoto" onclick="add_item_album();" title="Adicionar foto" value="+" /><input type="button" title="Remover foto"  name="delPhoto" value="-" /></p>
+						</div>
+						<div class="info-item-album">
+							Legenda:<br /><input class="text" type="text" name="legenda_imagem[]" value="<?=htmlspecialchars($item{"legenda_imagem"})?>" />
+						</div>			
+						<input class="btn-box-image" title="Lista de imagens" type="button" value="Buscar Imagem" /> 
+					</div>					
+				</fieldset>
+				<? $i++; }?>
+			<?}else{?>			
+				<fieldset class="item_album_form" id="image_item_1">			
+					<input type="hidden" name="id_imagem[]" value="" />
+					<input type="hidden" name="credito_imagem[]" value="" />
+					<legend>Foto 1</legend>
+					<img src="<?php echo $furniture_directory; ?>furniture/images/img-album-nophoto.jpg" alt="" title="Clique e arraste para mudar a ordem das fotos" class="image-selected" />			
+					<div class="content-image-box-item">
+						<div class="info-item-album">
+							<p class="actions"><input type="button" name="addPhoto" onclick="add_item_album();" title="Adicionar foto" value="+" /><input type="button" title="Remover foto"  name="delPhoto" value="-" /></p>
+						</div>
+						<div class="info-item-album">
+							Legenda:<br /><input class="text" type="text" name="legenda_imagem[]" value="" />
+						</div>			
+						<input class="btn-box-image" title="Lista de imagens" type="button" value="Buscar Imagem" /> 
+					</div>					
+				</fieldset>			
+			<?}?>			
+		</div>
+	
+		<!-- BOTÕES/AÇÕES -->
+		<p><br />
+			<input type="submit" class="btn-form" name="<?=(isset($album_info[get_vars("id")]{"id_album"}) ? "edit" : "insert");?>" value="<?=(isset($album_info[get_vars("id")]{"id_album"}) ? "Editar" : "Inserir");?>" />
+			<?if(!isset($album_info[get_vars("id")]{"id_album"})){?><input type="reset" class="btn-form" name="limpar" value="Limpar" /><?}?>
+			<input type="button" class="btn-form"  onclick="javascript:$(location).attr('href', 'albuns_listar.php' ) ;" name="back_to_list" value="Voltar para a lista" />
+		</p>
+		<br style="clear:both;" />	
+				
+		
+	</div>
+	<div class="box-destaque-preview">
+		<span class="tip">(Preview para Título)</span><br />
+		<div class="chamada-destaque" id="chamada-preview"><?=htmlspecialchars($album_info[get_vars("id")]{"titulo_album"})?></div>
+	</div>
+	
+	
+	
+	<div style="clear:both;"><br /></div>
+</form>
+
+<div style="clear:both;"><br /></div>
+
+<iframe id="response-form" name="response-form" frameborder="0" class="iframe"></iframe>
+<div id="float-box-images" class="box-form-content box-form-content-albuns"></div>
+<script language="javascript"><!--
+var foto_item_selected = '' ;
+var hide = true ;
+
+$(document).ready(function(){	
+	// apagar item do album
+	$("input[name='removelPhoto']").click(function(){
+		$(this).parent("fieldset").remove();
+	});
+	$("#titulo").keyup(function(){				
+		$('#chamada-preview').text( $("#titulo").val() ) ;
+	});
+	
+});
+
+// adicionar imagem ao item
+$('.btn-box-image').live('click', function() {
+		$.get('imagens_thumb_listar.php', function(data) {
+			$('.box-form-content').fadeIn();
+			$('.box-form-content').html(data);			
+		});
+		foto_item_selected = "#" + $(this).closest('fieldset').attr("id") ;	
+		$(this).closest('fieldset').css( "background-color","#CCC" );
+});
+
+// remover item
+$("input[name='delPhoto']").live('click', function(){
+	if($("#list-item > fieldset").length > 1){
+		$(this).closest('fieldset').remove() ;
+		reorder_list_item();
+	}
+	return false ;
+})
+
+// associar imagem ao item
+function get_item( item, content_credit, content_legend ){
+	if( content_credit == "" ){
+		content_credit = "Divulgação" ;
+	}
+	<?
+	$item = array() ;
+	foreach( $image_custom_sizes as $key => $value ){
+		$item[] = '"' . htmlspecialchars( utf8_decode( $value{"desc"} ) ) . '":"' .htmlspecialchars( utf8_decode(  $value{"sufix"} ) ) . "." . $default_image_format . '"' ;		
+	}
+	?>
+	
+	$(foto_item_selected + " div.content-image-box-item div.info-item-album input[name^='legenda_imagem']").val( content_legend ) ;
+	$(foto_item_selected + " input[name^='id_imagem']").val( item ) ;
+	$(foto_item_selected + " input[name^='credito_imagem']").val( content_credit ) ;
+	$(foto_item_selected + " img").attr( 'src', '<?=$base_url_site?>data/images/' + item + '-120x90.<?=$default_image_format?>' ) ;
+	$(foto_item_selected).css( "background","none" );
+	$('.box-form-content').html('');
+	$('.box-form-content').fadeOut();
+}
+// adicionar item
+function add_item_album(){
+		if( $("#list-item > fieldset").length < <?=$album_item_limit?> ){
+			reorder_list_item();
+			var count_itens = $("#list-item > fieldset").length + 1 ;		
+			var item_album		=	 	'<fieldset class="item_album_form" id="image_item_' + count_itens + '">' ;
+			
+			item_album			+=		'<input type="hidden" name="id_imagem[]" value="" />';
+			item_album			+=		'<input type="hidden" name="credito_imagem[]" value="" />';
+			item_album			+=		'<legend>Foto</legend>';
+			item_album			+=		'<img src="<?php echo $furniture_directory; ?>furniture/images/img-album-nophoto.jpg" title="Clique e arraste para mudar a ordem das fotos" alt="" class="image-selected" />	';
+			item_album			+=		'<div class="content-image-box-item">';
+			item_album			+=		'<div class="info-item-album"><p class="actions"><input type="button" name="addPhoto" onclick="add_item_album();" title="Adicionar foto" value="+" /><input type="button" title="Remover foto" name="delPhoto"  value="-" /></p></div>';
+			item_album			+=		'<div class="info-item-album">Legenda:<br /><input class="text" type="text" name="legenda_imagem[]" value="" /></div>';
+			item_album			+=		'<input class="btn-box-image" title="Lista de imagens" type="button" value="Buscar Imagem" />';
+			item_album			+=		'</div>';
+			item_album			+=		'</fieldset>';	
+			
+			$(item_album).appendTo('#list-item');
+			reorder_list_item();
+		}
+		else{
+			alert('Límite de fotos alcançado!');
+		}
+	
+}
+// reordernar itens
+function reorder_list_item(){
+	var i = 1 ;
+	$('#list-item > fieldset').each(function(){
+		$(this).attr('id', 'image_item_' + i );
+		$(this).children('legend').text( 'Foto ' + i );
+		i++ ;
+	});
+}
+
+$(function() {		
+		$( "#list-item" ).sortable({   update: function(event, ui) { reorder_list_item(); } });
+		//$( "#list-item" ).disableSelection();
+		
+})
+
+//--></script>
+
+
+
+		

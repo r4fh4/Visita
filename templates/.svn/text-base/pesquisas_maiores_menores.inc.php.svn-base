@@ -1,0 +1,332 @@
+<?=$css_files = write_css_header( array( "pesquisas_print" ), "print" ) ;?>
+<!-- LOCALIDADE INFO -->
+<h1 class="breadcrumb">Pesquisa Maiores e Menores / Dados da pesquisa</h1>
+<div id="container-search">	
+	<div class="simple-column-left">
+		<h4>Indicador</h4>
+		<ul id="list-indicador">
+			<li id="<?=$info{"id"}?>" class="border-radius aba-indicador current-indicador">				
+				<span class="indicador-color-marker">•</span><p class="list-name-item indicadores-titles"><?="<b>" . implode("</b><br />" , explode( " / ", $info{"nome"} ) )?></p><br class="clean" />
+			</li>		
+		</ul>
+		<div class="border-radius localidade-info">
+			<b>Tipo de pesquisa:</b><br />Maiores e Menores<br /><br />
+			<b>Abrangência:</b><br />
+			<?=ucfirst($abrangencia)?><br /><br />
+
+		</div>
+	</div>
+	<div class="simple-column-right">
+
+		<h4>Filtros da Pesquisa</h4>
+		<div class="filter-simple-search border-radius">
+			<!-- FILTROS PARA A PEQUISA -->
+			<form name="form" id="form" action="<?=$alias?>indicadores/pesquisa/maiores-menores/dados" method="post">
+				<input type="checkbox" checked="checked" class="hide-box" name="indicadores[]" value="<?=$info{"id"}?>" />
+				<input type="hidden" name="faixa" value="<?=get_vars("faixa")?>" />
+
+				<input type="hidden" name="abrangencia" value="<?=get_vars("abrangencia")?>" />
+				<input type="hidden" name="localidade" value="<?=get_vars("localidade")?>">
+				<p class="form-filters"><b>Ano:</b> <? print gui_render_select( "periodo" , $combo_avaliable_years , ( get_vars("periodo") ?  get_vars("periodo") : $default_year ), null, 'id="periodo"' ) ;?></p>	
+				<p class="form-filters">
+				<b>*Dependência: </b><? print gui_render_select( "dependencia" , $list_dependendencia , ( get_vars("dependencia") ? get_vars("dependencia") : $dep_init ), "-", 'id="dependencia" ' ) ;?><br /><br />
+				<b>*Faixa etária: </b><? print gui_render_select( "faixa_et" , $list_faixa_etaria , ( get_vars("faixa_et") ? get_vars("faixa_et") : $fax_init ), "-", 'id="faixa" ' ) ;?><br /><br />
+				* Utilize estes filtros se aplicáveis ao(s) indicador(es).<br />
+				Obs.: Na primeira vez que a pesquisa é exibida sempre<br />são usados os filtros mais abrangentes.
+				</p>
+				<p class="form-filters" style="text-align:right;float:right;">
+					<input type="submit" class="form-submit-search border-radius"  name="send" value="Filtrar Dados" /><br /><br />					
+					<a href="#TB_inline?height=330&width=350&inlineId=hiddenModalContent" class="thickbox print-button border-radius"  title="">Imprimir</a><br /><br />
+					<input id="back-search" type="button" class="back-search border-radius" name="back" value="Fechar" />
+				</p>				
+			</form>
+			<div class="clean"></div>
+		</div>
+		<br />
+		<div id="info-indicador" class="border-radius">			
+			<!-- INFO - INDICADORES -->
+			<div id="<?=$info{"id"}?>-container" style="display:block">
+				<p id="<?=$info{"id"}?>-container-itens" class="list-sub-menu">
+					<a href="javascript:void(0);" class="container-itens-selected" name="conceito">Conceito</a> | <a href="javascript:void(0);" name="fonte">Fonte</a> |
+					<a href="javascript:void(0);" name="calculo">Cálculo</a> | <a href="javascript:void(0);" name="uso">Uso</a> | <a href="javascript:void(0);" name="metodologia">Metodologia</a> 
+				</p>
+				<ul class="content-indicador">
+					<li style="display:block;" class="conceito content-info-indicador"><?=( $info{"conceito"} ? $info{"conceito"} : "Dados indisponíveis." )?></li>
+					<li class="calculo content-info-indicador"><?=( $info{"calculo"} ? $info{"calculo"} : "Dados indisponíveis." )?></li>
+					<li class="uso content-info-indicador"><?=( $info{"uso"} ? $info{"uso"} : "Dados indisponíveis." )?></li>
+					<li class="fonte content-info-indicador"><?=( $info{"fonte"} ? $info{"fonte"} : "Dados indisponíveis." )?></li>
+					<li class="metodologia content-info-indicador"><?=( $info{"metodologia"} ? $info{"metodologia"} : "Dados indisponíveis." )?></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<br class="clean" />	
+	<div id="simple-chart-box">		
+		
+		<!-- CHART -->
+		<? if( $chart ){ ?>
+		
+			<?if( $abrangencia=="estadual" ){?>
+				
+				<?if($escolas_list){?>
+					
+					<!-- GRID -->		
+					<!-- ESCOLAS -->
+					<p>			
+						<b>Localidade consultada:</b>
+						<?=$default_localidade?> -
+						<b>Ano:</b> <?=$default_year?>
+					</p>
+					<?if( count($itens_maiores) && count($itens_menores) ){?>
+						<!-- MAIORES -->
+						<table class="grid-maiores-menores table-main-grid escolas-list" width="447" style="float:left;">
+							<thead>
+								<tr>						
+									<th  class="table_title" colspan="3">Maiores</th>					
+								</tr>
+								<tr  class="maiores-menores-grid-title">
+									<th width="5%"></th>							
+									<th width="95%">Escola/Cidade</th>
+									<th width="5%">Valor</th>
+								</tr>
+							</thead>
+							<tbody>				
+								<?foreach( $itens_maiores as $key => $value ){ ?>
+									<tr <?=( $key%2==0 ? 'class="odd"' : "" )?> >
+										<td class="value"><?=$value{"position"}?></td>
+										<td class="label-escolas-maiores-menores"><?= $value{"label"}?></td>
+										<td class="value"><?=$value{"value"}?></td>
+									</tr>
+								<?}?>
+							</tbody>
+						</table>
+						<!-- MENORES --> 
+						<table class="grid-maiores-menores table-main-grid escolas-list" width="447" style="float:right;">
+							<thead>
+								<tr>						
+									<th  class="table_title" colspan="3">Menores</th>					
+								</tr>
+								<tr  class="maiores-menores-grid-title">
+									<th width="5%"></th>							
+									<th width="95%">Escola/Cidade</th>
+									<th width="5%">Valor</th>
+								</tr>
+							</thead>
+							<tbody>				
+								<?foreach( $itens_menores as $key => $value ){ ?>
+									<tr <?=( $key%2==0 ? 'class="odd"' : "" )?> >
+										<td class="value"><?=$value{"position"}?></td>
+										<td class="label-escolas-maiores-menores"><?=$value{"label"}?></td>
+										<td class="value"><?=$value{"value"}?></td>
+									</tr>
+								<?}?>
+							</tbody>
+						</table>
+					<?}else{?>
+						<div class="error">Dados indisponíveis para o Indicador e localidade selecionados.</div>
+					<?}?>
+					<!-- /ESCOLAS -->
+					
+				<?}else{?>
+					
+					<!-- GRID -->
+					<!-- ESTADOS -->					
+					<p>			
+						<b>Localidade consultada:</b>
+						<?=$default_localidade?><br /><br />
+						<b>Ano:</b> <?=$default_year?><?if( $default_value ){?> <b>Resultado:</b> <?=$default_value?><?}?>
+					</p>
+					<?if( count($itens) ){?>
+					<table class="grid-maiores-menores table-main-grid-estados" width="600" align="center">
+						<thead>
+							<tr>						
+								<th  class="table_title" colspan="3">Ranking dos estados</th>					
+							</tr>
+							<tr  class="maiores-menores-grid-title">						
+								<th width="10%">Posição</th>
+								<th width="60%">Estado</th>
+								<th width="30%">Valor</th>
+							</tr>
+						</thead>
+						<tbody>				
+							<?foreach( $itens as $key => $value ){ ?>
+								<tr <?=( $key%2==0 ? 'class="odd"' : "" )?> <?=( $value{"mark"} ? 'style="font-weight:bold;background-color:#EDCD76;" ' : '' )?>>
+									<td class="value"><?=$value{"position"}?></td>
+									<td><?=$value{"label"}?></td>
+									<td class="value"><?=$value{"value"}?></td>
+								</tr>
+							<?}?>
+						</tbody>
+					</table>
+					<?}else{?>
+						<div class="error">Dados indisponíveis para o Indicador e localidade selecionados.</div>
+					<?}?>
+					<!-- /ESTADOS -->
+				<?}?>
+			<?}else{?>
+				
+				<?if($escolas_list){?>
+				
+					<!-- GRID -->		
+					<!-- ESCOLAS -->
+					<p>			
+						<b>Localidade consultada:</b>
+						<?=$localidade_label?><br /><br />
+						<b>Ano:</b> <?=$default_year?><br /><br />
+					</p>
+					<?if( count($itens_maiores) && count($itens_menores) ){?>
+						<table class="grid-maiores-menores table-main-grid escolas-list" width="447" style="float:left;">
+							<thead>
+								<tr>						
+									<th  class="table_title" colspan="3">Maiores</th>					
+								</tr>
+								<tr  class="maiores-menores-grid-title">
+									<th width="5%"></th>							
+									<th width="95%">Escola/Cidade</th>
+									<th width="5%">Valor</th>
+								</tr>
+							</thead>
+							<tbody>				
+								<?foreach( $itens_maiores as $key => $value ){ ?>
+									<tr <?=( $key%2==0 ? 'class="odd"' : "" )?>>
+										<td class="value"><?=$value{"position"}?></td>
+										<td  class="label-escolas-maiores-menores"><?=$value{"label"}?></td>
+										<td class="value"><?=$value{"value"}?></td>
+									</tr>
+								<?}?>
+							</tbody>
+						</table>
+						
+						<table class="grid-maiores-menores table-main-grid escolas-list" width="447" style="float:right;">
+							<thead>
+								<tr>						
+									<th  class="table_title" colspan="3">Menores</th>					
+								</tr>
+								<tr  class="maiores-menores-grid-title">
+									<th width="5%"></th>							
+									<th width="95%">Escola/Cidade</th>
+									<th width="5%">Valor</th>
+								</tr>
+							</thead>
+							<tbody>				
+								<?foreach( $itens_menores as $key => $value ){ ?>
+									<tr <?=( $key%2==0 ? 'class="odd"' : "" )?> >
+										<td class="value"><?=$value{"position"}?></td>
+										<td  class="label-escolas-maiores-menores"><?=$value{"label"}?></td>
+										<td class="value"><?=$value{"value"}?></td>
+									</tr>
+								<?}?>
+							</tbody>
+						</table>
+					<?}else{?>
+						<div class="error">Dados indisponíveis para o Indicador e localidade selecionados.</div>
+					<?}?>
+					<!-- /ESCOLAS -->
+
+				
+				<?}else{?>
+				
+					<!-- GRID -->		
+					<!-- MUNICIPIOS -->
+					<p>			
+						<b>Localidade consultada:</b>
+						<?=$localidade_label?><br /><br />
+						<b>Ano:</b> <?=$default_year?> <b>Resultado:</b> <?=$default_localidade{"valor"}?>
+					</p>
+					<?if( count($itens_maiores) && count($itens_menores) ){?>
+					<table class="grid-maiores-menores table-main-grid" style="float:left;">
+						<thead>
+							<tr>						
+								<th  class="table_title" colspan="3">Maiores</th>					
+							</tr>
+							<tr  class="maiores-menores-grid-title">						
+								<th width="10%">Posição</th>
+								<th width="60%">Localidade</th>
+								<th width="30%">Valor</th>
+							</tr>
+						</thead>
+						<tbody>				
+							<?foreach( $itens_maiores as $key => $value ){ ?>
+								<tr <?=( $key%2==0 ? 'class="odd"' : "" )?> <?=( $value{"mark"} ? 'style="font-weight:bold;background-color:#EDCD76;" ' : '' )?>>
+									<td class="value"><?=$value{"position"}?></td>
+									<td><?=$value{"label"}?></td>
+									<td class="value"><?=$value{"value"}?></td>
+								</tr>
+							<?}?>
+						</tbody>
+					</table>
+					
+					<table class="grid-maiores-menores table-main-grid" style="float:right;">
+						<thead>
+							<tr>						
+								<th  class="table_title" colspan="3">Menores</th>					
+							</tr>
+							<tr  class="maiores-menores-grid-title">						
+								<th width="10%">Posição</th>
+								<th width="60%">Localidade</th>
+								<th width="30%">Valor</th>
+							</tr>
+						</thead>
+						<tbody>				
+							<?foreach( $itens_menores as $key => $value ){ ?>
+								<tr <?=( $key%2==0 ? 'class="odd"' : "" )?> <?=( $value{"mark"} ? 'style="font-weight:bold;background-color:#EDCD76;" ' : '' )?>>
+									<td class="value"><?=$value{"position"}?></td>
+									<td><?=$value{"label"}?></td>
+									<td class="value"><?=$value{"value"}?></td>
+								</tr>
+							<?}?>
+						</tbody>
+					</table>
+					<?}else{?>
+						<div class="error">Dados indisponíveis para o Indicador e localidade selecionados.</div>
+					<?}?>
+					
+				<?}?>
+			<?}?>
+		
+		<?}else{?>
+		<div class="error">Dados indisponíveis para o Indicador e localidade selecionados.</div>
+		<?}?>
+	</div>
+	<br class="clean"/>
+</div>
+<?php include( $template_directory . "box_print_help.inc.php" );?>
+<br class="clean"/>
+<script language="javascript" type="text/javascript"><!--
+$('#list-indicador li').each(function(){
+	
+	$(this).click(function(){
+		$('#list-indicador li').removeClass("current-indicador");
+		$(this).addClass('current-indicador');
+		$('#info-indicador div').hide();
+		$( '#' + $(this).attr("id") + '-container' ).show();
+	});
+	
+});
+
+$('.list-sub-menu a').each(function(){
+	var father =  $(this).parent().attr("id") ;
+	father = father.replace( "-container-itens", "") ;
+	
+	$(this).click(function(){			
+		$('#' + father + '-container p.list-sub-menu a').removeClass("container-itens-selected");
+		$(this).addClass("container-itens-selected");
+		$( '#' + father + '-container ul.content-indicador li' ).hide();
+		$( '#' + father + '-container ul.content-indicador li.' + $(this).attr("name") ).show();
+	}) ;
+}) ;
+$("#end-data").focus();
+$("#back-search").click(function(){
+	window.close();
+});
+$("#print-search").click(function(){
+	window.print();
+});
+	
+$("#form").submit(function(){
+	if( $("#periodo option:selected").length >5 ){
+	alert("Selecione no máximo 5 anos para consultar!") ;
+	return false ;
+	}
+});
+//--></script>

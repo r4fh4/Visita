@@ -1,0 +1,110 @@
+<?php
+require_once( "scripts/init.php" ) ;
+
+// checar acesso a pagina
+get_page_access() ;
+
+$arquivo = new arquivos ;
+$programa = new programas ;
+
+if( get_vars("insert") || get_vars("edit") ){
+	
+	$list_files = null ;
+	if( !get_vars("texto") ){
+		show_message_html(  'Campo "texto" é obrigatório, favor preencher!', false ) ;
+		exit() ;	
+	}
+	if( $_POST{"files"} ){
+		$list_files = serialize( $_POST{"files"} ) ;
+	}
+	
+	$data = array(
+		"texto" => htmlentities( get_vars("texto", false ) ) , 
+		"arquivos" => $list_files ,
+		"usuario_id" => $user_info{"user_key"} , 
+		"categoria" => get_vars("categoria") , 
+		"subcategoria" => get_vars("subcategoria")
+ 	) ;
+	
+	if( get_vars("insert") ){		
+		
+		// se for programa estadual ou municipal
+		if( get_vars("subcategoria") == 3 || get_vars("subcategoria") == 2 ){
+			
+			// se for gerenciador municipal
+			if( $user_info{"user_level"} == 3 ){
+				$data{"id_uf"} = $user_info{"user_uf"} ;
+				$data{"id_cidade"} = $user_info{"user_cidade"} ;			
+			}
+			// se for gerenciador
+			else if( $user_info{"user_level"} == 2 ){
+				$data{"id_uf"} = $sgd_uf ;
+				$data{"id_cidade"} = null ;	
+			}
+			
+		}
+		else if( get_vars("subcategoria") == 1 ){
+			$data{"id_uf"} = null ;
+			$data{"id_cidade"} = null ;
+		}
+		
+		// verificar se a programa já foi inserida
+		if( $programa->verify_programa_avaliabity( get_vars("categoria"), get_vars("subcategoria"), $data{"id_uf"}, $data{"id_cidade"} ) ){
+			show_message_html(  'Já existe Programa cadastrada para a "Categoria/Subcategoria" e/ou Localidades definidas!', false ) ;
+			exit() ;
+		}
+		
+		$programa->insert_programa_info( $data ) ;
+		// salvar log de ação do usuário
+		$authentication->save_log_access( 'User insert programa' ) ;
+
+		show_message( "Programa publicada com sucesso!" ) ;		
+		redir_page( "programas_listar.php", true ) ;
+		
+	}
+	else if( get_vars("edit") ){
+		
+		$data{"id_programa"} = get_vars("id_programa") ;
+		$programa->edit_programa_info( $data ) ;
+
+		// salvar log de ação do usuário
+		$authentication->save_log_access( 'User edit programas "'.get_vars("id_programa").'" details.' ) ;
+
+		show_message( "Dados alterados com sucesso." ) ;
+		redir_page( "programas_listar.php", true ) ;
+		
+	}
+	
+}
+
+// id inválido
+if( get_vars("id") ){
+
+	$programa_info = array();
+	$programa_info = $programa->get_programa_info( get_vars("id") ) ;	
+	if(!$programa_info ){
+		redir_page( "programas_listar.php" ) ;
+	}
+	
+	// filtro por nível de usuário
+	if( $user_info{"user_level"} == $level_municipal_manager ){
+		if( $user_info{"user_key"} != $programa_info[0]{"usuario_publicacao"} ){
+			redir_page( "programas_listar.php" ) ;
+		}
+	}
+
+}
+
+include( $template_directory . "header.inc.php" ) ;
+
+include( $template_directory . "programas.inc.php" ) ;
+
+// salvar log de ação do usuário
+$authentication->save_log_access( "" ) ;
+
+//fechar conexao
+$connection->desconnect() ;
+
+include( $template_directory . "footer.inc.php" ) ;
+?>
+

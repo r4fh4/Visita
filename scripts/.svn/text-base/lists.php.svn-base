@@ -1,0 +1,491 @@
+<?php
+// tipos de telefone
+$tipoTel = array(
+	1 => "Comercial",
+	2 => "Fax" ,
+	3 => "Celular" , 
+	4 => "Residencial" ,
+	5 => "Celular de Plantão", 
+) ;
+
+// lista de temas de indicadores
+$temas_indicadores = array(
+	"demografia"				=> array( "label" => "Demografia", "id" => 1, "slug" => "demografia" ) ,
+	"educacao"					=> array( "label" => "Educação", "id" => 2, "slug" => "educacao" ) ,
+	"saude"						=> array( "label" => "Saúde", "id" => 3, "slug" => "saude" ) ,
+	"assistencia-social"		=> array( "label" => "Assistência Social", "id" => 4, "slug" => "assistencia-social" ) ,
+	"orcamento"					=> array( "label" => "Orçamento", "id" => 5, "slug" => "orcamento" ) ,
+	"risco-social"				=> array( "label" => "Risco Social", "id" => 6, "slug" => "risco-total" ) ,
+	"vulnerabilidade-social"	=> array( "label" => "Vulnerabilidade Social", "id" => 7, "slug" => "vulnerabilidade-social" ) ,
+	"infra-estrutura"			=> array( "label" => "Infra-estrutura", "id" => 8, "slug" => "infra-estrutura" ) ,
+	"idi"						=> array( "label" => "IDI", "id" => 9, "slug" => "idi" ) ,
+	"mapa-da-violencia"			=> array( "label" => "Mapa da Violência", "id" => 10, "slug" => "mapa-da-violencia" ) ,
+	"idh"						=> array( "label" => "IDH", "id" => 11, "slug" => "idh" ) ,
+	"transferencia-de-recursos" => array( "label" => "Transferência de Recursos", "id" => 12, "slug" => "transferencia-de-recursos" ) ,
+	"idf"						=> array( "label" => "IDF", "id" => 13, "slug" => "idf" ) ,
+	"defesa-dos-direitos"		=> array( "label" => "Defesa dos Direitos", "id" => 14, "slug" => "defesa-dos-direitos" )	
+) ;
+
+// lista de categorias de imagens
+$audio_category_list = array(
+	"1"	=> "Outros" ,
+	"2"	=> "Eventos" ,
+	"3"	=> "Comunicados" ,
+) ;
+
+// lista de capitais
+$capital_list = array(
+	"280030" => array( "label" =>"Aracaju", "uf" => "SE" ),
+	"150140" => array( "label" =>"Belém", "uf" => "PA" ),
+	"310620" => array( "label" =>"Belo Horizonte", "uf" => "MG" ),
+	"140010" => array( "label" =>"Boa Vista", "uf" => "RR" ),
+	"530010" => array( "label" =>"Brasília", "uf" => "DF" ),
+	"500270" => array( "label" =>"Campo Grande", "uf" => "MS" ),
+	"510340" => array( "label" =>"Cuiabá", "uf" => "MT" ),
+	"410690" => array( "label" =>"Curitiba", "uf" => "PR" ),
+	"420540" => array( "label" =>"Florianópolis", "uf" => "SC" ),
+	"230440" => array( "label" =>"Fortaleza", "uf" => "CE" ),
+	"520870" => array( "label" =>"Goiânia", "uf" => "GO" ),
+	"250750" => array( "label" =>"João Pessoa", "uf" => "PB" ),
+	"160030" => array( "label" =>"Macapá", "uf" => "AP" ),
+	"270430" => array( "label" =>"Maceió", "uf" => "AL" ),
+	"130260" => array( "label" =>"Manaus", "uf" => "AM" ),
+	"240810" => array( "label" =>"Natal", "uf" => "RN" ),
+	"172100" => array( "label" =>"Palmas", "uf" => "TO" ),
+	"431490" => array( "label" =>"Porto Alegre", "uf" => "RS" ),
+	"110020" => array( "label" =>"Porto Velho", "uf" => "RO" ),
+	"261160" => array( "label" =>"Recife", "uf" => "PE" ),
+	"120040" => array( "label" =>"Rio Branco", "uf" => "AC" ),
+	"330455" => array( "label" =>"Rio de Janeiro", "uf" => "RJ" ),
+	"292740" => array( "label" =>"Salvador", "uf" => "BA" ),
+	"211130" => array( "label" =>"São Luís", "uf" => "MA" ),
+	"355030" => array( "label" =>"São Paulo", "uf" => "SP" ),
+	"221100" => array( "label" =>"Teresina", "uf" => "PI" ),
+	"320530" => array( "label" =>"Vitória", "uf" => "ES" ), 
+) ;
+
+// lista de regiões
+$region_list = array(
+	"1" => "Norte" ,
+	"2" => "Nordeste" ,
+	"3" => "Sudeste" ,
+	"4" => "Sul" ,
+	"5" => "Centro Oeste"
+) ;
+
+// lista de estados
+$uf_list = array(
+	"12" => array( "label" => "Acre", "sigla" => "AC" ),
+	"27" => array( "label" => "Alagoas", "sigla" => "AL" ),
+	"16" => array( "label" => "Amapá", "sigla" => "AP" ),
+	"13" => array( "label" => "Amazonas", "sigla" => "AM" ),
+	"29" => array( "label" => "Bahia", "sigla" => "BA" ),
+	"23" => array( "label" => "Ceará", "sigla" => "CE" ),
+	"53" => array( "label" => "Distrito Federal", "sigla" => "DF" ),
+	"32" => array( "label" => "Espírito Santo", "sigla" => "ES" ),
+	"52" => array( "label" => "Goiás", "sigla" => "GO" ),
+	"21" => array( "label" => "Maranhão", "sigla" => "MA" ),
+	"51" => array( "label" => "Mato Grosso", "sigla" => "MT" ),
+	"50" => array( "label" => "Mato Grosso do Sul", "sigla" => "MS" ),
+	"31" => array( "label" => "Minas Gerais", "sigla" => "MG" ),
+	"15" => array( "label" => "Pará", "sigla" => "PA" ),
+	"25" => array( "label" => "Paraíba", "sigla" => "PB" ),
+	"41" => array( "label" => "Paraná", "sigla" => "PR" ),
+	"26" => array( "label" => "Pernambuco", "sigla" => "PE" ),
+	"22" => array( "label" => "Piauí", "sigla" => "PI" ),
+	"33" => array( "label" => "Rio de Janeiro", "sigla" => "RJ" ),
+	"24" => array( "label" => "Rio Grande do Norte", "sigla" => "RN" ),
+	"43" => array( "label" => "Rio Grande do Sul", "sigla" => "RS" ),
+	"11" => array( "label" => "Rondônia", "sigla" => "RO" ),
+	"14" => array( "label" => "Roraima", "sigla" => "RR" ),
+	"42" => array( "label" => "Santa Catarina", "sigla" => "SC" ),
+	"35" => array( "label" => "São Paulo", "sigla" => "SP" ),
+	"28" => array( "label" => "Sergipe", "sigla" => "SE" ),
+	"17" => array( "label" => "Tocantins", "sigla" => "TO" ),
+) ;
+
+// lista de tabelas de indicadores
+$list_indicadores_tables = array(
+	"1" => "tb_demografia" ,
+	"2" => "tb_educacao" ,
+	"3" => "tb_saude" ,
+	"4" => "tb_assistencia" ,
+	"5" => "tb_graficos_imagem" ,
+	"6" => "ideb" ,
+	"7" => "tb_assistencia" ,
+	"8" => "tb_mapa_violencia" ,
+	"9" => "ideb_escolas"
+) ;
+
+// dependencias - indicadoress de educação
+$list_dependendencia = array(
+	"1" => "Estadual" ,
+	"2" => "Municipal" ,
+	"4" => "Federal" ,
+	"5" => "Publica" ,
+	"6" => "Particular" ,
+	"7" => "Filantropia" ,
+	"33" => "Total"
+) ;
+
+// faixas etárias - indicadores de demografia
+/*$list_faixa_etaria = array(
+	"1" => "Menores de 1 Ano" ,
+	"2" => "Até 5 anos" ,
+	"3" => "Até 6 anos" ,
+	"4" => "0 a 3 anos" ,
+	"5"=> "4 a 6 anos" ,
+	"6" => "6 a 14 anos" ,
+	"7" => "7 a 9 anos" ,
+	"8" => "7 a 14 anos" ,
+	"9" => "10 a 14 anos" ,
+	"10" => "15 a 17 anos" ,
+	"11" => "Até 17 anos" ,
+	"12" => "18 a 24 anos" ,
+	"13" => "Acima de 15 anos" ,
+	"14" => "Acima de 25 anos" ,
+	"15" => "25 a 34 anos" ,
+	"16" => "35 a 44 anos" ,
+	"17" => "45 a 54 anos" ,
+	"18" => "55 a 64 anos" ,
+	"19" => "Acima de 65 anos" ,
+	"20" => "Todas as idades"
+) ;*/
+
+// nova faixa etária - at em 2011-06-08
+$list_faixa_etaria = array(
+	1 => "Menores de 1 ano" ,
+	2 => "1 a 4 anos" ,
+	3 => "5 a 9 anos" ,
+	4 => "10 a 14 anos" ,
+	5 => "15 a 19 anos" ,
+	6 => "20 a 29 anos" ,
+	7 => "30 a 39 anos" ,
+	8 => "40 a 49 anos" ,
+	9 => "50 a 59 anos" ,
+	10 => "60 a 69 anos" ,
+	11 => "70 a 79 anos" ,
+	12 => "80 anos e mais" ,
+	13 => "Todas as idades" ,
+) ;
+
+// lista de cores para charts
+$list_colors = array(
+ "99cccc" ,
+ "ffff99" ,
+ "cccc99" ,
+ "99cc99" ,
+ "ff9966" ,
+ "945F97" ,
+ "5e524a" ,
+ "9a9998" , 
+ "f9c7c7" ,
+ "068358" ,
+) ;
+
+$caption_list = array(
+	'1' =>	array(
+				array('display' => 'N/A','color'=>'ffffff','min'=> 0,'max'=> 0),
+				array('display'=> '0-1','color'=>'ff0000','min'=> 0,'max'=> 1),
+				array('display'=> '1-2','color'=>'e31418','min'=> 1,'max'=> 2),
+				array('display'=> '2-3','color'=>'f95c60','min'=> 2,'max'=> 3),
+				array('display'=> '3-4','color'=>'f38e17','min'=> 3,'max'=> 4),
+				array('display'=> '4-5','color'=>'f4cb0b','min'=> 4,'max'=> 5),
+				array('display'=> '5-6','color'=>'f4e10b','min'=> 5,'max'=> 6),
+				array('display'=> '6-7','color'=>'f3ef83','min'=> 6,'max'=> 7),
+				array('display'=> '7-8','color'=>'77b9ef','min'=> 7,'max'=> 8),
+				array('display'=> '8-9','color'=>'3b9eef','min'=> 8,'max'=> 9),
+				array('display'=> '9-10','color'=>'0060af','min'=> 9,'max'=> 10)
+			),
+	'2' =>	array(
+				array('display' => 'N/A','color'=>'ffffff','min'=> 0,'max'=> 0),
+				array('display'=> '0-5','color'=>'0060af','min'=> 0,'max'=> 5),
+				array('display'=> '5-10','color'=>'3b9eef','min'=> 5,'max'=> 10),
+				array('display'=> '10-15','color'=>'77b9ef','min'=> 10,'max'=> 15),
+				array('display'=> '15-20','color'=>'f3ef83','min'=> 15,'max'=> 20),
+				array('display'=> '20-25','color'=>'f4e10b','min'=> 20,'max'=> 25),
+				array('display'=> '25-30','color'=>'f4cb0b','min'=> 25,'max'=> 30),
+				array('display'=> '30-35','color'=>'f4a951','min'=> 30,'max'=> 35),
+				array('display'=> '35-40','color'=>'f38e17','min'=> 35,'max'=> 40),
+				array('display'=> '40-45','color'=>'f95c60','min'=> 40,'max'=> 45),
+				array('display'=> '45-50','color'=>'e31418','min'=> 45,'max'=> 50),
+				array('display'=> '> 50','color'=>'ff0000','min'=> 50,'max'=> 500)
+			),
+	'3' =>	array(
+				array('display' => 'N/A','color'=>'ffffff','min'=> 0,'max'=> 0),
+				array('display'=> '0-10','color'=>'ff0000','min'=> 0,'max'=> 10),
+				array('display'=> '10-20','color'=>'e31418','min'=> 10,'max'=> 20),
+				array('display'=> '20-30','color'=>'f95c60','min'=> 20,'max'=> 30),
+				array('display'=> '30-40','color'=>'f38e17','min'=> 30,'max'=> 40),
+				array('display'=> '40-50','color'=>'f4a951','min'=> 40,'max'=> 50),
+				array('display'=> '50-60','color'=>'f4cb0b','min'=> 50,'max'=> 60),
+				array('display'=> '60-70','color'=>'f4e10b','min'=> 60,'max'=> 70),
+				array('display'=> '70-80','color'=>'f3ef83','min'=> 70,'max'=> 80),
+				array('display'=> '80-90','color'=>'77b9ef','min'=> 80,'max'=> 90),
+				array('display'=> '90-100','color'=>'3b9eef','min'=> 90,'max'=> 100),
+				array('display'=> '> 100','color'=>'0060af','min'=> 100,'max'=> 500)
+			),
+	'4' =>	array(
+				array('display' => 'N/A','color'=>'ffffff','min'=> 0,'max'=> 0),
+				array('display'=> '0-50','color'=>'ff0000','min'=> 0,'max'=> 50000),
+				array('display'=> '50-75','color'=>'f95c60','min'=> 50000,'max'=> 75000),
+				array('display'=> '75-100','color'=>'f38e17','min'=> 75000,'max'=> 100000),
+				array('display'=> '100-200','color'=>'f4a951','min'=> 100000,'max'=> 200000),
+				array('display'=> '200-300','color'=>'f4cb0b','min'=> 200000,'max'=> 300000),
+				array('display'=> '300-400','color'=>'f4e10b','min'=> 300000,'max'=> 400000),
+				array('display'=> '400-500','color'=>'f3ef83','min'=> 400000,'max'=> 500000),
+				array('display'=> '500-750','color'=>'77b9ef','min'=> 500000,'max'=> 750000),
+				array('display'=> '750-1M','color'=>'3b9eef','min'=> 750000,'max'=> 1000000),
+				array('display'=> '> 1M','color'=>'0060af','min'=> 1000000,'max'=> 500000000)
+			),
+	'5' =>	array(
+				array('display' => 'N/A','color'=>'ffffff','min'=> 0,'max'=> 0),
+				array('display'=> '0-50','color'=>'0060af','min'=> 0,'max'=> 50000),
+				array('display'=> '50-75','color'=>'3b9eef','min'=> 50000,'max'=> 75000),
+				array('display'=> '75-100','color'=>'77b9ef','min'=> 75000,'max'=> 100000),
+				array('display'=> '100-200','color'=>'f3ef83','min'=> 100000,'max'=> 200000),
+				array('display'=> '200-300','color'=>'f4e10b','min'=> 200000,'max'=> 300000),
+				array('display'=> '300-400','color'=>'f4cb0b','min'=> 300000,'max'=> 400000),
+				array('display'=> '400-500','color'=>'f4a951','min'=> 400000,'max'=> 500000),
+				array('display'=> '500-750','color'=>'f38e17','min'=> 500000,'max'=> 750000),
+				array('display'=> '750-1M','color'=>'f95c60','min'=> 750000,'max'=> 1000000),
+				array('display'=> '> 1M','color'=>'ff0000','min'=> 1000000,'max'=> 500000000)
+			),
+	'6' =>	array(
+				array('display' => 'N/A','color'=>'ffffff','min'=> 0,'max'=> 0),
+				array('display'=> '0-50','color'=>'ff0000','min'=> 0,'max'=> 50),
+				array('display'=> '50-100','color'=>'f95c60','min'=> 50,'max'=> 100),
+				array('display'=> '100-500','color'=>'f38e17','min'=> 100,'max'=> 500),
+				array('display'=> '500-1m','color'=>'f4a951','min'=> 500,'max'=> 1000),
+				array('display'=> '1m-5m','color'=>'f4cb0b','min'=> 1000,'max'=> 5000),
+				array('display'=> '5m-10m','color'=>'f4e10b','min'=> 5000,'max'=> 10000),
+				array('display'=> '10m-50m','color'=>'77b9ef','min'=> 10000,'max'=> 50000),
+				array('display'=> '50m-100m','color'=>'3b9eef','min'=> 50000,'max'=> 100000),
+				array('display'=> '> 100m','color'=>'0060af','min'=> 100000,'max'=> 50000000)
+			),
+	'7' =>	array(
+				array('display' => 'N/A','color'=>'ffffff','min'=> 0,'max'=> 0),
+				array('display'=> '0-0.1','color'=>'ff0000','min'=> 0,'max'=> 0.1),
+				array('display'=> '0.1-0.2','color'=>'f95c60','min'=> 0.1,'max'=> 0.2),
+				array('display'=> '0.2-0.3','color'=>'f38e17','min'=> 0.2,'max'=> 0.3),
+				array('display'=> '0.3-0.4','color'=>'f4a951','min'=> 0.3,'max'=> 0.4),
+				array('display'=> '0.4-0.5','color'=>'f4cb0b','min'=> 0.4,'max'=> 0.5),
+				array('display'=> '0.5-0.6','color'=>'f4e10b','min'=> 0.5,'max'=> 0.6),
+				array('display'=> '0.6-0.7','color'=>'f3ef83','min'=> 0.6,'max'=> 0.7),
+				array('display'=> '0.7-0.8','color'=>'77b9ef','min'=> 0.7,'max'=> 0.8),
+				array('display'=> '0.8-0.9','color'=>'3b9eef','min'=> 0.8,'max'=> 0.9),
+				array('display'=> '0.9-1','color'=>'0060af','min'=> 0.9,'max'=> 1)
+			),
+	'8' =>	array(
+				array('display' => 'N/A','color'=>'ffffff','min'=> 0,'max'=> 0),
+				array('display'=> '0-50','color'=>'0060af','min'=> 0,'max'=> 50),
+				array('display'=> '50-100','color'=>'3b9eef','min'=> 50,'max'=> 100),
+				array('display'=> '100-500','color'=>'77b9ef','min'=> 100,'max'=> 500),
+				array('display'=> '500-1m','color'=>'f3ef83','min'=> 500,'max'=> 1000),
+				array('display'=> '1m-5m','color'=>'f4e10b','min'=> 1000,'max'=> 5000),
+				array('display'=> '5m-10m','color'=>'f95c60','min'=> 5000,'max'=> 10000),
+				array('display'=> '> 10m','color'=>'ff0000','min'=> 10000,'max'=> 500000000)
+			),
+	'9' =>	array(
+				array('display' => 'N/A','color'=>'ffffff','min'=> 0,'max'=> 0),
+				array('display'=> '0-50','color'=>'ff0000','min'=> 0,'max'=> 50),
+				array('display'=> '50-100','color'=>'f95c60','min'=> 50,'max'=> 100),
+				array('display'=> '100-500','color'=>'f4e10b','min'=> 100,'max'=> 500),
+				array('display'=> '500-1m','color'=>'f3ef83','min'=> 500,'max'=> 1000),
+				array('display'=> '1m-5m','color'=>'77b9ef','min'=> 1000,'max'=> 5000),
+				array('display'=> '5m-10m','color'=>'3b9eef','min'=> 5000,'max'=> 10000),
+				array('display'=> '> 10m','color'=>'0060af','min'=> 10000,'max'=> 50000000)
+			),
+	'10' =>	array(
+				array('display' => 'N/A','color'=>'ffffff','min'=> 0,'max'=> 0),
+				array('display'=> '12','color'=>'0060af','min'=> 12,'max'=> 13),
+				array('display'=> '13','color'=>'3b9eef','min'=> 13,'max'=> 14),
+				array('display'=> '14','color'=>'f3ef83','min'=> 14,'max'=> 15),
+				array('display'=> '15','color'=>'f4e10b','min'=> 15,'max'=> 16),
+				array('display'=> '16','color'=>'f95c60','min'=> 16,'max'=> 17),
+				array('display'=> '> 16','color'=>'ff0000','min'=> 17,'max'=> 20)
+			),
+	'11' =>	array(
+				array('display' => 'N/A','color'=>'ffffff','min'=> 0,'max'=> 0),
+				array('display'=> '15','color'=>'0060af','min'=> 15,'max'=> 16),
+				array('display'=> '16','color'=>'3b9eef','min'=> 16,'max'=> 17),
+				array('display'=> '17','color'=>'77b9ef','min'=> 17,'max'=> 18),
+				array('display'=> '18','color'=>'f3ef83','min'=> 18,'max'=> 19),
+				array('display'=> '19','color'=>'f4e10b','min'=> 19,'max'=> 20),
+				array('display'=> '20','color'=>'f95c60','min'=> 20,'max'=> 21),
+				array('display'=> '> 20','color'=>'ff0000','min'=> 21,'max'=> 30)
+			),
+	'12' =>	array(
+				array('display' => 'N/A','color'=>'ffffff','min'=> 0,'max'=> 0),
+				array('display'=> '0-1','color'=>'ff0000','min'=> 0,'max'=> 1),
+				array('display'=> '1-2','color'=>'e31418','min'=> 1,'max'=> 2),
+				array('display'=> '2-3','color'=>'f95c60','min'=> 2,'max'=> 3),
+				array('display'=> '3-4','color'=>'f38e17','min'=> 3,'max'=> 4),
+				array('display'=> '4-5','color'=>'f4a951','min'=> 4,'max'=> 5),
+				array('display'=> '5-6','color'=>'f4cb0b','min'=> 5,'max'=> 6),
+				array('display'=> '6-7','color'=>'f4e10b','min'=> 6,'max'=> 7),
+				array('display'=> '7-8','color'=>'f3ef83','min'=> 7,'max'=> 8),
+				array('display'=> '8-9','color'=>'77b9ef','min'=> 8,'max'=> 9),
+				array('display'=> '9-10','color'=>'3b9eef','min'=> 9,'max'=> 10),
+				array('display'=> '> 10','color'=>'0060af','min'=> 10,'max'=> 20)
+			),
+	'13' =>	array(
+				array('display' => 'N/A','color'=>'ffffff','min'=> 0,'max'=> 0),
+				array('display'=> '0-0.25','color'=>'ff0000','min'=> 0,'max'=> 0.25),
+				array('display'=> '0.25-0.5','color'=>'e31418','min'=> 0.25,'max'=> 0.5),
+				array('display'=> '0.5-0.75','color'=>'f95c60','min'=> 0.5,'max'=> 0.75),
+				array('display'=> '0.75-1','color'=>'f38e17','min'=> 0.75,'max'=> 1),
+				array('display'=> '1-1.25','color'=>'f4a951','min'=> 1,'max'=> 1.25),
+				array('display'=> '1.25-1.5','color'=>'f4cb0b','min'=> 1.25,'max'=> 1.5),
+				array('display'=> '1.5-1.75','color'=>'f4e10b','min'=> 1.5,'max'=> 1.75),
+				array('display'=> '1.75-2','color'=>'3b9eef','min'=> 1.75,'max'=> 2),
+				array('display'=> '> 2','color'=>'0060af','min'=> 2,'max'=> 20)
+			),
+	'14' =>	array(
+				array('display' => 'N/A','color'=>'ffffff','min'=> 0,'max'=> 0),
+				array('display'=> '0-2','color'=>'0060af','min'=> 0,'max'=> 2),
+				array('display'=> '2-4','color'=>'3b9eef','min'=> 2,'max'=> 4),
+				array('display'=> '4-6','color'=>'77b9ef','min'=> 4,'max'=> 6),
+				array('display'=> '6-8','color'=>'f3ef83','min'=> 6,'max'=> 8),
+				array('display'=> '8-10','color'=>'f4e10b','min'=> 8,'max'=> 10),
+				array('display'=> '10-12','color'=>'f4cb0b','min'=> 10,'max'=> 12),
+				array('display'=> '12-14','color'=>'f4a951','min'=> 12,'max'=> 14),
+				array('display'=> '14-16','color'=>'f38e17','min'=> 14,'max'=> 16),
+				array('display'=> '16-18','color'=>'f95c60','min'=> 16,'max'=> 18),
+				array('display'=> '18-20','color'=>'e31418','min'=> 18,'max'=> 20),
+				array('display'=> '> 20','color'=>'ff0000','min'=> 20,'max'=> 100)
+			),
+	'15' =>	array(
+				array('display' => 'N/A','color'=>'ffffff','min'=> 0,'max'=> 0),
+				array('display'=> '0-10','color'=>'0060af','min'=> 0,'max'=> 10),
+				array('display'=> '10-20','color'=>'3b9eef','min'=> 10,'max'=> 20),
+				array('display'=> '20-30','color'=>'77b9ef','min'=> 20,'max'=> 30),
+				array('display'=> '30-40','color'=>'f3ef83','min'=> 30,'max'=> 40),
+				array('display'=> '40-50','color'=>'f4e10b','min'=> 40,'max'=> 50),
+				array('display'=> '50-60','color'=>'f4cb0b','min'=> 50,'max'=> 60),
+				array('display'=> '60-70','color'=>'f4a951','min'=> 60,'max'=> 70),
+				array('display'=> '70-80','color'=>'f38e17','min'=> 70,'max'=> 80),
+				array('display'=> '80-90','color'=>'f95c60','min'=> 80,'max'=> 90),
+				array('display'=> '90-100','color'=>'e31418','min'=> 90,'max'=> 100),
+				array('display'=> '> 100','color'=>'ff0000','min'=> 100,'max'=> 500)
+			),
+	'16' =>	array(
+				array('display' => 'N/A','color'=>'ffffff','min'=> 0,'max'=> 0),
+				array('display'=> '0-10','color'=>'0060af','min'=> 0,'max'=> 10),
+				array('display'=> '10-25','color'=>'3b9eef','min'=> 10,'max'=> 25),
+				array('display'=> '25-50','color'=>'77b9ef','min'=> 25,'max'=> 50),
+				array('display'=> '50-75','color'=>'f3ef83','min'=> 50,'max'=> 75),
+				array('display'=> '75-100','color'=>'f4e10b','min'=> 75,'max'=> 100),
+				array('display'=> '100-250','color'=>'f4a951','min'=> 100,'max'=> 250),
+				array('display'=> '250-500','color'=>'f95c60','min'=> 250,'max'=> 500),
+				array('display'=> '500-1m','color'=>'e31418','min'=> 500,'max'=> 1000),
+				array('display'=> '> 1m','color'=>'ff0000','min'=> 1000,'max'=> 10000000)
+			)
+		
+) ;
+
+
+// tipos de pesquisa/descrição
+$list_tipos_pesquisas = 
+array(
+	"simples" => array( 
+		"title"			=> "Pesquisa Simples", 
+		"description"	=> "Escolha até cinco indicadores para uma mesma localidade em um intervalo de tempo determinado." 
+		) ,
+	"avancada" => array( 
+		"title"			=> "Pesquisa Avançada", 
+		"description"	=> "Escolha um indicador para até cinco localidades em um determinado ano." 
+		) ,
+	"maiores-menores" => array( 
+		"title"			=> "Maiores e Menores", 
+		"description"	=> "Veja os 20 municípios com maiores ou menores indicadores de acordo com a área selecionada." 
+		) ,
+	"mapas" => array( 
+		"title"			=> "Mapas", 
+		"description"	=> "Permite visualizar os indicadores nos mapas dos estados utilizando um dos indicadores disponíveis." 
+		) ,
+	"consolidados" => array( 
+		"title"			=> "Indicadores Consolidados", 
+		"description"	=> "Acompanhe os indicadores de forma consolidada e organizados por assunto e um período." 
+		) ,
+) ;
+
+// lista faixas populacionais
+$list_faixa_populacional = array(
+	0 => array( "min" => null, "max" => null, "legenda" => "Todos os municípios" ) ,
+	1 => array( "min" => 0 , "max" => 20000, "legenda" => "Cidades pequenas I - até 20.000 habitantes" ) ,
+	2 => array( "min" => 20001, "max" => 100000, "legenda" => "Cidades pequenas II - entre 20.001 e 100.000 habitantes" ) ,
+	3 => array( "min" => 100001, "max" => 900000, "legenda" => "Cidades médias - entre 100.001 e 900.000 habitantes" ) ,
+	4  => array( "min" => 900001, "max" => null, "legenda" => "Metrópoles - acima de 900.000 habitantes")
+) ;
+
+
+// default filters
+$default_dependencias = array(
+	"tb_educacao"		=> 33 ,
+	"ideb"				=> 5 ,
+	"ideb_escolas"		=> 2 ,
+	"tb_assistencia"	=> 13 ,	
+) ;
+
+$default_faixas = array(
+	"tb_demografia" => 13 ,
+) ;
+
+$list_indicadores_deny_access = array(
+	'mapas'				=> array( 191, 192, 184, 179, 173, 49, 66, 183 ) ,
+	'pesquisa_simples'	=> array( 173, 191, 192, 183 ) ,
+	'pesquisa_avancada'	=> array( 173, 191, 192, 183 ) , 
+	'maiores_menores'	=> array( 173, 183 ) ,
+);
+
+$list_images_footer = array(
+	'data/images/5-230x156.jpg',
+	'data/images/7-230x156.jpg',
+	'data/images/8-230x156.jpg',
+	'data/images/9-230x156.jpg'
+);
+
+$ideb_projecoes = array(
+	"proj_2009" , 
+	"proj_2011" , 
+	"proj_2013" , 
+	"proj_2015" ,
+	"proj_2017" , 
+	"proj_2019" , 
+	"proj_2021"
+) ;
+
+$ideb_faixas_classificacao = array(
+	array( "label" => "a partir de 6",		"color" => "#99ccff" ) ,
+	array( "label" => "entre 5 e 5,9" ,	"color" => "#99cc33" ) ,
+	array( "label" => "entre 4 e 4,9",	"color" => "#ffff99" ) ,
+	array( "label" => "abaixo de 4",	"color" => "#ff6633" ) ,
+) ;
+
+$color_list = array(
+	1 => '9acae5',
+	2 => 'ead953',
+	3 => 'c09ec3',
+	4 => '6cb5e2',
+	5 => 'fec28e',
+	6 => 'faaf6f',
+	7 => 'af84b5',
+	8 => '0b94d6',
+	9 => '0c5dc5',
+	10 => 'f8953f',
+	11 => '6b2b6f',
+	12 => '0b56a6',
+	13 => 'ea7b08',
+	14 => '12986f',
+	15 => '003ccf',
+	16 => 'd16707',
+	17 => '097a5e',
+	18 => 'c2e6e4',
+	19 => 'c05900',
+	20 => '7aba05',
+	21 => '678f05',
+	22 => '076a54'
+);
+
+?>

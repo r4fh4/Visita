@@ -1,0 +1,32 @@
+/*
+Global Site-print
+author: tiago 2011-04-28
+*/
+body{
+	margin:20pt;
+	font: 9pt Verdana;
+	line-height:15pt;
+	color: #000;
+	text-align:justify;
+}
+#main{
+	width:100%;
+	height:auto;
+}
+#content{
+	padding:10pt;
+}
+.tip{
+	color:#999;
+	font-style:italic;
+}
+
+.title{
+	font-size:12pt;
+}
+p.imagem-destaque{
+	float:right;
+	padding:5pt;
+	margin:0pt 0pt 10pt 15pt;
+	border:1px solid #ccc;
+}

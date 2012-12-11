@@ -1,0 +1,43 @@
+biblioteca={};
+
+biblioteca.setDHTML=function(){
+		$('.expandir').click(function(){
+			var	_this = $(this),
+				id = _this.attr('id'),
+				img = $('#div_'+id).hasClass('hide') ? 'lista_ind_btn_reduzir.png' : 'lista_ind_btn_expandir.png';
+			$('#div_'+id).hasClass('hide') ? $('#div_'+id).removeClass('hide') : $('#div_'+id).addClass('hide');
+			_this.attr('src','../furniture/images/'+img);
+		});
+		
+		$('#pesquisa').keyup(function(event){
+			biblioteca.pesquisar.verificaTecla(event);
+		});
+		
+		$('.buttonPesquisa').click(function(){
+			biblioteca.pesquisar.submit();
+		});
+		
+		$('.title').click(function(){
+			var	_this = $(this),
+				arq = JSON.parse(_this.attr('data-link')),
+				cont = _this.parents('tr:first').find('.down'),
+				data = { id: arq['id'], action: 'incrementDownload' };
+			window.open('../data/arquivos/'+arq['file'], '_blank');
+			cont = cont.html(parseInt(cont.html()) + 1);
+			$.post('tools.php',data);
+		});
+};
+
+biblioteca.pesquisar={
+	verificaTecla:function(e) {
+		if(e.keyCode == 13) {
+			biblioteca.pesquisar.submit();
+		}
+	},
+	
+	submit:function() {
+		var	text = $('#pesquisa').val();
+		if(text.length >= 3)
+			location.href = '?search='+text;
+	}
+};

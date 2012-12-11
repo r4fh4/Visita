@@ -1,0 +1,31 @@
+noticias={};
+
+noticias.setDHTML=function(){
+		$('.buttonPesquisa').click(function(){
+			noticias.pesquisar.submit();
+		});
+		
+		$('#search').keyup(function(event){
+			noticias.pesquisar.verificaTecla(event);
+		});
+		
+		$('.buttonPesquisaTema').click(function(){
+			noticias.pesquisar.submit(true);
+		});
+};
+
+noticias.pesquisar={
+	verificaTecla:function(e) {
+		if(e.keyCode == 13) {
+			noticias.pesquisar.submit();
+		}
+	},
+	
+	submit:function(noSearch) {
+		var	value = noSearch ? $('#tema option:selected').val() : $('#search').val();		
+		if(!noSearch && value.length >= 3)
+			location.href = '?search='+value;
+		else if(value > 0)
+			location.href = '?categoria='+value;
+	}
+};

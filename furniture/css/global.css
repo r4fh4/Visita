@@ -1,0 +1,294 @@
+body{
+	font: 11px Verdana;
+	color: #333;
+	text-align: center;
+	background-color: #0c0c0c
+}
+
+* {
+	list-style:none;
+	margin:0;
+	padding:0
+}
+
+#main{
+	margin: 0 auto
+}
+
+#footer{
+	color: #BBB;
+	font-size: 11px;
+	margin-top: 35px
+}
+
+#header {
+	margin: 0 auto
+}
+
+#header img {
+	border: 0;
+	width: 500px
+}
+
+#login-main{
+	width: 500px;
+	margin: 0 auto;
+	text-align: center
+}
+
+#login,
+#password,
+.form-class {
+	background-color: #333;
+	color: #BBB;
+	padding: 10px;
+	font-size: 13px;
+	border: 0;
+	width: 250px;
+	border-radius: 5px
+}
+
+.element-hidden{
+	display: none !important
+}
+
+.clean {
+	clear: both
+}
+
+form label{
+	font-weight: bold;
+	color: #FFF;
+	font-size: 11px;
+	margin-right: 10px;
+	width: 50px;
+	text-align: right
+}
+
+.btn-submit{
+	margin-top: 10px;
+	background: url('../images/btn-enviar.png');
+	width: 96px;
+	height: 34px;
+	cursor: pointer;
+	border: 0
+}
+
+.btn-cadastro{
+	background: url('../images/btn-cadastro.png');
+	width: 94px;
+	height: 32px;
+	margin: -2px 10px 0 0;
+	cursor: pointer;
+	border: 0
+}
+
+.btn-dados{
+	background: url('../images/meus-dados.png');
+	width: 271px;
+	height: 56px;
+	cursor: pointer;
+	border: 0
+}
+
+.btn-rotas{
+	background: url('../images/minhas-rotas.png');
+	width: 269px;
+	height: 56px;
+	cursor: pointer;
+	border: 0
+}
+
+.btn-nova{
+	background: url('../images/nova-rota.png');
+	width: 270px;
+	height: 56px;
+	cursor: pointer;
+	border: 0
+}
+
+.btn-pontos{
+	background: url('../images/pontos-turisticos.png');
+	width: 269px;
+	height: 58px;
+	cursor: pointer;
+	border: 0
+}
+
+.btn-atualizar{
+	margin-top: 10px;
+	background: url('../images/btn-atualizar.png');
+	width: 93px;
+	height: 30px;
+	cursor: pointer;
+	border: 0;
+	font-size: 0px
+}
+
+.btn-voltar{
+	margin-top: 10px;
+	background: url('../images/btn-voltar.png') no-repeat;
+	width: 93px;
+	height: 31px;
+	cursor: pointer;
+	border: 0;
+	font-size: 0px
+}
+
+.btn-fechar{
+	margin-top: 10px;
+	background: url('../images/btn-fechar.png') no-repeat;
+	width: 93px;
+	height: 31px;
+	cursor: pointer;
+	border: 0;
+	font-size: 0px
+}
+
+.forgot{
+	margin-top: 15px
+}
+
+.forgot a{
+	text-decoration: none;
+	color: #BBB;
+	font-size: 10px
+}
+
+.forgot a:hover{
+	text-decoration: underline
+}
+
+.btn-facebook{
+	margin: 5px 0 0 15px
+}
+
+#alternative-login{
+	width: 95px; /*210px;*/
+	margin: 40px auto 0
+}
+
+#alternative-login img,
+#alternative-login input{
+	float: left;
+	vertical-align: middle
+}
+
+.feedback-login{
+	color: #F30
+}
+
+p.feedback-form{
+	border:1px solid #3B5627;
+	background-color:#C2E8B4;
+	color:#3B5627;
+	padding:5px;
+	font-weight:bold;
+}
+
+p.feedback-form-fail{
+	border:1px solid #A02E2E;
+	background-color:#FCA4A4;
+	color:#A02E2E;
+	padding:5px;
+	font-weight:bold;
+}
+
+#box-footer{
+	width: 450px;
+	background-color: #1d1d1d;
+	font-size: 11px;
+	height: 35px;
+	margin: 0 auto;
+	padding-top: 10px
+}
+
+#option-list{
+	width: 225px;
+	margin: 0 auto;
+}
+
+.btn-option{
+	background-color: #000;
+	color: #FFF;
+	border-radius: 3px;
+	cursor: pointer;
+	font-size: 11px;
+	float: left;
+	margin-right: 15px;
+	border: 0;
+	width: 100px;
+	height: 25px;
+	line-height: 25px
+}
+
+.btn-option.red{
+	background-color: #471A1A;
+	margin: 0
+}
+
+.btn-option.blue{
+	background-color: #1C344A
+}
+
+#cadastrar{
+	cursor: pointer
+}
+
+p.welcome{
+	font-size: 11px;
+	font-weight: bold;
+	color: #FFF
+}
+
+#main-pontos{
+	margin: 0 auto;
+	width: 450px
+}
+
+#pontos-list li{
+	float: left;
+	width: 120px;
+	margin: 0 10px 20px;
+	height: 130px
+}
+
+#pontos-list li a{
+	font-size: 10px;
+	font-weight: bold;
+	color: #F90;
+	text-decoration: none
+}
+
+#pontos-list li img{
+	width: 120px;
+	height: 70px;
+	margin-bottom: 10px;
+	border: 2px solid #FFF;
+	border-radius: 10px
+}
+
+.div_transparent {
+   background-color: #000;
+   color: #FFFFFF;
+   position: absolute;
+   text-align: center;
+   top: 29%;
+   left: 50%;
+   width: 600px;
+   margin-left: -300px;
+   z-index: 1000;
+   text-align: center;
+   padding: 50px 0;
+   height: 320px
+}
+
+.div_conteudo{
+	background-color: #FFF;
+	width: 460px;
+	height: 270px;
+	margin: 0 auto;
+	color: #000;
+	padding: 20px;
+	text-align: left
+}

@@ -1,0 +1,52 @@
+/*
+Videos CSS
+author: tamemiya 2011-05-04
+*/
+
+#lastItensVideos li{
+	background-color:#F0F0F0;
+	height:90px;
+	padding:20px 15px 20px 0;
+	margin:0px 20px 5px 20px;
+	width:298px;
+}
+
+#lastItensVideos img{
+	float:left;
+	margin-left:15px
+}
+
+#lastItensVideos li a{
+	text-decoration:none;
+	color:#666666;
+}
+#lastItensVideos li a:hover{
+	text-decoration:underline;
+	color:#666666;
+}
+
+#lastItensVideos img{
+	border:1px solid #ccc;
+}
+#columnRight350 .lista{
+	width:115px;
+	text-align:left;
+}
+.list-videos{
+	width:354px;
+	height:500px;
+	overflow:auto;
+}
+
+p.link-channel-video{
+	text-align:right;
+}
+
+p.link-channel-video a{
+	color:#000;
+	text-decoration:none;
+}
+p.link-channel-video a:hover{
+	color:#000;
+	text-decoration:underline;
+}

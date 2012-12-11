@@ -1,0 +1,22 @@
+#mapa {
+	width: 640px;
+	height: 500px;
+	margin: 0 auto;
+	border: 1px solid #F60
+}
+
+#legenda{
+	margin: 0 auto;
+	width: 615px
+}
+
+#legenda li{
+	width: 140px;
+	text-align: left;
+	color: #FFF;
+	margin-bottom: 5px
+}
+
+#legenda li img{
+	margin-right: 5px
+}

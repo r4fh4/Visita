@@ -1,0 +1,135 @@
+<?
+class noticias_controller{
+	
+	public $model = null ;
+	
+	public function  __construct(){
+		$this->model = new noticias ;
+	}
+	
+	public function index( $data = null ){
+		
+	}
+	
+	public function get_info( $data ){		
+
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		// controle de cache
+		$cache = new cache() ;
+		$cache_id = "news-" . strip_tags( $data{"id_noticia"} . ( $data{"slug"} ? "-" . $data{"slug"} : "" ) ) ;
+		
+		$cache_content = $cache->read( $cache_id ) ;
+		
+		if( !$cache_content ){
+			
+			$noticia =  $this->model->get_news_info( $data{"id_noticia"} )  ;
+			if( $noticia ){
+				ob_start() ;				
+				$title = normalize_text( $noticia[0]{"titulo"} ,true ) ;
+				$short_url =  $base_url_site . "noticias/" . $data{"id_noticia"} . "-" . $title ;
+				$print_url = $base_url_site . "tools/print/noticias/" . $data{"id_noticia"} ;
+				if( $data{"slug"} ){
+					if( $title != $data{"slug"} ){
+						header( "Location: " . $base_url_site  . "noticias/" . $data{"id_noticia"} . "-" . $title ) ;
+						exit();
+					}
+				}
+				
+				//Monta a lista de noticias da direita, retirando a noticia ja exibida
+				$where[] = 'active = 1 AND publicada = "1" AND id_noticia NOT IN(' . $data{"id_noticia"} . ')';
+				$results_per_page = 4 ;
+				list( $r , $records , $page , $total_pages ) = default_search( "tb_noticias" , $where, "", "dt_criacao desc" );
+				
+				$complement_title = htmlspecialchars( $noticia[0]{"titulo"} ) ;
+				$meta_description = htmlspecialchars( $noticia[0]{"chamada"} ) ;
+				$css_files = write_css_header( array( "noticias" ) ) ;
+				
+				include( $template_directory . "header.inc.php" ) ;
+				include( $template_directory . "noticias.inc.php" ) ;
+				include( $template_directory . "footer.inc.php" ) ;
+				
+				$content = ob_get_contents() ;
+				$cache->save( strip_tags( "news-" . $data{"id_noticia"} . ( $data{"slug"} ? "-" . $data{"slug"} : "" ) ), $content . "<!-- cached in " . date("Y-m-d H:i:s") . " -->" ) ;
+				ob_end_flush() ;
+				
+			}
+			else{
+				header( "Location: " . $base_url_site . "noticias/listar" ) ;
+				exit();
+			}
+		}
+		print $cache_content ;
+	}
+	
+	public function get_list( $data, $itens ){
+	
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+
+		//Obtém váriaveis para consulta
+		$terms = get_vars('search');
+		$cat = get_vars('categoria');
+		
+		//Monta a lista de noticias da direita
+		$where[] = 'active = 1 AND publicada = "1"';
+		$sr = get_vars('sr');
+	
+		$_GET['sr'] = 1;
+		list( $rr , $list , $pg , $tp ) = default_search( "tb_noticias" , $where, "", "dt_criacao desc" ) ;
+		
+		//Monta a Lista de noticias de acordo com o critério de seleção
+		$_GET['sr'] = $sr;
+		$where[] = $terms 
+			? " MATCH ( titulo, chamada, texto ) AGAINST ('" . str_replace( " ", "* ", mysql_real_escape_string($terms) ) . "*' IN BOOLEAN MODE)"
+			: ($cat && is_numeric($cat) 
+			? " subcategoria = ".mysql_real_escape_string($cat)
+			: 'active IS NOT NULL');
+
+		list( $r , $records , $page , $total_pages ) = default_search( "tb_noticias" , $where, "", "dt_criacao desc" ) ;
+		
+		//Monta a lista de categorias listadas para consulta
+		$arquivo = new arquivos();
+		$categorias = $arquivo->list_subcategoria();
+		
+		$complement_title = "Notícias" ;
+		$meta_description = "Listagem de notícias do Portal." ;
+		$css_files = write_css_header( array( "noticias" ) ) ;
+		
+		include( $template_directory . "header.inc.php" ) ;
+		include( $template_directory . "noticias_listar.inc.php" ) ;
+		include( $template_directory . "footer.inc.php" ) ;
+	
+	}
+	
+	public function feed(){		
+	
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		//Monta a lista de noticias da direita, retirando a noticia ja exibida
+		$where[] = 'active = 1 AND publicada = "1"';
+		$results_per_page = 20 ;
+		
+		// controle de cache
+		$cache = new cache() ;
+		$cache_id = "noticias-feed" ;
+		$cache_content = $cache->read( $cache_id ) ;
+		
+		if( !$cache_content ){		
+			list( $r , $records , $page , $total_pages ) = default_search( "tb_noticias" , $where, "", "dt_criacao desc" );
+			ob_start() ;
+			header('Content-Type: text/xml') ;
+			print '<?xml version="1.0" encoding="ISO-8859-1"?>' ;
+			include( $template_directory . "noticias_rss.inc.php" ) ;
+			// gerar cache
+			$content = ob_get_contents() ;
+			$cache->save(  $cache_id, $content . "<!-- cached in " . date("Y-m-d H:i:s") . " -->" ) ;
+			ob_end_flush() ;			
+		}
+		print $cache_content ;	
+		
+	}
+}
+?>

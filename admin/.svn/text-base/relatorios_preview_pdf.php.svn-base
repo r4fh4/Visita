@@ -1,0 +1,99 @@
+<?php
+require_once( "scripts/init.php" ) ;
+
+// checar acesso a pagina
+get_page_access() ;
+
+$relatorio = new relatorios ;
+
+// id inválido
+if( get_vars("id") ){
+
+	$relatorio_info = array();
+	$relatorio_info = $relatorio->get_relatorio_info( get_vars("id") ) ;	
+	if(!$relatorio_info ){
+		redir_page( "relatorios_listar.php" ) ;
+		exit();
+	}
+	else{
+
+		$mpdf=new mPDF( 'c','A4', 0, '', 15, 15, 26 ) ; 
+
+		$mpdf->allow_charset_conversion = false ;
+
+		$mpdf->mirrorMargins = 0 ;	// Use different Odd/Even headers and footers and mirror margins
+
+		$stylesheet = file_get_contents('furniture/css/global-pdf.css');
+		$mpdf->WriteHTML($stylesheet,1); // The parameter 1 tells that this is css/style only and no
+
+		# Default info
+		$document_type = "Relatório" ;
+		$system_owner = ADM_LABEL ;
+		$image_capa = "furniture/images/capa-pdf.jpg" ;
+
+		$header_info =   utf8_encode( $system_owner . " / " . $document_type ) ;
+		$footer_info =  utf8_encode( "Pag. {PAGENO} - Impresso pelo " . $system_owner . " em {DATE d/m/Y H:i}" ) ;
+		$footer_font_size = 8 ;
+		$footer_font_color = "#666" ;
+		
+
+		# Cabeçalho
+		$mpdf->DefHTMLHeaderByName( 
+			'headerDocument',
+			'<htmlpageheader name="headerDocument">
+				<div class="header-top-pdf"></div>
+				<div class="header-pdf">' . $header_info . '</div>
+				<div class="header-bottom-pdf"></div>
+			</htmlpageheader>'
+		) ;
+
+		# Rodapé
+		$footer = array (
+			'C' => array (
+			  'content' => $footer_info ,
+			  'font-size' => 8 ,
+			  'color' => $footer_font_color ,
+			),
+			'line' => 1,
+		);
+		
+		# Capa
+		$mpdf->WriteHTML( utf8_encode( '
+			<div style="width:100%;text-align:center;"><img src="' . $image_capa . '" style="margin-top:250pt" /></div>
+		' ) );
+
+		$mpdf->SetHTMLHeaderByName( 'headerDocument' ) ;
+		$mpdf->DefFooterByName( 'footerDocument', $footer ) ;
+
+		/* Índice
+		Após a quebra e página "<pagebreak /><br /><br />"
+		no título da página colocar a tag: <tocentry content="titulo da página" />
+		*/
+		
+		if( $relatorio_info[0]{"master"} == 1 ){
+			$html .= '
+			<tocpagebreak toc-orientation="portrait" toc-margin-top="80" indent="3" paging="on" links="on" resetpagenum="1" suppress="off" pagenumstyle="1" orientation="portrait" toc-even-header-name="html_headerDocument" toc-even-header-value="-1" toc-odd-footer-name="footerDocument" toc-odd-footer-value="-1"  even-header-name="html_headerDocument" even-header-value="1" odd-footer-name="footerDocument" odd-footer-value="1" />
+			' ;			
+		}
+		else{
+			$html .= '
+			<br /><pagebreak />
+			<setpagefooter name="footerDocument" page="O" value="on" show-this-page="1" />
+			<setpagefooter name="footerDocument" page="E" value="on" />
+			' ;			
+		}
+
+		# Conteúdo
+		include( $template_directory . "relatorios_preview_pdf.inc.php" ) ;
+
+		$mpdf->WriteHTML( utf8_encode( $html ) );
+		$mpdf->Output();
+		exit ;
+
+	}
+}
+else{
+	redir_page( "relatorios_listar.php" ) ;
+	exit();
+}
+?>

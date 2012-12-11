@@ -1,0 +1,140 @@
+<script type="text/javascript" src="furniture/editor/ckeditor.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	$('#btn-box-image').click(function(){	
+		$.get('imagens_thumb_listar.php', function(data) {
+			$('.box-form-content').html(data);
+		});
+	});
+	
+});
+
+function select_content( element ){
+	$(element).focus();
+	$(element).select();
+
+}
+function get_item( item, content_credit ){
+	if( content_credit == "" ){
+		content_credit = "Divulgação" ;
+	}
+	<?
+	$item = array() ;
+	foreach( $image_custom_sizes as $key => $value ){
+		$item[] = '"' . $value{"desc"} . '":"' . $value{"sufix"} . "." . $default_image_format . '"' ;		
+	}
+	?>
+	
+	list_images = '<span class="tip">(Copie a URL da imagem para incluír na matéria)</span><br />' ;
+	list_images += '<img src="<?=$base_url_site?>data/images/' + item + '-120x90.<?=$default_image_format?>" alt="" class="image-selected" /><div style="clear:both;"></div>' ;
+	list_images += '<b>Crédito da imagem: </b>' + content_credit + '<br />' ;
+	list_sizes = { <?=implode( ",", $item )?> } ;
+	$.each( list_sizes, function( key, value ) { 
+		list_images += '<b>' + key + ':</b><br /><input type="text" onclick="javascript:select_content(this);" class="url-image-select" readonly="readonly" value="<?=$images_directory?>' + item + value + 	'" /><br />' ; 
+	});
+	list_images += "<br /><hr /><br />" ;
+	$(".detail-images").html(list_images) ;
+	
+}
+</script>
+<h2 class="page-title">Incluír/Editar Segmento</h2>
+<p>Selecione as categorias/subcategorias do Segmento e adicione o texto correspondente.</p>
+
+<form id="form" name="form" class="input-form" method="POST" action="segmentos.php" target="response-form">
+	
+	<!-- CATEGORIAS/SUBCATEGORIAS -->
+	<div class="box-form">
+		<p style="float:left;">
+			<b>Categoria:</b><br />
+			<?
+			$selected_categ =  ( isset($segmento_info[0]{"categoria"}) ? $segmento_info[0]{"categoria"} : null ) ;
+			$list_categ = $segmento->list_categoria() ;
+			$item_categ = array() ;
+			foreach( $list_categ as $item_ctg ){
+				$item_categ{$item_ctg{"id_categoria"}} = $item_ctg{"ds_categoria"} ;		
+			}
+			print gui_render_select( "categoria" , $item_categ , ( $selected_categ ? $selected_categ : null ), false ) ;
+			?>
+		</p>
+		
+		<p style="float:left;margin-left:20px;">
+			<b>Sub-Categoria:</b><br />
+			<?
+			$selected_subcateg = ( isset($segmento_info[0]{"subcategoria"}) ? $segmento_info[0]{"subcategoria"} : null ) ;
+			$restrict = true ;
+			$list_subcateg = $segmento->list_subcategoria( $restrict ) ;	
+			$item_aubcateg = array() ;
+			foreach( $list_subcateg as $item_subctg ){
+				$item_subcateg{$item_subctg{"id_subcategoria"}} = $item_subctg{"ds_subcategoria"} ;		
+			}
+			print gui_render_select( "subcategoria" , $item_subcateg , ( $selected_subcateg ? $selected_subcateg : null ), false ) ;
+			?>
+		</p>
+		
+		<div style="clear:both;"><br /></div>
+		
+		<!-- IMAGENS -->
+		<label>
+			<input id="btn-box-image" title="Lista de imagens"type="button" value="Buscar imagem para inclusão no texto" />  
+		</label>	
+		
+		<div style="clear:both;"><br /></div>
+		
+		<!-- TEXTO -->
+		<label>
+			<b>Texto*:</b><br />
+			<textarea style="width:250px;" cols="40" id="texto" name="texto" rows="5"><?=html_entity_decode($segmento_info[0]{"texto"})?></textarea>
+			<script type="text/javascript">
+			//<![CDATA[
+				CKEDITOR.replace( 'texto',
+					{
+						skin : 'kama'
+					});
+
+			//]]>
+			</script>
+		</label>
+		
+		<!-- ENDEREÇOS -->
+		<label>
+			<b>Endereço(s):</b><br />
+			<textarea style="width:546px;" cols="20" id="endereco" name="endereco" rows="5"><?=html_entity_decode($segmento_info[0]{"endereco"})?></textarea>
+			<script type="text/javascript">
+			//<![CDATA[
+				CKEDITOR.replace( 'endereco',
+					{
+						skin : 'kama',
+						width: 546,
+						height: 200
+					});
+
+			//]]>
+			</script>
+			<br />
+			<span class="tip">
+			Para inserir mapa do "Google Maps" coloque o endereço <u>sem o CEP</u> entre a tag <u>{MAP}</u>, veja o exemplo a seguir: <br />
+			{MAP}Praça dos Três Poderes, Brasília - DF{MAP} ou coloque nesta ordem:<br />{MAP} Logradouro - Cidade - Sigla do Estado{MAP}
+			</span>
+		</label>
+		
+		<div style="clear:both;"><br /></div>
+		
+		<?if( isset($segmento_info[0]{"id_segmento"}) ){?>	
+			<input type="hidden" name="id_segmento" value="<?=$segmento_info[0]{"id_segmento"}?>" />
+		<?}?>
+		<!-- BOTÕES/AÇÕES -->
+		<p>
+			<input type="submit" class="btn-form" name="<?=(isset($segmento_info[0]{"id_segmento"}) ? "edit" : "insert");?>" value="<?=(isset($segmento_info[0]{"id_segmento"}) ? "Editar" : "Inserir");?>" />
+			<?if(!isset($segmento_info[0]{"id_segmento"})){?><input type="reset" class="btn-form" name="limpar" value="Limpar" /><?}?>
+			<input type="button" class="btn-form" onclick="javascript:$(location).attr('href', 'segmentos_listar.php' ) ;" name="back_to_list" value="Voltar para a lista" />
+		</p>
+		
+	</div>	
+	
+	<div class="box-form-content"><span class="tip">(Clique em "Inserir imagem" para selecionar imagens)</span></div>
+	
+	<div style="clear:both;"><br /></div>
+	
+</form>
+<div style="clear:both;"><br /></div>
+<iframe id="response-form" name="response-form" frameborder="0" class="iframe"></iframe>

@@ -1,0 +1,77 @@
+<?php
+require_once( "scripts/init.php" ) ;
+// checar acesso a pagina
+get_page_access() ;
+
+include( $template_directory . "header.inc.php" ) ;
+
+
+$url = $_SERVER{"REQUEST_URI"} ;
+
+$item_records = null ;
+
+// parametros para query
+$where[] = "active = '1'" ;
+
+if( get_vars("search_content") ){	
+	$terms = explode( " ", get_vars("search_content") ) ;
+	$terms = implode( " ", $terms ) ;
+	$where[] = "MATCH ( nm_usuario ) AGAINST ('" . str_replace( " ", "* ", mysql_real_escape_string( $terms ) ) . "*' IN BOOLEAN MODE)" ;
+	$url = set_url( $url, array( "search_content" => get_vars("search_content") ) ) ;
+}
+
+list( $r , $records , $page , $total_pages ) = default_search( "tb_usuario" , $where, "", "dt_criacao desc" ) ;
+
+$user = new user ;
+if( $records ){
+	foreach( $records as $item ){
+		
+		$item_group = $user->list_grupo( $item{"id_grupo"} ) ;
+		$item_records[$item{"id_usuario"}]{"id_usuario"} = $item{"id_usuario"} ;
+		$item_records[$item{"id_usuario"}]{"nm_usuario"} = $item{"nm_usuario"} ;
+		$item_records[$item{"id_usuario"}]{"email"} = $item{"email"} ;
+		$item_records[$item{"id_usuario"}]{"login"} = $item{"login"} ;
+		$item_records[$item{"id_usuario"}]{"id_grupo"} = $item{"id_grupo"} ;
+		$item_records[$item{"id_usuario"}]{"ds_grupo"} = $item_group[0]{"ds_grupo"} ;
+	}
+}
+if( get_vars("clear_search") ){
+	redir_page( set_url( $url, array("search_content" => null, "sr" => null ) ) ) ;
+}
+
+// redirecionar para tela de inclusão
+if( get_vars("new") ){
+	redir_page( "administracao.php" ) ;
+}
+
+// deletar imagens
+if( get_vars("delete") ){
+	
+	if( get_vars("action_item") ){
+		$user = new user() ;
+		$list_itens = $_POST{"action_item"} ;
+		$user->delete_user( "'" . implode( "','", $list_itens ) . "'" ) ;
+		
+		// salvar log de ação do usuário
+		show_message( 'Deleted users: (' .  "'" . implode( "','", $list_itens ) . "')" ) ;
+		redir_page( $url ) ;
+	}
+	else{
+		show_message( "Nenhum item selecionado para exclusão, favor selecionar.", false ) ;
+		redir_page( $url ) ;
+	}
+}
+
+
+
+include( $template_directory . "administracao_listar.inc.php" ) ;
+
+// salvar log de ação do usuário
+$authentication->save_log_access( "" ) ;
+
+//fechar conexao
+$connection->desconnect();
+
+include( $template_directory . "footer.inc.php" ) ;
+?>
+

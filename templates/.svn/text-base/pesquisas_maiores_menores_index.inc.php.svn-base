@@ -1,0 +1,224 @@
+<? 
+$li_temas = null ;
+foreach( $list_area_assunto as $key => $value ){
+	
+	$list_tema{$value{"ds_tema"}} = $value{"ds_tema"} ;
+	$list_html_tema{$value{"ds_tema"}} = '<li><a href="javascript:void(0);" onclick="get_assunto(\'' . normalize_text( str_replace(" ", "_" ,  $value{"ds_tema"} ) ) . '\')">' . $value{"ds_tema"} . '</a></li>' ;
+	$list_assunto{$value{"ds_tema"}}[$key] = $value{"ds_assunto"} . "|" . $value{"id_assunto"} ;		
+	
+}
+?>
+<h1 class="breadcrumb"><a href="<?=$alias?>indicadores">Indicadores</a> / Pesquisa Maiores e Menores</h1>
+<div id="container-search">
+	<p class="search-description"><?=$list_tipos_pesquisas{"maiores-menores"}{"description"};?></p>
+	<div id="loading"><img src="<?=$furniture_directory?>images/ajax-loader.gif" />carregando...</div>
+	<div id="box-search" class="box-search">
+		<h2>1. Área</h2>
+		<ul>
+			<?=implode( " \n" , $list_html_tema )?>
+		</ul>
+	</div>
+	
+	<div id="list-assuntos"  class="box-search"></div>
+	<div id="list-indicadores"  class="box-search"></div>
+	<br class="clean"/>
+	<form id="generate_search" name="generate_search" method="POST" action="<?=$alias?>indicadores/pesquisa/maiores-menores/dados" target="_blank">
+		<div id="selected-indicadores" class="box-search">
+			<h2>4. Indicador selecionado</h2><p>Selecione apenas um indicador, caso queira trocar, basta selecionar outro outro.</p><ul id="list-selected-indicadores"></ul>
+		</div>
+		<br class="clean"/>
+		<div id="list-abrangencia" class="box-search">
+				<h2>5. Abrangência</h2>		
+				<div style="width:50%;float:left;">
+				<p>
+					Selecione uma localidade e defina a faixa populacional:<br /><br />
+					<label><input type="radio" name="abrangencia" value="estadual">Estadual</label>
+					<label><input type="radio" name="abrangencia" value="capital">Capital</label>
+					<label><input type="radio" name="abrangencia" value="municipal">Municipal</label>
+				</p>
+				<p id="box-estadual" class="hide-box">
+					<b>Estado:</b>
+					<? 
+					foreach( $uf_list as $key => $value ){
+						$item_uf[$key] = $value{"sigla"} . " - " . $value{"label"} ;
+					}
+					print gui_render_select( "id_uf" , $item_uf , null, "-", 'id="id_uf" class="select-box"' ) ;
+					?>
+				</p>
+				<p id="box-municipal" class="hide-box">
+					<b>Cidade:</b> <span class="tip">Selecione um estado primeiro.</span><select id="id_cidade" name="id_cidade" class="hide-box" ><option value="-">-</option></select>
+				</p>
+				<p id="box-regional" class="hide-box">
+					<b>Região:</b> <? print gui_render_select( "id_regiao" , $region_list , null, "-", 'id="id_regiao" class="select-box"' ) ; ?>
+				</p>
+				<p  id="box-capital" class="hide-box">
+					<b>Capital:</b> 
+					<? 
+					foreach(  $capital_list as $key => $value ){
+						$item_capital[$key] = $value{"label"} . "/" . $value{"uf"} ;
+					}
+					print gui_render_select( "id_capital" , $item_capital , null, "-", 'id="id_capital" class="select-box"' ) ; 
+					?>
+				</p>
+				<input type="hidden" name="localidade" value="-" />
+
+
+				</div>
+				
+				<p class="btn_generate_search"><input type="button" class="form-submit-search border-radius" id="generate_search_submit" name="Gerar Pesquisa" value="Gerar Pesquisa"/><br /><br /><span class="tip">* Sua pesquisa será gerada em outra janela, é aocnselhável desabilitar o bloqueador de Poup-up para este site.</span></p>
+				
+		</div>
+	</form>
+		
+</div>
+<br class="clean"/>
+<script language="javascript" charset="iso-8859-1" type="text/javascript"><!--
+var assunto				= new Array() ;	
+var abrangencia			= false ;
+var exists				= false ;
+var limit				= 1 ;
+
+$('#loading').ajaxStart(function() {
+	$(this).show();	
+	}).ajaxStop(function() {
+	$(this).hide();	
+});
+<?
+foreach( $list_assunto as $key => $value ){
+	print "assunto['". normalize_text( str_replace(" ", "_" , $key ) ) . '\'] = new Array("' . implode( '","' , $list_assunto{$key} ) . '") ;' ;
+}	
+?>
+function get_assunto( tema ){
+	
+	var list_assuntos = '<h2>2. Assunto</h2><ul>' ;
+	$.each(assunto[tema], function(){
+		var items = $(this)[0] ;
+		var items = items.split("|") ;
+		list_assuntos += '<li><a href="javascript:void(0);" onclick="get_indicadores(\'' + items[1] + '\');">' + items[0] + '</a></li>' ;
+	}) ;
+	list_assuntos += '</ul>' ;
+	$("#list-assuntos").html("") ;
+	$("#list-indicadores").html("") ;
+	$("#list-assuntos").html( list_assuntos ) ;
+	
+}
+function get_indicadores( id_indicador ){	
+		
+	$.get('<?=$base_url_site?>indicadores/assuntos/' + id_indicador + '?template=indicadores_list_selection&filter=maiores_menores', function(data){
+		$('#list-indicadores').html(data) ;
+	});
+	$("#list-assuntos ul li").click(function(){
+		$("#list-assuntos ul li").removeClass("highlited");
+		$(this).addClass("highlited");
+	}) ;		
+
+}
+
+function set_indicadores( item_id, titulo ){	
+	
+	$('#list-selected-indicadores li').remove();
+	var list_indicadores = $('#list-selected-indicadores li').length ;
+	var test = false ;
+	
+	if( list_indicadores < limit ){
+		$('#list-selected-indicadores li').each(function(){
+			if($(this).attr("id")==item_id){
+				exists = true ;
+			}
+		});
+		if(!exists){
+			var item = '<li id="' + item_id + '"><span class="selected_indicador-item">- ' + titulo + '</span><input id="indicadores" type="checkbox" class = "hide-box"  checked="checked" name="indicadores[]" value="' + item_id + '" /></li>' ;
+			$('#list-selected-indicadores').append( item ) ;
+			
+			if(  $('#selected-indicadores h2').css("display") == "none" ){
+				$('#selected-indicadores h2, #selected-indicadores p,  #list-abrangencia').show() ;
+			}
+			
+			$("#list-indicadores ul li").click(function(){
+				$("#list-indicadores ul li").removeClass("highlited");
+				$(this).addClass("highlited");
+			}) ;
+			
+		}
+		else{
+			alert("Item já adicionado! Selecione outro.") ;
+		}
+	}
+	else{			
+		alert("Você já selecionou " + limit + " indicador!") ;
+		$("#list-indicadores ul li").removeClass("highlited");
+	}
+}
+
+// enviar formulário
+$('#generate_search_submit').click(function(){
+	if( $("input[name='localidade']").val() == "-" ){
+		alert("Defina a Localidade para prosseguir!");
+		return false;
+	}
+	$('#generate_search').submit() ;
+}) ;
+
+// abrangencia
+$("input[name='abrangencia']").click(function(){
+	$("input[name='localidade']").attr( "value", "-" ) ;
+	$('.hide-box').hide();
+	abrangencia = $(this).val() ; 
+	$("#id_uf, #id_regiao, #id_capital").val("-") ;
+	$("#id_cidade").remove();
+	switch( $(this).val() ){	
+		case "municipal" :
+			$("#box-" + $(this).val() + ", #box-estadual" ).show() ;
+		break ;
+		case "capital" :			
+			$("#box-" + $(this).val() ).show();
+		break ;
+		default:
+			$("#box-" + $(this).val() ).show();
+		break ;
+	
+	}			
+});
+
+$('#id_capital, #id_cidade').change(function(){
+	selected_val = $(this).attr("value")  ;	
+	var _this = $(this) ;
+
+	_this.each(function () {		
+		var label_selected = $( _this, "option:selected" ).text() ;			
+		if( label_selected !="-" ){
+			set_localidade(  $(this).attr("value") ) ;
+		}
+	}) ;
+
+}) ;
+
+$('#id_uf').change(function(){		
+	var label_selected = $( "#id_uf option:selected" ).text() ;	
+	if( abrangencia == "municipal" && label_selected !="-" ){
+		$.get( "<?=$alias?>indicadores/cidades/" + $(this).attr("value") + "?template=select_box", function(data) { $('#box-municipal').html(data) ; }) ;
+	}
+	if( abrangencia == "estadual" ){				
+		set_localidade(  $(this).attr("value") ) ;
+	}
+});
+
+// setar localidade
+function set_localidade( value ){
+	$("input[name='localidade']").val( value ) ;
+}
+
+function verify_indicadores_ideb(){
+	var result = false ;
+	$("#indicadores:checked").each(function(){		
+		for( var i in indicadores_ideb ){
+			if( indicadores_ideb[i] == $(this).val() ){ 
+				result = true ;
+			}
+		}
+	});
+	return result ;
+	
+}
+
+//--></script>

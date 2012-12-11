@@ -1,0 +1,71 @@
+<?php
+/**
+* Classe videos
+* 
+* Classe para manipulação de videos
+* @author tamemiya 2011-03-16
+* @version 1.0
+*/
+class videos{
+	
+	var $userNameChannel = null ;
+	var $model = null ;
+	var $file_name = null ;
+	
+	public function __construct(){		
+		
+		$this->userNameChannel = YOUTUBE_CHANNEL ;
+		$this->file_name = ROOT_WEBSITE . "data/json/videos.json" ;
+	}
+	
+	public function set_video_list_feed(){
+
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;		
+		
+		$feedURL	= 'http://gdata.youtube.com/feeds/base/users/' . $this->userNameChannel . '/uploads?alt=rss&amp;v=2&amp;orderby=published&amp;client=ytapi-youtube-profile' ;
+		$sxml		= simplexml_load_file( $feedURL ) ;
+		
+		if( $sxml ){
+			$list = array() ;
+			$i = 0 ;
+			$list_vids = (array) $sxml->channel->item ;
+			foreach( $sxml->channel->item as $item ) {
+				$title	= (array)$item->title ; $list[$i]{"title"} = $title[0] ;
+				$url	= (array)$item->link ; $list[$i]{"url"} = $url[0] ;
+				preg_match( "/[^=]+.[&$]/",  $url[0] , $matches ) ;
+				$list[$i]{"thumb"} = "http://i.ytimg.com/vi/" . trim( $matches[0], "&" ) . "/1.jpg" ; // modelo: http://i.ytimg.com/vi/Bb2f84lz1Vo/3.jpg
+				$list[$i]{"player"} = "http://www.youtube.com/embed/" . trim( $matches[0], "&" ) ; // modelo: http://www.youtube.com/embed/v9PLzNj4zN8
+				$i++ ;
+			}
+			$list_videos = json_encode( $list ) ;
+			
+			$fp = fopen( $this->file_name, "w+" );
+			fwrite( $fp, $list_videos ) ;
+			fclose( $fp ) ;
+			return true ;
+		}
+		
+		return false ;
+		
+	}
+
+	public function get_video_list_feed(){     
+		
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+	
+		if( file_exists( $this->file_name ) && is_file( $this->file_name ) ){
+			// verificar cache se é necessário atualizar dados
+			$last_update_file = date( "d-m-Y H:i", filemtime( $this->file_name ) ) ;
+			if( diff_datetime( $last_update_file, date('Y-m-d H:i:s') ) > TIME_CACHE_VIDEOS ){
+				$this->set_video_list_feed() ;
+			}
+		}
+		
+		$content = file_get_contents( $this->file_name ) ;
+		return json_decode( $content ) ;				
+	}
+	
+}
+?>

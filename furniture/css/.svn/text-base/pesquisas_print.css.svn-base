@@ -1,0 +1,76 @@
+body{
+	margin:0px;
+	padding:0px;
+	font:11px Verdana;
+}
+#main{
+	border-bottom: 1px solid #CCCCCC;
+	border-left: 1px solid #CCCCCC;
+	border-right: 1px solid #CCCCCC;
+	margin: -5px auto 0;
+	padding: 20px;
+	text-align: left;
+	width: 919px;
+}
+
+#info-indicador{
+	width:600px;
+	min-height:100px;
+}
+#container-search ul li.aba-indicador{
+	width:230px;	
+	cursor:pointer;
+	margin:0px;
+	margin-bottom:5px;
+	min-height:27px;
+}
+
+.simple-column-right{
+	display:none;
+}
+table#main-grid{
+	margin-top:20px;
+}
+table#main-grid, table#main-grid tr td{
+	border-collapse:collapse;
+	color:#333;	
+	border:1px solid #CCC;
+}
+.indicador-color-marker{
+	font-weight:bold;
+	font-size:18px;
+	line-height:auto;
+	float:left;
+	width:20px;
+}
+#icn-indicadores{
+	width:183px;
+	height:116px;
+	float:right;
+	background:url('../images/trj-indicadores.png') no-repeat;
+}
+p.list-name-item{
+	float:right;
+	margin:0px;
+	padding:0px;
+	width:85%;
+}
+ul.list-localidades-label{
+	width:200px;
+	margin:0px;
+	margin-top:10px;
+}
+ul.list-localidades-label li{
+	margin:0px;
+	margin-bottom:5px;
+}
+.indicadores-titles{
+	width:90% !important;
+	float:right;
+}
+#TB_overlay, #TB_window, #hiddenModalContent{
+	display:none !important;
+}
+.simple-column-left{
+	width:100%;
+}

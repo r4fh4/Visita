@@ -1,0 +1,100 @@
+	<div class="divisor"></div>
+</div>
+			<!-- /CONTENT -->
+			<!-- FOOTER -->
+			<div id="footer">
+				<div id="footer-box-links">
+					<div class="column1"><p><a href="#">Conheça toda a legislação estadual clicando aqui</a></p></div>
+					<div class="column2"><p><a href="#">Um resumo mensal das ações governamentais</a></p></div>
+					<div class="column3"><p><a href="#">Arquivo das principais publicações estaduais</a></p></div>
+					<div class="column4"><p><a href="#">Converse diretamente com o Governador e Secretários</a></p></div>
+					<div class="column5">
+						<p>
+							<a href="<?=$alias?>temp/?page=redes" class="facebook"></a>
+							<a href="<?=$alias?>temp/?page=redes"class="orkut"></a>
+							<a href="<?=$alias?>temp/?page=redes" class="twitter"></a>
+							<a href="<?=$alias?>temp/?page=redes" class="youtube"></a>
+						</p>
+					</div>
+				</div>
+				
+				<div class="divisor"></div>
+				
+				<div id="footer-box">
+					<div class="column1">
+						<ul>
+							<li><a href="#">Notícias</a></li>
+							<li><a href="#">TV Portal</a></li>
+							<li><a href="#">Rádio Portal</a></li>
+							<li><a href="#">Assesoria de Imprensa</a></li>
+						</ul>
+					</div>
+					<div class="column2">
+						<form>
+							Faça seu cadastro para receber notícias do portal.
+							<br class="divisor" />
+							<br class="divisor" />
+							<label><input type="text" class="input" name="nome" value="Escreva seu nome" /><br /><input class="input" type="text" name="e-mail" value="Escreva seu e-mail" /></label>
+							<label><select class="input select"  name="estado"><option value="">Estado</option></select><br /><select class="input select" name="estado"><option value="">Cidade onde reside</option></select></label>
+							<label><input type="text" class="input cep" name="nome" value="CEP" /><br /><input type="submit" class="submit-button home-cadastrar-button" name="cadastrar" value="Cadastrar" /></label>							
+						</form>
+					</div>
+					<div id="slider-footer" class="column3">
+						<img src="<?=$furniture_directory?>imagesv2/slider-footer-1.jpg" width="180" height="120" class="slider-active" />
+						<img src="<?=$furniture_directory?>imagesv2/slider-footer-2.jpg" width="180" height="120" />
+						<img src="<?=$furniture_directory?>imagesv2/slider-footer-3.jpg" width="180" height="120"/>
+					</div>
+					<br class="divisor" />
+					<p>Governo do Estado de São Paulo</p>
+				</div>
+				
+			</div>
+		</div>	
+<script language="javascript" type="text/javascript"><!--
+$(document).ready(function(){
+	/*  slider home */
+	var elements = $("#list-infografico-home li").length ;
+	var init_counter = 1 ;
+	var value_to_scroll = 360;
+
+	$("#right-button-controller").click(function(){
+		if( init_counter < elements ){
+			init_counter++;
+			$(".block-infografico-home").animate({"left": "-=" + value_to_scroll + "px"}, 1000);	
+			$('#left-button-controller').css("visibility","") ;
+		}
+		if( init_counter== elements ){
+			return false ;
+		}
+	});
+
+	$("#left-button-controller").click(function(){
+		if( init_counter > 1 ){
+			init_counter = init_counter-1 ;
+			$(".block-infografico-home").animate({"left": "+=" + value_to_scroll + "px"}, 1000);	
+			$('#right-button-controller').css("visibility","") ;
+		}
+		if( init_counter == 1 ){
+			return false ;
+		}
+	});
+		
+	/* slider footer */
+	setInterval( "slideSwitch()", 5000 );	
+	
+});
+
+function slideSwitch() {
+    var $active = $('#slider-footer img.slider-active') ;
+    if ( $active.length == 0 ) $active = $('#slider-footer img:last') ;
+    var $next =  $active.next().length ? $active.next() : $('#slider-footer img:first') ;
+    $active.addClass('last-active') ;
+
+    $next.css({opacity: 0.0}).addClass('slider-active').animate({opacity: 1.0}, 1000, function() {
+            $active.removeClass('slider-active last-active');
+     });
+}
+
+//--></script>		
+	</body>
+</html>

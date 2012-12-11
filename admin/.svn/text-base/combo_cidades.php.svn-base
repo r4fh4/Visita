@@ -1,0 +1,12 @@
+<?
+require_once("scripts/init.php") ;
+
+if( get_vars("id_uf") && get_vars("id_uf") != "-" ){
+
+	foreach( list_cidades( false, get_vars("id_uf") ) as $key => $value ){
+		$item_cidade[ $key ] = $value{"nm_cidade"} ;
+	}
+	echo "<b>Cidade*:</b><br />" . gui_render_select( "id_cidade" , $item_cidade , ( $user_info[0]{"id_cidade"} ? $user_info[0]{"id_cidade"} : null ) ) ;
+
+}
+?>

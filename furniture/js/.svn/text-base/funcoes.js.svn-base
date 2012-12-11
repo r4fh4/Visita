@@ -1,0 +1,244 @@
+// comportamento do menu
+$(document).ready(function(){	
+		 // # menu de navegação da ADM
+		 var items_menu = $("#header-adm ul > li") ;
+		 
+		 // on click
+		 items_menu.click(function(){
+			
+			if( !$(this).hasClass( "selected" ) ){
+				items_menu.removeClass( "selected" );
+				$(this).addClass( "selected" );			
+			}
+			
+		 // on mouseover
+		 }).mouseover(function(){
+			
+			if( !$(this).hasClass( "mouseover" ) ){
+				$(this).addClass( "mouseover" );
+			}
+			
+		 // on mouseout
+		 }).mouseout(function(){
+			
+			$(this).removeClass( "mouseover" );	
+			
+		 });
+		 
+		 // # Grid default da ADM
+		 var list_table = $("table tbody > tr");
+		 $.each(list_table, function(i) {
+
+		 $(this).mouseover(function(){
+			if($(this).hasClass("ops") ){
+				$(this).removeClass("ops");			
+			}
+			$(this).addClass("mouseover-grid");
+		 }).mouseout(function(){
+			if($(this).hasClass("mouseover-grid")){
+				$(this).removeClass("mouseover-grid");
+				if( eval(i%2) == 1 ){
+					$(this).addClass("ops");
+				}
+			}
+		 });
+		 
+		 
+		});
+
+		// funcoes do player de audio
+		$('#embed-button').click(function(){
+			if($('#embed').css("display")=="none"){
+				$('#embed').css("display", "block");
+			}
+			else{
+				$('#embed').css("display", "none");
+			}
+		});
+		$('#embed').click(function(){
+			$(this).select();
+		});
+
+		
+		 /*  slider home */
+		var elements = $("#list-infografico-home li").length ;
+		var init_counter = 1 ;
+		var value_to_scroll = 353 ;
+
+		$("#right-button-controller").click(function(){
+			if( init_counter < elements ){
+				init_counter++;
+				$(".block-infografico-home").animate({"left": "-=" + value_to_scroll + "px"}, 1000);	
+				$('#left-button-controller').css("visibility","") ;
+			}
+			if( init_counter== elements ){
+				return false ;
+			}
+		});
+
+		$("#left-button-controller").click(function(){
+			if( init_counter > 1 ){
+				init_counter-- ;
+				$(".block-infografico-home").animate({"left": "+=" + value_to_scroll + "px"}, 1000);	
+				$('#right-button-controller').css("visibility","") ;
+			}
+			if( init_counter == 1 ){
+				return false ;
+			}
+		});
+
+		
+		setInterval( "slideSwitch()", 5000 );
+
+	 
+});
+
+function tools( action, url, title, description ){
+	
+	switch(action){
+		
+		case 'big-text' : 
+			var current_font_size = $('.texto').css('font-size') ;
+	
+			if( current_font_size == '11px' ){				
+				$('.autor, .title, .texto').css('font-size', '14px' ) ;
+			}
+			else{
+				$('.autor, .texto').css('font-size', '11px' ) ;
+				$('.title').css('font-size', '12px' ) ;
+			}			
+		break ;
+		
+		case 'facebook' : window.open( "http://www.facebook.com/sharer.php?&u=" + url + "&t=" + title, "_blank" ) ;	break ;
+		
+		case 'orkut' : window.open( "http://promote.orkut.com/preview?nt=orkut.com&tt=" + title + "&du=" + url, "_blank" ) ; break ;
+		
+		case 'twitter' : window.open( "http://twitter.com/home?status=" + title + ":+" + url, "_blank" ) ; break ;
+		
+		case 'gmail' : window.open( "http://www.google.com/bookmarks/mark?op=edit&output=popup&bkmk=" + url + "&title=" + title + "&annotation=" + description, "_blank" ) ; break ;
+		
+		case 'linkedin': window.open( "http://www.linkedin.com/shareArticle?mini=true&url=" + url + "&title=" + title + "&summary=" + description, "_blank" ) ; break ;
+		
+		case 'open-mail' :
+			
+			var  box_state = $( "#box-send-mail" ).css( "display" ) ;
+			if( box_state == "none" ){				
+				$("#box-send-mail").css( "display", "block" ) ;
+				$("input[name='your-name']").val("") ;
+				$("input[name='your-mail']").val("") ;
+				$("input[name='mails']").val("") ;
+				$('.result-mail').html("");
+			}
+			else{
+				tools('close-mail') ;
+			}
+			
+		break ;
+		
+		case 'close-mail' :
+			$("input[name='your-name']").val("") ;
+			$("input[name='your-mail']").val("") ;
+			$("input[name='mails']").val("") ;
+			$('.result-mail').html("");
+			$("#box-send-mail").css( "display", "none" ) ;
+		break ;
+		
+		case 'send-mail' :
+			$.ajax({  
+			  type: "POST" ,  
+			  cache: false ,
+			  url: url ,  
+			  data: $("#send-mail").serialize() ,  
+			  success: function( data ) {  
+				$('.result-mail').html( data ) ;
+				var matches = data.match(/#7BBA71/g) ;
+				if( matches ){
+					if($('#hiddenSubmitContent').is('div')){
+						$('#TB_closeWindowButton').click();
+					}
+					$('#box-send-mail').delay(1000).hide( 1000 );
+				}				
+			  }  
+			}) ;
+			
+
+			return false ; 		
+			
+		break ;
+		
+		case 'print' : 
+			$('#container-print').attr('src', url);
+		break ;
+		
+	}
+	
+	
+
+	
+}
+
+noticias={};
+noticias.setDHTML=function(){
+		$('.buttonPesquisa').click(function(){
+			noticias.pesquisar.submit();
+		});
+		
+		$('#search').keyup(function(event){
+			noticias.pesquisar.verificaTecla(event);
+		});
+		
+		$('.buttonPesquisaTema').click(function(){
+			noticias.pesquisar.submit(true);
+		});
+};
+
+noticias.pesquisar={
+	verificaTecla:function(e) {
+		if(e.keyCode == 13) {
+			noticias.pesquisar.submit();
+		}
+	},
+	
+	submit:function(noSearch) {
+		var	value = noSearch ? $('#tema option:selected').val() : $('#search').val();		
+		if(!noSearch && value.length >= 3)
+			location.href = '?search='+value;
+		else if(value > 0)
+			location.href = '?categoria='+value;
+	}
+};
+
+function slideSwitch() {
+    var $active = $('#rotate IMG.active');
+
+    if ( $active.length == 0 ) $active = $('#rotate IMG:last');
+
+    var $next =  $active.next().length ? $active.next()
+        : $('#rotate IMG:first');
+
+    $active.addClass('last-active');
+
+    $next.css({opacity: 0.0})
+        .addClass('active')
+        .animate({opacity: 1.0}, 1000, function() {
+            $active.removeClass('active last-active');
+        });
+}
+
+function barHomeContent( text_list, element ){
+	var list_content = text_list ;
+	$( element + " span" ).hide().text( list_content[ Math.floor( 3 * Math.random()) ] ).fadeIn();
+}
+var list	= new Array( 'São Paulo: Um Governo inteiro ao seu alcance', 'ações governamentais', 'divulgação nas mídias sociais' ) ;
+var list2	= new Array( 'Acesso e Transparência: Um compromisso de Governo', 'Acompanhe em infográficos', 'planejamento municipal' ) ;
+setInterval( "barHomeContent( list, '#submenu' )", 6000 );
+setInterval( "barHomeContent( list2, '#submenu2' )", 6000 );
+changeFont=function(opt){
+	var	size = $('body').css('font-size').split('px'),
+		tam = size[0];
+	if(opt == 'max' && tam < 12)
+		$('body').css('font-size',(parseFloat(tam)+1)+'px');
+	if(opt == 'min' && tam > 10)
+		$('body').css('font-size',(parseFloat(tam)-1)+'px');
+}
+

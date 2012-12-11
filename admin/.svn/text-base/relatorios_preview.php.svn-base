@@ -1,0 +1,33 @@
+<?php
+require_once( "scripts/init.php" ) ;
+
+// checar acesso a pagina
+get_page_access() ;
+
+$relatorio = new relatorios ;
+
+// id inválido
+if( get_vars("id") ){
+
+	$relatorio_info = array();
+	$relatorio_info = $relatorio->get_relatorio_info( get_vars("id") ) ;	
+	if(!$relatorio_info ){
+		redir_page( "relatorios_listar.php" ) ;
+		exit();
+	}
+	else{	
+		include( $template_directory . "header_preview.inc.php" ) ;	
+		
+		include( $template_directory . "relatorios_preview.inc.php" ) ;
+		//fechar conexao
+		$connection->desconnect() ;
+		include( $template_directory . "footer_preview.inc.php" ) ;	
+	}
+}
+else{
+	redir_page( "relatorios_listar.php" ) ;
+	exit();
+}
+
+?>
+

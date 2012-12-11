@@ -1,0 +1,11 @@
+<h2 class='title'><?php echo htmlspecialchars($result[0]['titulo']); ?></h2>
+<br />
+<span class='tip autor'><?php echo convert_data($result[0]['dt_criacao']); ?> <?=( $result[0]['autor'] ? " - Autor: ".$result[0]['autor'] : "" )?></span>
+<br /><br />
+<?
+	$image_item = explode( "|", htmlspecialchars( $result[0]['imagem'] ) ) ;
+	$image_url = $images_directory . $image_item[0] . "-230x156.jpg" ;
+	$image_credit = $image_item[1] ;
+	echo '<p class="imagem-destaque"><img src="' . $image_url . '" alt="' . $image_credit . '" title="' . $image_credit . '" /></p>' ;
+	echo html_entity_decode($result[0]['texto']);
+?>

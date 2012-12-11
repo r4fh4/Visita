@@ -1,0 +1,82 @@
+<link rel="alternate" title="<?=$website_name?> Últimas Notícias" href="<?=$base_url_site . "noticias/rss"?>" type="application/rss+xml" />
+<script type="text/javascript">
+	$(document).ready(function(){
+		noticias.setDHTML();
+	});
+</script>
+<h1 class="breadcrumb">Notícias</h1>
+<div id="columnLeft550" class='leftFull'>
+	<button class='boxMarrom'>Pesquise no Site</button>
+	<br /><br />
+	<div id="boxPesquisa" class='clean'>
+		<div id="searchCat">
+			<b>DEFINE UM TEMA</b>
+			<br /><br />
+			<div class='subTitle'>Selecione as notícias que deseja ler por tema.<br />Ex.: Educação, Saúde, etc</div>
+			<br /><br />
+			<select name="tema" id="tema" class='campoTexto'>
+				<option value='0'>Selecione ... </option>
+				<?php foreach($categorias as $opt) { ?>
+					<option value='<?php echo $opt['id_subcategoria']; ?>' <?php echo ($cat == $opt['id_subcategoria'] ? 'selected="selected"' : ''); ?> >
+						<?php echo htmlspecialchars($opt['ds_subcategoria']); ?>
+					</option>
+				<?php } ?>
+			</select>
+			<br />
+			<button type="button" class="buttonPesquisaTema" title="Pesquisar">enviar</button><br />			
+		</div>
+		<div id="searchName">
+			<b>PALAVRA-CHAVE</b>
+			<br /><br />
+			<div class='subTitle'>Escreva um nome, uma frase, faça combinações.<br />Ex.: criança+violência.</div>
+			<br /><br />
+			<input name="search" id="search" type="text" class='campoTexto'>
+			<br />
+			<button type="button" class="buttonPesquisa" title="Pesquisar">enviar</button>
+			<br /><br /><a href="<?=$base_url_site?>noticias/listar">Limpar filtros</a>
+		</div>
+	</div>
+	<br class='clean'/>
+	<div id="result">
+		<button class='boxMarrom'>Resultado da Pesquisa</button>
+		<ul id="searchNews">
+			<?php if($records) {
+				foreach($records as $lista) { ?>
+					<li>
+						<span class="box-data-news"><?=date("d/m", htmlspecialchars( strtotime( $lista['dt_criacao'] ) ) ) ?></span>
+						<span class="box-title-news">
+						<a href="<?=$base_url_site . "noticias/" . $lista['id_noticia'] . '-' . normalize_text( htmlspecialchars( $lista['titulo'] ), true );?>"><?=htmlspecialchars($lista['titulo']); ?></a>
+						</span>	
+						<br class="clean" />
+					</li>
+				<?php }
+			} else { ?>
+				<div class='error'>A Pesquisa não encontrou nenhum resultado, tente novamente.</div>
+			<?php } ?>
+		</ul>
+		<br /><br />
+		<div id="paginate"><? print render_paginate( $page , $total_pages , $url , $results_per_page ); ?></div>
+	</div>
+</div>
+<div id="columnRight350">
+	<ul id="lastItens">
+		<?php if( $list ) {
+			foreach($list as $key=>$lista) { 
+				if( $key > 3 ) continue ;
+				
+				$image_item = explode( "|", htmlspecialchars( $lista['imagem'] ) ) ;
+				$image_url = $images_directory . $image_item[0] . "-120x90.jpg" ;
+				$image_credit = $image_item[1] ;
+				
+		?>
+				<li id="n<?php echo $lista['id_noticia']; ?>">
+					<a href="<?=$base_url_site . "noticias/" . $lista['id_noticia'] . '-' . normalize_text( htmlspecialchars( $lista['titulo'] ), true );?>"><img src="<?=$image_url?>" alt="<?=$image_credit?>" title="<?=$image_credit?>" /></a>
+					<div class='lista'>
+						<div class="lista-title"><a href="<?=$base_url_site . "noticias/" . $lista['id_noticia'] . '-' . normalize_text( htmlspecialchars( $lista['titulo'] ), true );?>" title="<?=htmlspecialchars($lista['titulo'])?>"><b><?=htmlspecialchars($lista['titulo'])?></b></a></div>
+						<div class="lista-chamada"><a href="<?=$base_url_site . "noticias/" . $lista['id_noticia'] . '-' . normalize_text( htmlspecialchars( $lista['titulo'] ), true );?>"><?php echo htmlspecialchars($lista['chamada']); ?></a></div>
+					</div>
+				</li>
+			<?php }
+		} ?>
+	</ul>
+</div>

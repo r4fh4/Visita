@@ -1,0 +1,23 @@
+.btn-user{
+	background-color: #333;
+	color: #BBB;
+	border-radius: 3px;
+	cursor: pointer;
+	font-size: 11px;
+	font-weight: bold;
+	width: 350px;
+	border: 0;
+	height: 50px
+}
+
+.green{
+	background-color: #1A4625
+}
+
+.gray{
+	background-color: #999
+}
+
+#menu-list li{
+	margin-bottom: 20px
+}

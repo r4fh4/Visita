@@ -1,0 +1,77 @@
+
+<h1 class="breadcrumb">Busca</h1>
+<div id="box-search">
+	<br />
+	<form  name="search_form" id="search_form" method="GET" action="<?=$alias?>busca">
+		Digite o termo desejado aqui: <input type="hidden" name="type_search" value="<?=$type_search?>" />
+		<input type="text" class="campoContato" name="q" value="<?=( get_vars("q") ? htmlspecialchars(get_vars("q")) : "" )?>" />
+		<input id="search_button" class="search-btn" type="button" name="buscar" value="buscar" />
+	</form>	
+	<br class="clean" />
+	<ul id="search-abas">
+		<li id="noticias">Notícias</li>
+		<li id="arquivos">Arquivos</li>
+		<li id="audios">Áudios</li>
+	</ul>
+	<div id="result-search">
+		<?if( $result_list ) {?>
+		<h2><?=count($result_list) . " de " . $r[0]{"c"}?> resultados encontrados.</h2>
+			<ul id="search_list">
+			<? foreach( $result_list as $lista ) { ?>
+					<? /* NOTICIAS */ if( $type_search=="noticias" ){?>
+					<li>
+						<span class="box-data"><?=date("d/m/Y", htmlspecialchars( strtotime( $lista['dt_criacao'] ) ) ) ?></span>
+						<span class="box-title">
+						<a href="<?=$base_url_site . "noticias/" . $lista['id_noticia'] . '-' . normalize_text( htmlspecialchars( $lista['titulo'] ), true );?>"><b><?=eregi_replace( "(" . str_replace( '"', '', get_vars("q") ) . ")", '<span class="marked-term-search">\\1</span>', htmlspecialchars( $lista['titulo'] ) ); ?></b></a>
+						<br />
+						<a href="<?=$base_url_site . "noticias/" . $lista['id_noticia'] . '-' . normalize_text( htmlspecialchars( $lista['titulo'] ), true );?>"><?=eregi_replace( "(" . str_replace( '"', '', get_vars("q") ) . ")", '<span class="marked-term-search">\\1</span>', htmlspecialchars($lista['chamada'] ) ); ?></a>
+						</span>	
+						<br class="clean" />
+					</li>
+					<? /* ARQUIVOS */ }else if( $type_search=="arquivos" ){?>
+					<li>
+						<span class="box-data"><?=date("d/m/Y", htmlspecialchars( strtotime( $lista['dt_criacao'] ) ) ) ?></span>
+						<span class="box-title">
+						<a href="<?=$files_directory . $lista['file_name'] ?>" target="_blank" title="<?=htmlspecialchars($lista['titulo_arquivo']); ?>"><b><?=eregi_replace( "(" . str_replace( '"', '', get_vars("q") ) . ")", '<span class="marked-term-search">\\1</span>', htmlspecialchars( $lista['titulo_arquivo'] ) ); ?></b></a> <span class="tip">(<?=htmlspecialchars($lista['type'])?>)</span>
+						<br />
+						<a href="<?=$files_directory . $lista['file_name'] ?>" target="_blank" title="<?=htmlspecialchars($lista['titulo_arquivo']); ?>"><?=eregi_replace( "(" . str_replace( '"', '', get_vars("q") ) . ")", '<span class="marked-term-search">\\1</span>', htmlspecialchars( $lista['legenda_arquivo'] ) ); ?></a>
+						</span>
+						<br class="clean" />
+					</li>
+					<? /* AUDIOS */ }else if( $type_search=="audios" ){?>
+					<li>
+						<span class="box-data"><?=date("d/m/Y", htmlspecialchars( strtotime( $lista['dt_criacao'] ) ) ) ?></span>
+						<span class="box-title">
+						<a href="<?=$base_url_site . "audios/" . $lista['id_audio'] . '-' . normalize_text( htmlspecialchars( $lista['titulo_audio'] ), true );?>"><b><?=eregi_replace( "(" . str_replace( '"', '', get_vars("q") ) . ")", '<span class="marked-term-search">\\1</span>', htmlspecialchars( $lista['titulo_audio'] ) ); ?></b></a>
+						<br />
+						<a href="<?=$files_directory . $lista['file_name'] ?>" target="_blank" title="<?=htmlspecialchars($lista['titulo_arquivo']); ?>"><?=eregi_replace( "(" . str_replace( '"', '', get_vars("q") ) . ")", '<span class="marked-term-search">\\1</span>', htmlspecialchars( $lista['legenda_audio'] ) ); ?></a>
+						</span>	
+						<br class="clean" />
+					</li>
+					<?}?>				
+				<?}?>
+				</ul>
+			<?}else if( $q && !$result_list ) { ?>
+				<p><b>A Busca não encontrou nenhum resultado em "<?=$title_type_search?>". Dica: use no mínimo 4 caracteres para a sua busca.</b></p>
+			<?}else{ ?>
+				<p><b>Digite um termo no formulário acima para buscar.</b></p>
+			<?}?>
+		
+		<?if( $result_list ) {?><div id="paginate"><? print render_paginate( $page , $total_pages , $url , $results_per_page ); ?></div><?}?>
+	</div>
+</div>
+<script language="javascript" type="text/javascript">
+$(document).ready(function(){
+	$("#<?=$type_search?>").addClass("type_search_selected");
+	$("#search_button").click(function(){
+		$("#search_form").submit() ;
+	});
+	$("#search-abas li").each(function(){		
+		$(this).click(function(){
+			var type_search = $(this).attr("id");
+			$("input[name='type_search']").val(type_search);
+			$("#search_form").submit() ;
+		});		
+	});	
+});
+</script>

@@ -1,0 +1,54 @@
+	<div class="detail-images"><span id="title-info-thumb-page" class="tip">(Clique na imagem para ver seus dados)</span><input type="button" class="close-clean" name="close-clean" value="limpar/fechar" onclick="clean_box_image();" /></div>
+	<div style="clear:both;"></div>
+	<div class="search-images">
+	<?
+	$selected_categ = ( get_vars("categoria-img") ? get_vars("categoria-img") : null ) ;
+	$list_categ = $image_category_list ;	
+	$item_categ = array() ;
+	foreach( $list_categ as $key => $value ){
+		$item_categ{$key} = $value ;		
+	}
+	print  "<b>Categoria: </b>" . utf8_encode( gui_render_select( "categoria-img" , $item_categ , ( $selected_categ ? $selected_categ : null ) , "-", 'id="categoria" onchange="javascript:$(\'#categ\').val(this.value);"' ) ) ;
+	?>
+	<input type="text" value="<?=utf8_encode(htmlspecialchars(get_vars("search_content")))?>" class="input_search" name="search_content" size="6" />
+	<input type="hidden" name="categ" id="categ" value="-" />
+	<input type="button" name="search" onclick="javascript:reload_paginate( 'imagens_thumb_listar.php?search_content=' + $('.input_search').val() + '&categoria='+ $('#categ').val() );" value="buscar" />
+	<input type="button" name="search" onclick="javascript:reload_paginate( 'imagens_thumb_listar.php' );" value="limpar" />
+	</div>
+	<div style="clear:both;"></div>
+	<div id="paginate"><? print render_paginate( $page , $total_pages , $url , $results_per_page, "", false, false, true, "" ); ?></div>
+	<div style="clear:both;"></div>
+	<div class="grid-images">
+		<div style="width:529px;height:330px;">
+		<?
+		if( $records ){
+			$i = 0 ;			
+			$user = new user ;
+			foreach( $records as $item ){
+			
+				$credito = str_replace("'","\'",utf8_encode( htmlspecialchars( $item{"credito_imagem"} ) ) ) ;
+				$legenda = str_replace("'","\'",utf8_encode( htmlspecialchars( $item{"legenda_imagem"} ) ) ) ;
+				?>
+				<p class="image_container">
+					<a href="javascript:get_item( '<?=htmlspecialchars($item{"id_imagem"})?>', '<?=$credito?>', '<?=$legenda?>' );void(0);" class="image_item" title="<?=utf8_encode(htmlspecialchars($images_directory . $item{"id_imagem"}))?>"><img src="<?=htmlspecialchars($images_directory . $item{"id_imagem"})?>-120x90.<?=$default_image_format?>" title="<?=utf8_encode(htmlspecialchars($item{"legenda_imagem"}))?>" alt="<?=utf8_encode(htmlspecialchars($item{"legenda_imagem"}))?>"/>
+					</a>
+				</p>
+				<?
+			}
+		}
+		else{
+			?><p><b>Nenhum resultado encontrado para a busca.</b></p><?
+		}
+		?>
+		</div>
+	</div>
+	<div id="paginate"><? print render_paginate( $page , $total_pages , $url , $results_per_page, "", false, false, true, "" ); ?></div>
+	<div style="clear:both;"></div>
+	<script language="javascript" type="text/javascript"><!--
+	$(document).ready(function(){
+		if( $( "#float-box-images", window.opener ).length ){
+			$("#title-info-thumb-page").text('<?=utf8_encode("Clique na imagem para adicionar ao álbum")?>') ;
+		}		
+	});
+	//-->
+	</script>

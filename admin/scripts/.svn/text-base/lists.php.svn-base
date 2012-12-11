@@ -1,0 +1,59 @@
+<?php
+// lista com tamanhos de imagens
+$image_custom_sizes = array(
+	"original"	=> array ( "sufix" => "-original", "desc" => "Tam. original" ) ,
+	"230x156"	=> array ( "sufix" => "-230x156", "w" => "230", "h" => "156", "desc" => "Dest. médio" ) ,
+	"250x170"	=> array ( "sufix" => "-250x170", "w" => "250", "h" => "170", "desc" => "Dest. médio 02" ) ,
+	"120x90"	=> array ( "sufix" => "-120x90" , "w" => "120", "h" => "90", "desc" => "Dest. pequeno" ) ,
+	"510x300"	=> array ( "sufix" => "-510x300", "w" => "510", "h" => "300", "desc" => "Tam. grande" ) ,
+) ;
+
+// Lista de páginas
+$admin_pages = array(
+	"administracao"			=> "administracao" ,
+	"administracao_listar"	=> "administracao" ,
+	"administracao_usuario"	=> "administracao" ,
+	"noticias"				=> "noticias" ,
+	"noticias_listar"		=> "noticias" ,
+	"imagens"				=> "imagens" ,
+	"imagens_listar"		=> "imagens" ,
+	"audios"				=> "audios" ,
+	"audios_listar"			=> "audios" ,
+	"arquivos"				=> "arquivos" ,
+	"arquivos_listar"		=> "arquivos" ,
+	"segmentos"				=> "segmentos" ,
+	"segmentos_listar"		=> "segmentos" ,
+	"programas"				=> "programas" ,
+	"programas_listar"		=> "programas" ,
+	"relatorios"			=> "relatorios" ,
+	"relatorios_listar"		=> "relatorios" ,
+) ;
+
+// Lista de Mimes permitidos
+$list_mime = array(
+	"application/vnd.ms-excel" => "xls",
+	"application/msword" => "doc" ,
+	"application/pdf" => "pdf" , 
+	"application/octet-stream" => "pdf" ,
+	"application/vnd.ms-powerpoint" => "ppt", 
+	"audio/mpeg" => "mp3" ,
+) ;
+
+// lista de categorias de imagens
+$image_category_list = array(
+	"1"	=> "Outros" ,
+	"2"	=> "Eventos" ,
+	"3"	=> "Gráficos" ,
+	"4"	=> "Logotipos" ,
+	"5"	=> "Mapas" ,
+	"6"	=> "Retrato" ,
+	"7"	=> "Símbolos"
+) ;
+
+// lista de categorias de imagens
+$audio_category_list = array(
+	"1"	=> "Outros" ,
+	"2"	=> "Eventos" ,
+	"3"	=> "Comunicados" ,
+) ;
+?>

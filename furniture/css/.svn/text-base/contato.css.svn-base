@@ -1,0 +1,8 @@
+/*
+Contato CSS
+author: rafhael 2011-04-14
+*/
+.campoContato{
+	background-color:#FDFAF0;
+	border:1px solid #CCC
+}

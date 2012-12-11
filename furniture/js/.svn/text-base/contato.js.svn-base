@@ -1,0 +1,21 @@
+contato={};
+
+contato.setDHTML=function(){
+	$('.buttonPesquisa').click(function(){
+		var	nome = $('#nome').val(),
+			email = $('#email').val(),
+			assunto = $('#assunto').val(),
+			mens = $('#mensagem').val(),
+			param = {action: 'checkSignIn', nome: nome, email: email, assunto: assunto, mensagem: mens};
+		$.getJSON('tools.php',param,function(result){
+			$('.campoErro').addClass('campoContato').removeClass('campoErro');
+			if(result == 'submit') {
+				alert('Mensagem enviada com sucesso!');
+				$('input,textarea').val('');
+			} else {
+				alert(result['erro']);
+				$('#'+result['campo']).focus().removeClass('campoContato').addClass('campoErro');
+			}			
+		});
+	});
+};

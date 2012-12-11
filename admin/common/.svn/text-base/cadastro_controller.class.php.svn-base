@@ -1,0 +1,176 @@
+<?
+class cadastro_controller{
+	
+	public $model = null ;
+	
+	public function  __construct(){
+		session_start() ;
+		$this->model = new cadastro ;
+		
+	}
+	
+	public function index(){
+	
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		if( get_vars("email-send") ){
+			header( "Location: " . $base_url_site ) ;
+			header("Content-Length: 0") ;
+			exit();
+		}
+		
+		//requer autenticação
+		$user_info = $this->model->execute_authentication( get_vars( "target_redirect" ) ) ;
+		
+		if( !$user_info ){
+			$_SESSION{"error_message"} = "Acesso restrito!." ;
+			header( "Location: " . $base_url_site . "login?redirect=" . get_vars( "target_redirect" ) ) ;
+			header("Content-Length: 0") ;
+			exit();
+		}		
+		else{
+			header( "Location: " . $base_url_site . get_vars( "target_redirect" ) ) ;
+			header("Content-Length: 0") ;
+			exit();
+		}		
+	}
+	
+	public function authenticate( $target_redirect = null ){
+		
+		$user_info = $this->model->execute_authentication( ( $target_redirect ? $target_redirect : null ) ) ;
+		
+		if( !$user_info ){
+			$_SESSION{"error_message"} = "Acesso restrito!." ;
+			header( "Location: " . $alias . "login?target_redirect=" . ( $target_redirect ? $target_redirect : null ) ) ;
+			header("Content-Length: 0") ;
+			exit();
+		}
+		return true ;		
+	}
+	
+	public function login_system(){
+	
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		include( $template_directory . "header.inc.php" ) ;
+		include( $template_directory . "login.inc.php" ) ;
+		include( $template_directory . "footer.inc.php" ) ;		
+		$connection->disconnect() ;	
+		
+	}
+	
+	public function logout_system(){
+		
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		$this->model->logout() ;
+	}
+	
+	public function password_remember(){
+		
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		$default_message = '<h3>Redefinir senha</h3><p>Digite seu e-mail e clique em "enviar" para redefinir sua senha.</p>' ;
+		$state = "begin" ;
+		
+		// se o campo hidden foi enviado redireciono para a HOME 
+		if( get_vars("ok") && get_vars("email-send") ){
+			header( "Location: " . $base_url_site ) ;
+			header("Content-Length: 0") ;
+			exit();
+		}
+		// se nao digitou o email
+		if( get_vars("ok") && !get_vars("email") ){
+			if( !isset($_SESSION{"error_message"}) ){
+				$_SESSION{"error_message"} = "Campo e-mail é obrigatório!" ;
+			}
+		}
+		// se digitou email
+		if( get_vars("ok") && get_vars("email") && !get_vars("email-send") ){
+			
+			//se o email nao existe na base
+			if(!check_email( get_vars("email") )){
+				if( !isset($_SESSION{"error_message"}) ){
+					$_SESSION{"error_message"} = "E-mail digitado não é válido!" ;
+				}
+			}
+			//se existe
+			else{
+				$results = $this->model->recover_password( get_vars("email") ) ;
+				if( !$results ){
+					if(!isset($_SESSION{"error_message"})){
+						$_SESSION{"error_message"} = "E-mail digitado não consta em nossa base de dados!" ;
+					}
+				}
+				else{					
+					$state = false ;
+					$msg = '
+					<h3>Alteração de senha de acesso ao Portal</h3>
+					<p>Para alterar sua senha você deve acessar o link abaixo:</p>
+					<p>Clique no link ou copie e cole no seu navegador: <a href="' . $base_url_site . 'redefinir-acesso?token=' .  htmlspecialchars( $results[0]{"verification_code"} )  . '&email=' . get_vars("email") . '">' . $base_url_site . 'redefinir-acesso?token=' .  htmlspecialchars( $results[0]{"verification_code"} )  . '&email=' . get_vars("email") . '</a></p>' ;
+					send_email( 'Contato Portal SGD','contato@lcmconsulting.com.br','Redefinir senha de acesso ao Portal', $msg , get_vars("email") ) ;
+					$default_message = "<h3>Dados enviados</h3><p>Enviamos um e-mail para que você possa redefinir sua senha.</p>" ;
+					
+				}
+			}
+		}
+		//se acessou o email e clicou no link para redefinir a senha
+		if( get_vars("email") && get_vars("token") ){
+			$results = $this->model->recover_password( get_vars("email"), get_vars("token") ) ;
+			if( !$results ){
+				header( "Location: " . $base_url_site ) ;
+				header("Content-Length: 0") ;
+				exit();
+			}
+			else{
+				$state = "change" ;
+				$default_message = "<h3>Alterar dados</h3><p>Redefina sua senha no formulário ao lado.</p>" ;
+			}
+		}
+		
+		// se redefiniu a senha
+		if( get_vars("change") && get_vars("password") && get_vars("re-password") && get_vars("email") ){
+			
+			if( ( get_vars("password") == get_vars("re-password") ) && ( get_vars("password") === get_vars("re-password") ) && ( strcmp( get_vars("password"), get_vars("re-password") ) == 0 ) ){
+				$results = $this->model->recover_password( get_vars("email") ) ;
+				if( $results ){
+					$this->model->change_password( get_vars("password"), get_vars("email") ) ;
+					$state = "success" ;
+					$default_message = '<h3>Dados alterados com sucesso!</h3><p>Enviamos para o e-mail "' . htmlspecialchars( get_vars("email") ) . '" a nova senha de acesso ao Portal. </p>' ;
+					$msg = 'Sua nova senha de acesso ao Portal foi enviada para o e-mail " '. get_vars("email") . ' ", guarde-a com segurança:<br />' . get_vars("password") ;
+					send_email( 'Contato Portal SGD','contato@lcmconsulting.com.br','Nova senha de acesso', $msg , get_vars("email") ) ;
+				}
+				else{
+					if( !isset($_SESSION{"error_message"}) ){
+						$_SESSION{"error_message"} = "E-mail digitado não é válido!" ;
+					}
+				}
+				
+			}
+			else{
+				$state = "change" ;
+				$default_message = '<h3>Redefinir senha</h3><p>Digite a nova senha para acesso ao Portal.</p>' ;
+				if(!isset($_SESSION{"error_message"})){
+					$_SESSION{"error_message"} = "Dados digitados não conferem, digite novamente!" ;
+				}	
+			}
+			
+		}
+		else if( get_vars("change") && ( !get_vars("password") || !get_vars("re-password") ) ){
+			$state = "change" ;
+				$default_message = '<h3>Redefinir senha</h3><p>Digite a nova senha para acesso ao Portal.</p>' ;
+				if(!isset($_SESSION{"error_message"})){
+					$_SESSION{"error_message"} = "Dados digitados não conferem, digite novamente!" ;
+			}
+		}
+		
+		include( $template_directory . "header.inc.php" ) ;
+		include( $template_directory . "password_remember.inc.php" ) ;
+		include( $template_directory . "footer.inc.php" ) ;		
+		$connection->disconnect() ;
+	}
+	
+}
+?>

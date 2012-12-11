@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+		<title>Portal RH</title>
+		<meta name="description" content="" />
+		<link href="<?php echo $furniture_directory; ?>cssv2/global.css" type="text/css" rel="stylesheet" />
+		<link href="<?php echo $furniture_directory; ?>cssv2/header.css" type="text/css" rel="stylesheet" />
+		<script language="javascript" type="text/javascript" src="<?=$furniture_directory; ?>js/jquery.js"></script>
+		<script language="javascript" type="text/javascript" src="<?=$furniture_directory; ?>js/FusionCharts.js"></script>
+		<script language="javascript" type="text/javascript">
+			$(document).ready(function(){
+				$('#mainMenu,#sidebar').hover(function(){
+					$('#sidebar').show();
+				},function(){
+					$('#sidebar').hide();
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<div id="main">
+			<!-- HEADER -->
+			<div id="header">
+				<div id='headerGov'>
+					<a href='http://www.saopaulo.sp.gov.br/' target='_blank'>
+						<img src="<?php echo $furniture_directory; ?>images/logo_title.png" class="logoTitle" alt="" />
+						<img src="<?php echo $furniture_directory; ?>images/logosp.png" class="logoSP" alt="" />
+						<br class='clean'/>
+					</a>
+				</div>
+				<br /><br />
+				<img src="<?=$furniture_directory;?>imagesv2/header_gov_acessibilidade.jpg" />
+				<br /><br />
+				<a href='<?=$alias;?>'>
+					<img src='<?=$furniture_directory; ?>imagesv2/header_new.jpg' alt='' id='imgHeader'/>
+				</a>
+			</div>
+			<div id="mainMenu">
+				<ul>
+					<li class='menu1'>INSTITUCIONAL</li>
+					<li class='menu2'>BACIAS HIDROGRÁFICAS</li>
+					<li class='menu3'>PROGRAMAS E PROJETOS</li>
+					<li class='menu4'>OBRAS E SERVIÇOS</li>
+					<li class='menu5'>BASE DE DADOS</li>
+					<li class='menu6'>INFORMAÇÃO</li>
+					<li class='last'>LICITAÇÕES</li>
+				</ul>
+			</div>
+			<div id="sidebar">
+				<div id="dropMenu">
+					<ul>
+						<li class='menu1'>
+							<ul class='mainList'>
+								<li>Estrutura</li>
+								<li>Atribuições</li>
+								<li>Quem é quem</li>
+								<li>Empresas</li>
+								<li>Órgãos</li>
+							</ul>
+						</li>
+						<li class='menu2'>
+							<ul class='mainList'>
+								<li>Regiões hidrográficas</li>
+								<li>Mapas das bacias</li>
+								<li>Comitês</li>
+								<li>Conselhos</li>
+							</ul>
+						</li>
+						<li class='menu3'>
+							<ul class='mainList'>
+								<li>Onda Limpa</li>
+								<li>Córrego Limpo</li>
+								<li>Várzea Tietê</li>
+								<li>Água Limpa</li>
+								<li>Reágua</li>
+								<li>Mananciais</li>
+							</ul>
+						</li>
+						<li class='menu4'>
+							<ul class='mainList'>
+								<li>Obras em andamento</li>
+								<li>Situação de Mananciais</li>
+								<li>Qualidade da água</li>
+								<li>Distribuição da água</li>
+								<li>Saneamento</li>
+							</ul>
+						</li>
+						<li class='menu5'>
+							<ul class='mainList'>
+								<li><a href="<?=$alias;?>temp/?page=indicadores">Índices</a></li>
+								<li><a href="<?=$alias;?>mapas/">Doenças hídricas</a></li>
+								<li>Educação</li>
+								<li>Gráficos</li>
+								<li>Downloads</li>
+							</ul>
+						</li>
+						<li class='menu6'>
+							<ul class='mainList'>
+								<li>Notícias</li>
+								<li>Biblioteca</li>
+								<li>Legislação</li>
+								<li>Pesquisa</li>
+							</ul>
+						</li>
+						<li class='last'>
+							<ul class='mainList'>
+								<li>Concorrência</li>
+								<li>Consulta</li>
+								<li>Pregão</li>
+								<li>Tomada de preço</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</div>
+			<!-- CONTENT -->
+			<div id="content">

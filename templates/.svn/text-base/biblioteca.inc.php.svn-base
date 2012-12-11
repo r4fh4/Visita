@@ -1,0 +1,104 @@
+<link href="<?php echo $furniture_directory ; ?>css/biblioteca.css" type="text/css" rel="stylesheet" />
+<script type="text/javascript" src=".<?php echo $furniture_directory ; ?>/js/biblioteca.js"></script>
+<script type="text/javascript">
+	$(document).ready(function(){
+		biblioteca.setDHTML();
+	});
+</script>
+<h1>Biblioteca</h1>
+<div id="boxPesquisa">
+	<div id="pesquisaDirecao">
+		<b>Busca Rápida</b>
+		<br /><br />
+		Escreva na caixa ao lado nome ou frase para pesquisar um arquivo e sua área de alcance
+	</div>
+	<div id="formPesquisa">
+		Ex.: LDB ou leis sobre educação
+		<br /><br />
+		<b>Palavra-chave</b>
+		<input type="text" name="pesquisa" id="pesquisa" />
+	</div>
+	<button type="button" class="buttonPesquisa" title="Pesquisar"/>Pesquisar</button>
+</div>
+<div id="boxHelp">
+	<div id="readerDown">
+		<b>Como utilizar arquivos PDF</b>
+		<br />
+		O software Adobe Reader é o padrão internacional para compartilhar documentos eletrônicos. Faça donwload gratuito do programa <i>aqui</i>.
+	</div>
+	<img src="<?php echo $furniture_directory ; ?>images/icone_pdf.png" title="Baixar Adobe Reader" />
+</div>
+<div id="arquivos">
+	<map name='map_downloads'>
+		<area shape='rect' coords='6,30,560,60' href='javascript:void(0);' />
+		<area shape='rect' coords='561,30,675,60' href='javascript:void(0);' />
+		<area shape='rect' coords='811,30,894,60' href='javascript:void(0);' />
+	</map>
+
+	<?php if($itens) {
+		foreach($itens as $arq) {
+			$xy = 0; $last = false; ?>
+			<div class='catAba'>
+				<div id='downLeft_<?php echo $arq['id_categoria'];?>'></div>
+				<div id='downMiddle_<?php echo $arq['id_categoria'];?>'>
+					<div class='catMiddle'>
+						<b><?php echo htmlspecialchars($arq['ds_categoria']);?></b>
+					</div>
+				</div>
+				<div id='downRight_<?php echo $arq['id_categoria'];?>'></div>
+            </div>
+            <img src='<?php echo $furniture_directory ; ?>images/cabecalho_downloads.png' border='0' class='imgDownload' usemap='#map_downloads'><br ><br >
+            <table class='tableDown' cellspacing='0' cellpadding='0' >
+	<?php foreach($arq['dados'] as $listArq) {
+			$xy++;
+			if ($xy == 10){
+				$last = true; ?>
+                <tr>
+					<td colspan='5'>
+						<div id='div_<?php echo $arq['id_categoria'];?>' class='hide'>
+							<table cellspacing='0' cellpadding='0' >
+            <?php }  ?>
+					<tr>
+						<td width='557px' class='title' data-link='{"file":"<?php echo htmlspecialchars($listArq['file_name'].'", "id":"'.$listArq['id_arquivo']); ?>"}'>
+							<table >
+								<tr>
+									<td>
+										<img src='<?php echo $furniture_directory ; ?>images/drive_web.png' border='0'/>
+									</td>
+									<td class='name'>
+										<?php echo htmlspecialchars($listArq['titulo_arquivo']); ?>
+									</td>
+								</tr>
+							</table>
+						</td>
+						<td width='114px' class='subCat'>
+							<b><?php echo htmlspecialchars($listArq['ds_subcategoria']); ?></b>
+						</td>
+						<td width='68px' class='fields'>
+							<b><?php echo htmlspecialchars($listArq['type']); ?></b>
+						</td>
+						<td width='67px' class='fields'>
+							<?php echo format_bytes($listArq['size']); ?>
+						</td>
+						<td width='81px' class='fields down'>
+							<?php echo $listArq['qtd_downloads']; ?>
+						</td>
+					</tr>
+	<?php }
+			if ($last){ ?>
+						</table>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td colspan='5'>
+					<img src='.<?php echo $furniture_directory ; ?>images/lista_ind_btn_expandir.png' id='<?php echo $arq['id_categoria']; ?>' class='expandir'>
+				</td>
+			</tr>
+	<?php } ?>
+        </table><br /><br />
+	<?php } 
+	} else { ?>
+		<h4>Nenhum arquivo encontrado, por favor, tente novamente.</h4>
+	<?php } ?>
+</div>

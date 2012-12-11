@@ -1,0 +1,9 @@
+	<h2 class="page-title">Página principal, para navegar utilize o menu acima.</h2>	
+	<p><br /></p>
+	<p>
+	Bem-vindo(a) <b><?=$user_info{"full_name"}?></b>, <br /><br />
+	este é sistema gerenciador de conteúdo do Portal. Utilize as abas do menu acima para navegar.
+	</p>
+
+
+		

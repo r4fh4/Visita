@@ -1,0 +1,17 @@
+<?php
+require_once( "scripts/init.php" ) ;
+
+include( $template_directory . "header.inc.php" ) ;
+
+
+include( $template_directory . "index.inc.php" ) ;
+
+// salvar log de ação do usuário
+$authentication->save_log_access( "" ) ;
+
+//fechar conexao
+$connection->desconnect();
+
+include( $template_directory . "footer.inc.php" ) ;
+?>
+

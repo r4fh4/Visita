@@ -1,0 +1,407 @@
+<?php
+/**
+* Classe cadastro 
+* 
+* Classe para a cadastro
+* @author tamemiya 2011-04-20
+* @version 1.0
+*/
+class cadastro{
+	
+	var $target_redirect = null ;
+	function __construct(){}
+	
+	private function verify_email( $email, $get_data_from_email = null , $token = null ){
+		global $connection;
+		if( $token ){
+			$sql = sprintf('select * from tb_cadastro WHERE email = "%s" and verification_code = "%s"' . (  $get_data_from_email ? " and active='1' and verify='1' and verification_code is not null" : "" ) ,mysql_real_escape_string($email) , mysql_real_escape_string($token) ) ;
+		}
+		else{
+			$sql = sprintf('select * from tb_cadastro WHERE email = "%s"' . (  $get_data_from_email ? " and active='1' and verify='1' and verification_code is not null" : "" ) ,mysql_real_escape_string($email)) ;
+		}
+		
+		$result = $connection->execute($sql,true);
+		if($result){
+			if( $get_data_from_email ){
+				return $result ;
+			}
+			
+			return is_array($result) ;
+		}
+		return false ;		
+	}
+	
+	/**
+	 * método para inserir novo cadastro
+	 */
+	public function insertNew($search=null){
+		
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		if((!get_vars('token1') || get_vars('token1') != strrev( get_vars('token2') ) ) || ( get_vars('mail') != "")){
+		   return array( 'erro' => 'Por favor, tente novamente mais tarde', '');
+		}
+		if(strlen(get_vars('nome')) > 5){ $nome = mysql_real_escape_string(get_vars('nome')); } 
+		else { return array( 'erro' => 'Por favor, preencha o nome corretamente', 'campo' => 'nome');  }
+		if(check_email(get_vars('email')) && !$this->verify_email(get_vars('email'))){ $email = mysql_real_escape_string(get_vars('email')); } 
+		else { return array( 'erro' => 'O campo email e invalido ou ele existe na nossa base de dados', 'campo' => 'email');  }
+		if(strlen(get_vars('senha')) >= 6){ $senha = mysql_real_escape_string(get_vars('senha')); } 
+		else { return array( 'erro' => 'A senha deve ter no minimo 6 caracteres', 'campo' => 'senha');  }
+		if(strlen(get_vars('profissao')) >= 3){ $profissao = mysql_real_escape_string(get_vars('profissao')); } 
+		else { return array( 'erro' => 'Por favor, preencha a profissao corretamente', 'campo' => 'profissao');  }
+		if(strlen(get_vars('cargo')) >= 3){ $cargo = mysql_real_escape_string(get_vars('cargo')); } 
+		else { return array( 'erro' => 'Por favor, preencha o cargo corretamente', 'campo' => 'cargo');  }
+		if(strlen(get_vars('empresa')) >= 3){ $empresa = mysql_real_escape_string(get_vars('empresa')); } 
+		else { return array( 'erro' => 'Por favor, preencha a empresa corretamente', 'campo' => 'empresa');  }
+		if(strlen(get_vars('endereco')) > 5){ $endereco = mysql_real_escape_string(get_vars('endereco')); } 
+		else { return array( 'erro' => 'Por favor, preencha o endereco corretamente', 'campo' => 'endereco');  }
+		if(strlen(get_vars('numero')) > 0){ $numero = mysql_real_escape_string(get_vars('numero')); }
+		else { return array( 'erro' => 'Por favor, preencha o numero corretamente', 'campo' => 'numero');  }
+		$complemento = mysql_real_escape_string(get_vars('complemento'));
+		if(strlen(get_vars('cep')) == 9){ $cep = get_vars('cep'); } 
+		else { return array( 'erro' => 'Por favor, preencha o cep corretamente', 'campo' => 'cep');  }
+		if(get_vars('estado') > 0){ $estado = mysql_real_escape_string(get_vars('estado')); } 
+		else { return array( 'erro' => 'Por favor, selecione o estado', 'campo' => 'estado');  }
+		if(get_vars('cidade') > 0){ $cidade = mysql_real_escape_string(get_vars('cidade')); } 
+		else { return array( 'erro' => 'Por favor, selecione a cidade', 'campo' => 'cidade');  }
+		if(strlen(get_vars('telefone')) == 12){ $telefone = mysql_real_escape_string(get_vars('telefone')); } 
+		else { return array( 'erro' => 'Por favor, preencha o telefone corretamente', 'campo' => 'telefone');  }
+		$tipoTel = mysql_real_escape_string(get_vars('tipoTel'));
+		
+		$code = create_unique_code();
+		
+		
+		$sql = "insert into tb_cadastro (nm_cadastro, email, password, profissao, cargo, empresa, endereco, nr_endereco, complemento, cep, id_uf, id_cidade, telefone, verification_code, id_tipo_telefone) values (
+				'" . $nome . "',
+				'" . $email . "',
+				md5('" . $senha . "'),
+				'" . $profissao . "',
+				'" . $cargo . "',
+				'" . $empresa . "',
+				'" . $endereco . "',
+				'" . $numero . "',
+				'" . $complemento . "',
+				'" . $cep . "',
+				" . $estado . ",
+				" . $cidade . ",
+				'" . $telefone . "',
+				'" . $code . "',
+				" . $tipoTel . "
+			)" ;
+
+		$connection->execute( $sql ) ;
+		
+		$msg = 'Olá '.$nome.'. <br /><br />Por favor, clique no link abaixo para validar seu cadastro no nosso site.<br /><br /><a href="'.$base_url_site.'confirm?code='.$code.'&email='.$email.'">'.$base_url_site.'confirm?code='.$code.'&email='.$email.'</a>';
+		
+		send_email('Contato Portal SGD','contato@lcmconsulting.com.br','Confirmação de cadastro',$msg,$email);
+		
+		return 'submit';
+	}
+	
+	public function activeUser($code,$email){
+		global $connection;
+		
+		$sql = sprintf('select id_cadastro from tb_cadastro WHERE verification_code = "%s" AND email="%s" AND verify = "0"',mysql_real_escape_string($code), mysql_real_escape_string($email));
+		
+		$result = $connection->execute($sql,true);
+		
+		if(is_array($result)) {
+			$sql = 'update tb_cadastro SET verify = "1" WHERE id_cadastro = '.$result[0]['id_cadastro'];
+			$connection->execute($sql);
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	/**
+	 * efetuar autenticação
+	 */	
+	 public function execute_authentication( $target_redirect = null ){
+	 
+		global $secury_key2 ;
+		
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		@session_start() ;
+		if( $target_redirect && !preg_match( "/(\.\.|\"|\'|\.)+/", $target_redirect ) ){
+			$this->target_redirect = $target_redirect ;
+		}
+		else if( get_vars( "target_redirect" ) && !preg_match( "/(\.\.|\"|\'|\.)+/", get_vars( "target_redirect" ) ) ){
+			$target_redirect = get_vars( "target_redirect" ) ;
+		}
+
+		$user_info = null ;
+
+		// sempre verificar o USER_AGENT para evitar roubo de sessão
+		if ( array_key_exists( 'HTTP_USER_AGENT', $_SESSION ) ){
+			if ( $_SESSION['HTTP_USER_AGENT'] != md5( $_SERVER['HTTP_USER_AGENT'] . $secury_key2 ) ){
+			 
+				$_SESSION{"error_message"} = "Acesso restrito!." ;
+				header( "Location: " . $alias . "login?target_redirect=" . $this->target_redirect ) ;
+				header("Content-Length: 0") ;
+				exit();
+			}
+		}
+		else{
+			$_SESSION['HTTP_USER_AGENT'] = md5( $_SERVER['HTTP_USER_AGENT'] . $secury_key2 ) ;
+		}	
+				
+		$test_authenticate = $this->authenticate() ;
+		
+		if( !$test_authenticate ){
+
+			if( !isset($_SESSION{"error_message"}) ){
+				$_SESSION{"error_message"} = "Acesso restrito!" ;
+			}					
+			header( "Location: " . $alias . "login?target_redirect=" . $this->target_redirect ) ;
+			header("Content-Length: 0") ;
+			exit();
+		}
+		if( isset( $_SESSION{"login_data_site"} ) ){ 
+			$user_info = $_SESSION{"login_data_site"} ;
+		}
+		
+		if( isset($_SESSION{"error_message"}) ){
+			unset( $_SESSION{"error_message"} ) ;
+		}
+		
+		return $user_info ;	 
+	 }
+	 
+	 /**
+	 * método para autenticar usuário.
+	 */
+	public function authenticate(){
+
+		global $secury_key ;
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;		
+		
+		$login	= trim( strip_tags( ( isset($_POST{"login"}) ? $_POST{"login"} : "" ) ) ) ;
+		$pws	= trim( strip_tags( ( isset($_POST{"password"}) ? $_POST{"password"} : "" ) ) ) ;
+		$now	= date( "Y-m-d H:i:s" ) ;
+
+		// verificar se existe sessão criada
+		if( isset($_SESSION{"login_data_site"}) ){
+
+			$session_data = $_SESSION{"login_data_site"} ;				
+			if( $session_data{"login_key"} == md5( $secury_key .  $session_data{"ip"} . $session_data{"user_key"} ) ){ 
+				$sql = sprintf( "select * from tb_cadastro where id_cadastro = '%d' and active='1' and verify='1' limit 1", mysql_real_escape_string( $session_data{"user_key"} ) ) ;
+				$results = $connection->execute( $sql, true ) ;
+				
+				if( $results ){
+					
+					//calcular tempo do ultimo acesso ao sistema
+					$diff_last_login = EXPIRATION_TIME ;
+					if( $results[0]{"dt_last_login"} ){
+						$last_login	= $results[0]{"dt_last_login"} ;
+						$diff_last_login = timeDiff( $last_login, $now ) ;
+					}
+								
+					if( $results[0]{"dt_last_login"} && $diff_last_login > EXPIRATION_TIME ){
+						$this->logout() ;	
+					}				
+					
+					// alterar status do usuário para logado
+					$sql = "update tb_cadastro set dt_last_login = '" . $now . "' where id_cadastro = '" . mysql_real_escape_string(  $session_data{"user_key"} ) . "' " ;
+					$connection->execute( $sql ) ;
+					session_regenerate_id() ;
+					return true ;			
+				}
+			}
+		}
+		
+		// caso não haja sessão pega os dados do form de login.
+		if( !empty( $login ) || !empty( $pws ) ){
+			
+			if(!check_email( $login ) ){
+				if(!isset($_SESSION{"error_message"})){
+						$_SESSION{"error_message"} = "E-mail digitado não é válido!" ;
+				}
+				return false ;
+			}
+			
+			$sql = sprintf( "select * from tb_cadastro where email = '%s' and active='1' and verify='1' limit 1", mysql_real_escape_string( $login ) ) ;
+			$results = $connection->execute( $sql, true ) ;
+
+			// se encontrou o login digitado verifica a senha
+			if( $results ){
+				
+				// verificar senhas
+				if( !empty($results[0]{"password"}) && $results[0]{"password"} == md5( $pws ) ) {
+				
+					// alterar status do usuário para logado
+					$sql = "update tb_cadastro set logged = '1', dt_last_login = '" . $now . "' where id_cadastro = '" . mysql_real_escape_string( $results[0]{"id_cadastro"} ) . "' " ;
+					$connection->execute( $sql ) ;
+					
+					// armazenar dados na session
+					$ip						= $_SERVER['REMOTE_ADDR'] ;
+					$hora					= time();
+					$secury_key				= md5( $secury_key . $ip . $results[0]{"id_cadastro"} ) ;
+					$_SESSION{"login_data_site"} = array( 
+						"full_name"		=> $results[0]{"nm_cadastro"} ,
+						"email"			=> $results[0]{"email"} ,
+						"login_key"		=> $secury_key , 
+						"ip"			=> $ip , 
+						"user_key"		=> $results[0]{"id_cadastro"} ,
+						"user_uf"		=> $results[0]{"id_uf"} ,
+						"user_cidade"	=> $results[0]{"id_cidade"} ,
+
+					) ;
+					unset( $login ) ;
+					unset( $pws ) ;
+					session_regenerate_id() ;
+					$target_redirect = null ;
+					if( $this->target_redirect ){
+						$target_redirect = $this->target_redirect ;
+					}
+					else if( get_vars( "target_redirect" ) && !preg_match( "/(\.\.|\"|\'|\.)+/", get_vars( "target_redirect" ) ) ){
+						$target_redirect = get_vars( "target_redirect" ) ;
+					}
+					
+					header( "Location: " . $alias . $target_redirect ) ;
+					header("Content-Length: 0") ;
+					exit();
+	
+				}
+				else{ 
+					if(!isset($_SESSION{"error_message"})){
+						$_SESSION{"error_message"} = "Dados de acesso incorretos, contate o Administrador do Sistema." ;
+					}
+					return false ;
+				}
+			}
+			else{
+				if(!isset($_SESSION{"error_message"})){
+					$_SESSION{"error_message"} = "Dados de acesso incorretos, contate o Administrador do Sistema." ;
+				}
+				return false ;
+			}
+		}
+		else{
+			if(!isset($_SESSION{"error_message"})){
+				$_SESSION{"error_message"} = "Preencha os campos para efetuar o login." ;
+			}
+			return false ;
+		}
+		
+		return false ;
+	}
+		
+	/**
+	 * método para logout do sistema.
+	 */
+	public function logout(){
+		
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		$user_info = $_SESSION["login_data_site"] ;
+		
+		$sql = "update tb_cadastro set logged = '0', dt_last_login = NOW() where id_cadastro = '" . mysql_real_escape_string( $user_info{"user_key"} ) . "' " ;
+		$connection->execute( $sql ) ;
+		
+		$_SESSION["login_data_site"] = null ;
+		unset( $user_info ) ;
+		unset( $_SESSION{"login_data_site"} );
+		session_destroy() ;
+		
+		header( "Location: " . $alias ) ;
+		header("Content-Length: 0");
+		header("Cache-Control: no-cache");
+		header("Pragma: no-cache");
+		exit();
+		
+	}
+	
+	public function recover_password( $email = null, $token = null ){
+	
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		$results = $this->verify_email( $email, true, $token ) ;		
+		if( $results ){
+			return $results ;
+		}
+		return false ;
+	
+	}
+	
+	public function change_password( $new_pass, $email ){
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		$sql = sprintf( "update tb_cadastro set password = md5('%s') where email = '%s'", mysql_real_escape_string( $new_pass ), mysql_real_escape_string( $email ) ) ;
+		$connection->execute( $sql ) ;		
+	}
+	
+	/**
+	* visualizar dados do cadastro
+	*/
+	public function get_cadastro_info( $id_cadastro = null ){
+		
+		global $connection ;
+		
+		$sql = sprintf( "SELECT i.*, c.nm_cidade FROM tb_cadastro AS i, tb_cidades as c WHERE i.id_cadastro = %d and i.id_cidade = c.cd_ibge", mysql_real_escape_string( $id_cadastro ) ) ;		
+		$results = $connection->execute( $sql, true ) ;
+		return $results ;
+	}
+	
+	/**
+	* desativar / ativar cadastros
+	*/
+	public function set_status_cadastro( $id_list = null, $action = null ){
+		
+		global $connection ;
+		
+		if( $id_list && $action ){
+			
+			$sql_data	= "SELECT nm_cadastro, email FROM tb_cadastro WHERE id_cadastro IN( " . mysql_real_escape_string( implode( ",", $id_list ) ) . " )" ;
+			$rs_data	= $connection->execute( $sql_data, true ) ;			
+			
+			if( $action == "desactivate" ){
+				$sql					= "UPDATE tb_cadastro SET active = '0',verify = '0' WHERE id_cadastro IN( " . mysql_real_escape_string( implode( ",", $id_list ) ) . " )" ;
+				$message_default_mail	= "NAME_USER, agradecemos seu contato porém seu cadastro não foi aprovado para acesso ao conteúdo do Portal." ;				
+			}
+			else if( $action == "activate" ){
+				$sql					= "UPDATE tb_cadastro SET active = '1' WHERE id_cadastro IN( " . mysql_real_escape_string( implode( ",", $id_list ) ) . " )" ;
+				$message_default_mail	= "NAME_USER, agradecemos seu interesse e a partir de agora você já pode acessar o conteúdo restrito do Portal. Caso não lembre de sua senha é possível redefini-la no Portal também." ;
+			}
+			//print $sql ;exit();
+			$connection->execute( $sql ) ;
+			
+			foreach( $rs_data as $item ){
+				send_email( $item{"nm_cadastro"},EMAIL_DEFAULT , "Confirmação de acesso - " .  ADM_LABEL, str_replace( "NAME_USER",$item{"nm_cadastro"}, $message_default_mail ) , $item{"email"} ) ;
+			}
+			
+			
+		}
+		
+	}
+	
+	public function saveMessage($nome, $token, $ind, $tema, $mensagem){
+		
+		global $connection ;
+		
+		$content = serialize(array('nome' => $nome, 'msg' => $mensagem, 'tema' => $tema, 'indicador' => $ind));
+		
+		$sql = sprintf( "INSERT INTO tb_mensagem_indicador(token, content) values('%s', '%s')", mysql_real_escape_string( $token ), mysql_real_escape_string($content) );
+		$connection->execute( $sql ) ;
+		
+	}
+	
+	public function get_token_info($token){
+		
+		global $connection ;
+		
+		$sql = sprintf( "SELECT content FROM tb_mensagem_indicador WHERE token = '%s'", mysql_real_escape_string( $token ) ) ;
+
+		$results = $connection->execute( $sql, true );
+		
+		return $results;
+	}
+	
+}
+?>

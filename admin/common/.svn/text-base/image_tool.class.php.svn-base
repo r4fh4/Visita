@@ -1,0 +1,383 @@
+<?php
+
+class ImageTool {
+
+	# object local
+	private $imageObject = null ;
+
+	# the blur factor where > 1 is blurry, < 1 is sharp
+	private $blur = .9 ;
+
+	public $error = array () ;
+	private $path = null ;
+	private $density = 72 ;
+	private $quality = 90 ;
+	private $focus   = 2 ; /* focus */
+	private $format = 'jpg' ;
+	public $original = "" ;
+
+	public function __construct ( $image_path ) {
+
+		# check file
+		if ( $image_path && file_exists ( $image_path ) && is_readable ( $image_path ) ) {
+			$output = null ;
+
+			if ( function_exists ( 'imagecreatefromgd' ) ) {
+				$this->path = $image_path ;
+				$this->original = $this->path ;
+				# get info
+				$info = getimagesize ( $image_path ) ;
+				$mime = strtolower ( $info['mime'] ) ;
+				
+				if ( $mime == 'image/jpeg' ) {
+					$jpg = imagecreatefromjpeg ( $this->path ) ;
+					$this->imageObject = $jpg ;					
+
+				}
+				else if( $mime == 'image/gif' ) {					
+					$gif = imagecreatefromgif( $this->path );
+					$w = imagesx($gif);
+					$h = imagesy($gif);
+					imagejpeg($gif, preg_replace( "/(.gif)|(.GIF)/", ".jpg", $this->path ) );
+					$this->path = preg_replace( "/(.gif)|(.GIF)/", ".jpg", $this->path ) ;
+					$this->imageObject =  imagecreatefromjpeg ( $this->path ) ;					
+					imageDestroy($gif) ;
+					
+				}
+				else if( $mime == 'image/png' ) {					
+					$png = imagecreatefrompng( $this->path );
+					$w = imagesx($png);
+					$h = imagesy($png);
+					imagejpeg($png, preg_replace( "/(.png)|(.PNG)/", ".jpg", $this->path ) );
+					$this->path = preg_replace( "/(.png)|(.PNG)/", ".jpg", $this->path ) ;
+					$this->imageObject =  imagecreatefromjpeg ( $this->path ) ;					
+					imageDestroy($png) ;
+					
+				}
+				else {
+					$this->error[] = 'Formato de imagem inesperado' ;
+				}
+			}
+			else {
+				$this->error[] = 'Nenhuma biblioteca de manipulação de imagem encontrada (GD)' ;
+			}
+		}
+		else {
+			$this->error[] = 'Erro na leitura do arquivo' ;
+		}
+	}
+
+	public function setBlur ( $value ) {
+		$this->blur = $value ;
+	}
+
+	public function setQuality ( $value ) {
+		$this->quality = $value ;
+	}
+
+	public function setFormat ( $value ) {
+		$this->format = $value ;
+	}
+
+	public function getError () {
+		return $this->error ;
+	}
+
+	/**
+	 * set focus, possible values [1-9]. Default value is 2
+	 *
+	 * Matrix
+	 * ---------
+	 * | 1 2 3 |
+	 * | 4 5 6 |
+	 * | 7 8 9 |
+	 * ---------
+	 */
+	public function setFocus ( $value ) {
+		if ( $value < 1 || $value > 9 ) {
+			$this->focus = 2 ;
+		}
+
+		$this->focus = (int) $value ;
+	}
+
+	public function resizeAndCrop ( $width , $height , $file_name ) {
+		if ( is_null ( $this->imageObject ) ) {
+			return false ;
+		}
+
+		$base_dir = dirname ( $file_name ) ;
+		if ( ! is_dir ( $base_dir ) ) {
+			if ( ! @ mkdir ( $base_dir , 0777 , true ) ) {
+				$this->error[] = 'Problemas para criar o diretório' . $base_dir ;
+				return false ;
+			}
+		}
+
+		if ( ! is_writable ( $base_dir ) ) {
+			$this->error[] = 'Diretório sem permissão de escrita' ;
+			return false ;
+		}
+
+		# get info
+		$info = getimagesize ( $this->path ) ;
+		$source_width = $info[0] ;
+		$source_height = $info[1] ;
+		$mime = strtolower ( $info['mime'] ) ;
+
+		// largura da imagem é maior do que a largura do corte
+		if ( $source_width >= $width ) {
+
+			// altura da imagem é maior do que a altura do corte
+			if ( $source_height >= $height ) {
+
+				list ( $new_width , $new_height , $position_x , $position_y ) = $this->getDimension ( $source_width , $source_height , $width , $height ) ;
+
+				$tmp = imagecreatetruecolor ( $new_width , $new_height ) ;
+				$target = imagecreatetruecolor ( $width , $height ) ;
+
+				// resize
+				imagecopyresampled ( $tmp , $this->imageObject , 0 , 0 , 0 , 0 , $new_width , $new_height , $source_width , $source_height ) ;
+
+				// crop
+				imagecopyresampled ( $target , $tmp , 0 , 0 , $position_x , $position_y , $width , $height , $width , $height ) ;
+			}
+
+			// altura da imagem não é maior do que a altura do corte
+			else {
+
+				$new_width = $width ;
+				$new_height = $source_height ;
+
+				list ( $position_x , $position_y ) = $this->getPosition ( $source_width , $source_height , $new_width , $new_height ) ;
+
+				$target = imagecreatetruecolor ( $new_width , $new_height ) ;
+
+				// crop
+				imagecopyresampled ( $target , $this->imageObject , 0 , 0 , $position_x , $position_y , $new_width , $new_height , $new_width , $new_height ) ;
+			}
+		}
+
+		// largura da imagem é menor do que a largura do corte
+		else {
+
+			// altura da imagem é maior do que a altura do corte
+			if ( $source_height >= $height ) {
+
+				$new_width = $source_width ;
+				$new_height = $height ;
+
+				list ( $position_x , $position_y ) = $this->getPosition ( $source_width , $source_height , $new_width , $new_height ) ;
+
+				$target = imagecreatetruecolor ( $new_width , $new_height ) ;
+
+				// crop
+				imagecopyresampled ( $target , $this->imageObject , 0 , 0 , $position_x , $position_y , $new_width , $new_height , $new_width , $new_height ) ;
+			}
+
+			// altura da imagem não é maior do que a altura do corte
+			else {
+
+				$new_width = $source_width ;
+				$new_height = $source_height ;
+
+				list ( $position_x , $position_y ) = $this->getPosition ( $source_width , $source_height , $new_width , $new_height ) ;
+
+				$target = imagecreatetruecolor ( $new_width , $new_height ) ;
+
+				// crop
+				imagecopyresampled ( $target , $this->imageObject , 0 , 0 , $position_x , $position_y , $new_width , $new_height , $new_width , $new_height ) ;
+			}
+		}
+
+		$this->imageObject = $target ;
+		if ( isset ( $tmp ) ) {
+			imagedestroy ( $tmp ) ;
+		}
+
+		return $this->saveImage ( $file_name , $mime ) ;
+	}
+
+	public function resizeByGreatSide ( $size , $file_name ) {
+		if ( is_null ( $this->imageObject ) ) {
+			return false ;
+		}
+
+		$base_dir = dirname ( $file_name ) ;
+		if ( ! is_dir ( $base_dir ) ) {
+			if ( ! @ mkdir ( $base_dir , 0777 , true ) ) {
+				$this->error[] = 'Problemas para criar o diretório' . $base_dir ;
+				return false ;
+			}
+		}
+
+		if ( ! is_writable ( $base_dir ) ) {
+			$this->error[] = 'Diretório sem permissão de escrita' ;
+			return false ;
+		}
+
+		# get info
+		$info = getimagesize ( $this->path ) ;
+		$source_width = $info[0] ;
+		$source_height = $info[1] ;
+		$mime = strtolower ( $info['mime'] ) ;
+
+		if ( $source_width >= $source_height ) {
+
+			if ( $source_width >= $size ) {
+
+				# get new value with constrain proportion
+				$new_value = round ( $source_height / $source_width * $size ) ;
+
+				$target = imagecreatetruecolor ( $size , $new_value ) ;
+
+				# resize
+				imagecopyresampled ( $target , $this->imageObject , 0 , 0 , 0 , 0 , $size , $new_value , $source_width , $source_height ) ;
+			}
+		}
+		else {
+			if ( $source_height >= $size ) {
+
+				# get new value with constrain proportion
+				$new_value = round ( $source_width / $source_height * $size ) ;
+
+				$target = imagecreatetruecolor ( $new_value , $size ) ;
+
+				# resize
+				imagecopyresampled ( $target , $this->imageObject , 0 , 0 , 0 , 0 , $new_value , $size , $source_width , $source_height ) ;
+			}
+		}
+
+		if ( empty ( $target ) ) {
+			$target = imagecreatetruecolor ( $source_width , $source_height ) ;
+			imagecopyresampled ( $target , $this->imageObject , 0 , 0 , 0 , 0 , $source_width , $source_height , $source_width , $source_height ) ;
+		}
+
+		$this->imageObject = $target ;
+		return $this->saveImage ( $file_name , $mime ) ;
+	}
+
+	private function getDimension ( $source_width , $source_height , $target_width , $target_height ) {
+
+		$scale_width = $target_width / $source_width ;
+		$scale_height = $target_height / $source_height ;
+
+		$scale = min ( $scale_width , $scale_height ) ;
+		$new_width = $source_width * $scale ;
+		$new_height = $source_height * $scale ;
+
+		if ( $new_width < $target_width || $new_height < $target_height ) {
+			$scale = max ( $scale_width , $scale_height ) ;
+			$new_width = $source_width * $scale ;
+			$new_height = $source_height * $scale ;
+		}
+
+		// Get positions x , y
+		list ( $x , $y ) = $this->getPosition ( $new_width , $new_height , $target_width , $target_height ) ;
+
+		if ( $new_width >= $new_height ) {
+			$position_x = $x ;
+			$position_y = $y ;
+		}
+		else {
+			$position_x = $x ;
+			$position_y = $y ;
+		}
+
+		$new_width = intval ( abs ( round ( $new_width ) ) ) ;
+		$new_height = intval ( abs ( round ( $new_height ) ) ) ;
+
+		return array ( $new_width , $new_height , $position_x , $position_y ) ;
+	}
+
+	private function getPosition ( $new_width , $new_height , $target_width ,  $target_height ) {
+		if ( ! $this->focus ) {
+			$this->setFocus ( 2 ) ;
+		}
+
+		$x = 0 ;
+		$y = 0 ;
+
+		switch ( $this->focus ) {
+			case 1 :
+				$x = 0 ;
+				$y = 0 ;
+				break ;
+
+			case 2 :
+				$x = intval ( abs ( round ( ( $new_width - $target_width ) / 2 ) ) ) ;
+				$y = 0 ;
+				break ;
+
+			case 3 :
+				$x   = intval ( abs ( round ( ( $new_width - $target_width ) ) ) ) ;
+				$y   = 0 ;
+				break ;
+
+			case 4 :
+				$x = 0 ;
+				$y = intval ( abs ( round ( ( $new_height - $target_height ) / 2 ) ) ) ;
+				break ;
+
+			case 5 :
+				$x = intval ( abs ( round ( ( $new_width - $target_width ) / 2 ) ) ) ;
+				$y = intval ( abs ( round ( ( $new_height - $target_height ) / 2 ) ) ) ;
+				break ;
+
+			case 6 :
+				$x = intval ( abs ( round ( ( $new_width - $target_width )  ) ) ) ;
+				$y = intval ( abs ( round ( ( $new_height - $target_height ) / 2 ) ) ) ;
+				break ;
+
+			case 7 :
+				$x = 0 ;
+				$y = intval ( abs ( round ( ( $new_height - $target_height ) ) ) ) ;
+				break ;
+
+			case 8 :
+				$x = intval ( abs ( round ( ( $new_width - $target_width ) / 2 ) ) ) ;
+				$y = intval ( abs ( round ( ( $new_height - $target_height )  ) ) ) ;
+				break ;
+
+			case 9 :
+				$x = intval ( abs ( round ( ( $new_width - $target_width ) ) ) ) ;
+				$y = intval ( abs ( round ( ( $new_height - $target_height ) ) ) );
+				break ;
+
+			default :
+		}
+
+		return array ( $x , $y ) ;
+	}
+
+	public function saveImage ( $file_name , $mime = "image/jpeg" ) {
+		if ( count ( $this->error ) == 0 ) {
+
+			# write image
+			if ( $mime == 'image/jpeg' ) {
+
+				# interlace/progressive
+				imageinterlace ( $this->imageObject , 1 ) ;
+
+				if ( ! imagejpeg ( $this->imageObject , $file_name , $this->quality ) ) {
+					$this->error[] = 'Erro na gravação do arquivo' ;
+					return false ;
+				}
+			}
+		}
+		else {
+			$this->error[] = 'Erro inesperado no tratamento da imagem.' ;
+			return false ;
+		}
+
+		# clear php resource
+		imagedestroy ( $this->imageObject ) ;
+		return true ;
+	}
+	
+	public function remove_original_image_uploaded() {
+		if( file_exists($this->path) ){ unlink( $this->original ) ; }
+		if( file_exists($this->path) ){ unlink( $this->path ) ; }
+		unset( $this->imageObject ) ;
+	}
+}

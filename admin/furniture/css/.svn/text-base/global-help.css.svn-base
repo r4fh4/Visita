@@ -1,0 +1,30 @@
+body{
+	margin:20px;
+	padding:0px;
+	font:11px Verdana;
+}
+h1{
+	font-size:16px;
+	margin-top:0px;
+	color:#69748C;
+}
+h2{
+	font-size:12px;
+	margin-top:20px;
+	margin-bottom:15px;
+}
+#left-col{
+	float:left;
+	padding-right:20px;
+}
+#right-col{
+	width:80%;
+	float:left;
+	padding-left:20px;
+	padding-bottom:50px;
+	border-left:1px solid #ccc;
+}
+.middle-align{
+	vertical-align:middle;
+	border:none;
+}

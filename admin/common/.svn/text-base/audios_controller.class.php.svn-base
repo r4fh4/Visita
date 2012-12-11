@@ -1,0 +1,164 @@
+<?
+class audios_controller{
+	
+	public $model = null ;
+	
+	public function  __construct(){
+		$this->model = new audios ;
+	}
+	
+	public function index( $data = null ){
+	
+	}
+	
+	public function get_info( $data ){		
+	
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		// controle de cache
+		$cache = new cache() ;
+		$cache_id = "audio-" . strip_tags( $data{"id_audio"} . ( $data{"slug"} ? "-" . $data{"slug"} : "" ) ) ;
+		$cache_content = $cache->read( $cache_id ) ;
+		
+		if( !$cache_content ){
+		
+			$audio =  $this->model->get_audio_info( $data{"id_audio"} )  ;
+			if( $audio ){
+				
+				ob_start() ;
+				$title = normalize_text( $audio[0]{"titulo_audio"} ,true ) ;
+				$short_url =  $base_url_site . "audios/" . $data{"id_audio"} . "-" . $title ;
+				$print_url = $base_url_site . "tools/print/audios/" . $data{"id_audio"} ;
+				if( $data{"slug"} ){
+					if( $title != $data{"slug"} ){
+						header( "Location: " . $base_url_site  . "audios/" . $data{"id_audio"} . "-" . $title ) ;
+						exit();
+					}
+				}
+				$complement_title = htmlspecialchars( $audio[0]{"titulo_audio"} ) ;
+				$meta_description = htmlspecialchars( $audio[0]{"legenda_audio"} ) ;
+				
+				//Monta a lista de noticias da direita, retirando a noticia ja exibida
+				$where[] = 'active = 1 AND id_audio NOT IN(' . $data{"id_audio"} . ')';
+				$results_per_page = 5 ;
+				list( $r , $records , $page , $total_pages ) = default_search( "tb_audios" , $where, "", "dt_criacao desc" );
+				
+				$css_files = write_css_header( array( "noticias" ) ) ;
+				include( $template_directory . "header.inc.php" ) ;
+				include( $template_directory . "audios.inc.php" ) ;
+				include( $template_directory . "footer.inc.php" ) ;
+				
+				$content = ob_get_contents() ;
+				$cache->save(  "audio-" . strip_tags( $data{"id_audio"} . ( $data{"slug"} ? "-" . $data{"slug"} : "" ) ), $content . "<!-- cached in " . date("Y-m-d H:i:s") . " -->" ) ;
+				ob_end_flush() ;
+			}
+			else{
+				header( "Location: " . $base_url_site . "audios/listar" ) ;
+				exit();
+			}
+		}
+		print $cache_content ;
+	}
+	
+	public function set_embed( $data ){
+		
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		$audio =  $this->model->get_audio_info( $data{"id_audio"} )  ;
+		if( $audio ){
+			$page_title = $website_name . " - " . htmlspecialchars( $audio[0]{"titulo_audio"} ) ;
+			$meta_description = htmlspecialchars( $audio[0]{"legenda_audio"} ) ;
+			include( $template_directory . "audios_embed.inc.php" ) ;
+		}
+		else{
+			return false;
+		}
+		
+	}
+	
+	public function get_list( $data, $itens ){
+	
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		//Obtém váriaveis para consulta
+		$terms = get_vars('search');
+		$cat = get_vars('categoria');
+		
+		//Monta a lista de noticias da direita
+		$where[] = 'active = 1';
+		$sr = get_vars('sr');
+	
+		$_GET['sr'] = 1;
+		
+		list( $rr , $list , $pg , $tp ) = default_search( "tb_audios" , $where, "", "dt_criacao desc" ) ;
+		
+		//Monta a Lista de noticias de acordo com o critério de seleção
+		$_GET['sr'] = $sr;
+		$where[] = $terms 
+			? " MATCH ( titulo_audio, legenda_audio ) AGAINST ('" . str_replace( " ", "* ", mysql_real_escape_string($terms) ) . "*' IN BOOLEAN MODE)"
+			: ($cat && is_numeric($cat) 
+			? " categoria = ".mysql_real_escape_string($cat)
+			: 'active IS NOT NULL');
+
+		list( $r , $records , $page , $total_pages ) = default_search( "tb_audios" , $where, "", "dt_criacao desc" ) ;
+		
+		//Monta a lista de categorias listadas para consulta
+		$categorias =  $audio_category_list ;
+		
+		$complement_title = "Áudios" ;
+		$meta_description = "Listagem de áudios do Portal." ;
+		
+		$css_files = write_css_header( array( "noticias" ) ) ;
+		include( $template_directory . "header.inc.php" ) ;
+		include( $template_directory . "audios_listar.inc.php" ) ;
+		include( $template_directory . "footer.inc.php" ) ;
+		
+
+	}
+	
+	public function feed(){		
+	
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		//Monta a lista de audios da direita, retirando a audio ja exibida
+		$where[] = 'active = 1';
+		$results_per_page = 20 ;
+		
+		// controle de cache
+		$cache = new cache() ;
+		$cache_id = "audio-feed" ;
+		$cache_content = $cache->read( $cache_id ) ;
+		
+		if( !$cache_content ){
+			list( $r , $records , $page , $total_pages ) = default_search( "tb_audios" , $where, "", "dt_criacao desc" );
+			ob_start() ;
+			header('Content-Type: text/xml') ;
+			print '<?xml version="1.0" encoding="ISO-8859-1"?>' ;
+			include( $template_directory . "audios_rss.inc.php" ) ;
+			
+			// gerar cache
+			$content = ob_get_contents() ;
+			$cache->save(  $cache_id, $content . "<!-- cached in " . date("Y-m-d H:i:s") . " -->" ) ;
+			ob_end_flush() ;			
+		}
+		print $cache_content ;	
+		
+	}
+	
+	public function get_last_audios( $data=null ){
+		
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		$where[] = 'active = 1';	
+		$results_per_page = 4 ;
+		list( $rr , $list , $pg , $tp ) = default_search( "tb_audios" , $where, "", "dt_criacao desc" ) ;	
+		return $list ;		
+		
+	}
+}
+?>

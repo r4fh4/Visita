@@ -1,0 +1,5 @@
+<h2><?=htmlspecialchars($noticia_info[0]{"titulo"})?></h2>
+<p><?=htmlspecialchars($noticia_info[0]{"chamada"})?></p>
+<p><br /></p>
+<?=html_entity_decode($noticia_info[0]{"texto"})?>
+<?if($noticia_info[0]{"autor"}){?><p class="author-info">Fonte/Autoria: <?=htmlspecialchars($noticia_info[0]{"autor"})?></p><?}?>

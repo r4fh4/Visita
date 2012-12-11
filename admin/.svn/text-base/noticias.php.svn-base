@@ -1,0 +1,110 @@
+<?php
+require_once( "scripts/init.php" ) ;
+
+// checar acesso a pagina
+get_page_access() ;
+
+$noticia = new noticias ;
+$arquivo = new arquivos ;
+
+if( get_vars("insert") || get_vars("edit") ){
+	if( !get_vars("titulo") ){
+		show_message_html(  'Campo "Título" é obrigatório, favor preencher!', false ) ;
+		exit() ;	
+	}
+	if( !get_vars("chamada") ){
+		show_message_html(  'Campo "Chamada" é obrigatório, favor preencher!', false ) ;
+		exit() ;	
+	}
+	if( !get_vars("imagem") ){
+		show_message_html(  'Campo "Imagem de destaque" é obrigatório, favor preencher!', false ) ;
+		exit() ;	
+	}
+	if( !get_vars("texto") ){
+		show_message_html(  'Campo "texto" é obrigatório, favor preencher!', false ) ;
+		exit() ;	
+	}
+
+}
+
+if( ( get_vars("insert") ) || ( get_vars("edit") ) ){
+
+	$data = array(
+		"titulo" => get_vars("titulo"), 
+		"chamada" => get_vars("chamada"), 
+		"imagem" => get_vars("imagem"), 
+		"texto" => htmlentities( get_vars("texto", false ) ),
+		"autor" => get_vars("autor"), 
+		"publicada" => ( get_vars("publicada")  ? '1' : '0'), 
+		"usuario_id" => $user_info{"user_key"}, 
+		"categoria" => ( get_vars("categoria") != "-" ? get_vars("categoria") : 'null' ), 
+		"subcategoria" => ( get_vars("subcategoria") != "-" ? get_vars("subcategoria") : 'null' )
+	)  ;
+
+	// inserir noticia
+	if( get_vars("insert") ){
+
+		// se for gerenciador municipal
+		if( $user_info{"user_level"} == 3 ){
+			$data{"id_uf"} = $user_info{"user_uf"} ;
+			$data{"id_cidade"} = $user_info{"user_cidade"} ;			
+		}
+		// se for gerenciador
+		else if( $user_info{"user_level"} == 2 ){
+			$data{"id_uf"} = $sgd_uf ;
+			$data{"id_cidade"} = null ;	
+		}
+		
+		$noticia->insert_news_info( $data ) ;
+		
+		// salvar log de ação do usuário
+		$authentication->save_log_access( 'User insert news' ) ;
+		
+		show_message( "Notícia publicada com sucesso!" ) ;		
+		redir_page( "noticias_listar.php", true ) ;
+	}
+
+	// editar noticia
+	if( get_vars("edit") ){
+		$data{"id_noticia"} = get_vars("id_noticia") ;
+		$noticia->edit_news_info( $data ) ;
+		
+		// salvar log de ação do usuário
+		$authentication->save_log_access( 'User edit news "'.get_vars("id_noticia").'" details.' ) ;
+		
+		show_message( "Dados alterados com sucesso." ) ;
+		redir_page( "noticias_listar.php", true ) ;
+	}
+}
+
+// id inválido
+if( get_vars("id") ){
+
+	$noticia_info = array();
+	$noticia_info = $noticia->get_news_info( get_vars("id") ) ;	
+	if(!$noticia_info ){
+		redir_page( "noticias_listar.php" ) ;
+	}
+	
+	// filtro por nível de usuário
+	if( $user_info{"user_level"} == $level_municipal_manager ){
+		if( $user_info{"user_key"} != $noticia_info[0]{"usuario_publicacao"} ){
+			redir_page( "noticias_listar.php" ) ;
+		}
+	}
+
+}
+
+include( $template_directory . "header.inc.php" ) ;
+
+include( $template_directory . "noticias.inc.php" ) ;
+
+// salvar log de ação do usuário
+$authentication->save_log_access( "" ) ;
+
+//fechar conexao
+$connection->desconnect() ;
+
+include( $template_directory . "footer.inc.php" ) ;
+?>
+

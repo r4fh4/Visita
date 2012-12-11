@@ -1,0 +1,122 @@
+<script type="text/javascript" src="furniture/editor/ckeditor.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	$('#add-file').click(function(){	
+		$.get('arquivos_thumb_listar.php', function(data) {
+			$('.box-form-content').html(data);
+		});
+	});
+	
+	$("#file-container").click(function( e ){
+		switch(e.target.tagName){
+			case "DEL":
+				$(e.target).parents("li:first").remove();
+			break;
+		
+		}
+	});
+});
+</script>
+<h2 class="page-title">Incluír/Editar Programa de atendimento</h2>
+<p>Selecione as categorias/subcategorias do Programa e adicione seu texto.</p>
+
+<form id="form" name="form" class="input-form" method="POST" action="programas.php" target="response-form">
+	
+	<!-- CATEGORIA/SUBCATEGORIA -->
+	<div class="box-form">
+		<p style="float:left;">
+			<b>Categoria:</b><br />
+			<?
+			$selected_categ =  ( isset($programa_info[0]{"categoria"}) ? $programa_info[0]{"categoria"} : null ) ;
+			$list_categ = $programa->list_categoria() ;
+			$item_categ = array() ;
+			foreach( $list_categ as $item_ctg ){
+				$item_categ{$item_ctg{"id_categoria"}} = $item_ctg{"ds_categoria"} ;		
+			}
+			print gui_render_select( "categoria" , $item_categ , ( $selected_categ ? $selected_categ : null ), false ) ;
+			?>
+		</p>
+		
+		<p style="float:left;margin-left:20px;">
+			<b>Sub-Categoria:</b><br />
+			<?
+			$selected_subcateg = ( isset($programa_info[0]{"subcategoria"}) ? $programa_info[0]{"subcategoria"} : null ) ;
+			$restrict = true ;
+			$list_subcateg = $programa->list_subcategoria( $restrict ) ;	
+			$item_aubcateg = array() ;
+			foreach( $list_subcateg as $item_subctg ){
+				$item_subcateg{$item_subctg{"id_subcategoria"}} = $item_subctg{"ds_subcategoria"} ;		
+			}
+			print gui_render_select( "subcategoria" , $item_subcateg , ( $selected_subcateg ? $selected_subcateg : null ), false ) ;
+			?>
+		</p>
+		
+		<div style="clear:both;"><br /></div>
+		
+		<!-- ARQUIVO -->
+		<p>
+			<input type="button" id="add-file" name="add-file" value="Adicionar Arquivos" />
+			<ul id="file-container">
+			<?
+			if( isset( $programa_info[0]{"arquivos"} ) ){
+				
+				$list_files = unserialize( $programa_info[0]{"arquivos"} ) ;
+				if( is_array($list_files) ){
+					$list_results_files = $arquivo->get_file_info( $list_files , true, true ) ;
+					
+					foreach( $list_results_files as $item_results ){
+						$files{$item_results{"id_arquivo"}}{"title"} = $item_results{"titulo_arquivo"} ;
+						$files{$item_results{"id_arquivo"}}{"active"} = $item_results{"active"} ;
+					}
+					foreach( $list_files as $item ){
+						if( $files{$item}{"active"} == 1 ){
+							print '<li id="' . $item . '"><span class="tip">' . $files{$item}{"title"} . '</span><input type="checkbox" style="display:none;" checked="checked" name="files[]" value="' . $item . '" /><del>(excluír)</del></li>' ;
+						}
+						else{
+							print '<li id="' . $item . '" style="color:#E5765E;"><span class="tip">' . $files{$item}{"title"} . '</span> (arquivo deletado)</li>' ;
+						}
+					}
+				}
+			}
+			?>
+			</ul>
+		</p>
+		
+		<div style="clear:both;"><br /></div>
+		
+		<!-- TEXTO -->
+		<label>
+			<b>Texto*:</b><br />
+			<textarea style="width:250px;" cols="40" id="texto" name="texto" rows="5"><?=html_entity_decode($programa_info[0]{"texto"})?></textarea>
+			<script type="text/javascript">
+			//<![CDATA[
+				CKEDITOR.replace( 'texto',
+					{
+						skin : 'kama'
+					});
+
+			//]]>
+			</script>
+		</label>
+		
+		<div style="clear:both;"><br /></div>
+		
+		<?if( isset($programa_info[0]{"id_programa"}) ){?>	
+			<input type="hidden" name="id_programa" value="<?=$programa_info[0]{"id_programa"}?>" />
+		<?}?>
+		<!-- BOTÕES/AÇÕES -->
+		<p>
+			<input type="submit" class="btn-form" name="<?=(isset($programa_info[0]{"id_programa"}) ? "edit" : "insert");?>" value="<?=(isset($programa_info[0]{"id_programa"}) ? "Editar" : "Inserir");?>" />
+			<?if(!isset($programa_info[0]{"id_programa"})){?><input type="reset" class="btn-form" name="limpar" value="Limpar" /><?}?>
+			<input type="button" class="btn-form" onclick="javascript:$(location).attr('href', 'programas_listar.php' ) ;" name="back_to_list" value="Voltar para a lista" />
+		</p>
+		
+	</div>	
+	
+	<div class="box-form-content"><span class="tip">(Clique em "Adicionar Arquivos" para selecionar arquivos)</span></div>
+	
+	<div style="clear:both;"></div>
+	
+</form>
+<div style="clear:both;"><br /></div>
+<iframe id="response-form" name="response-form" frameborder="0" class="iframe"></iframe>

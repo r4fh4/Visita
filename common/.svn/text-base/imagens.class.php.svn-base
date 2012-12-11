@@ -1,0 +1,84 @@
+<?php
+/**
+ * Classe Imagens
+ * 
+ * Classe para manipulação de imagens
+ * @author tamemiya 2011-03-16
+ * @version 1.0
+ */
+
+class imagens{
+	
+	var $list_sixes			= array() ;
+	var $default_format		= "" ;
+	var $image_path	= "" ;
+	
+	function __construct(){
+			
+	}
+	
+	/**
+	 * método para inclusão de dados da imagem
+	 */
+	public function insert_image( $data = null ){
+		
+		global $connection ;
+		
+		if( $data ){
+			
+			$sql = 
+			"insert into tb_imagens ( legenda_imagem, credito_imagem, categoria, usuario_publicacao, active, dt_criacao ) 
+			values ( '" . mysql_real_escape_string( $data{"legenda"} ) . "', '" . mysql_real_escape_string( $data{"credito"} ) . "', '" . mysql_real_escape_string( $data{"categoria"} ) . "', '" . mysql_real_escape_string( $data{"usuario_id"} ) . "', '1', NOW() )" ;			
+			
+			$connection->execute( $sql ) ;
+			return $connection->last_insert_id() ;
+								
+		}
+		return false ;	
+	}
+	
+	/**
+	 * método de edição de informações da imagem
+	 */
+	public function edit_image_info( $data ){
+		
+		global $connection ;
+		
+		$sql  = "update tb_imagens set 
+				legenda_imagem = '" . mysql_real_escape_string( $data{"legenda_imagem"} ) . "' , 
+				credito_imagem = '" . mysql_real_escape_string( $data{"credito_imagem"} ) . "' ,
+				categoria = '" . mysql_real_escape_string( $data{"categoria"} ) . "' ,
+				usuario_edicao = '" . mysql_real_escape_string( $data{"usuario_id"} ) . "' ,
+				dt_modificacao = NOW() 
+				where id_imagem = "  . mysql_real_escape_string( $data{"id_imagem"} ) ;		
+		$connection->execute( $sql ) ;
+			
+	}
+	
+	/**
+	 * método para deletar imagens 
+	 */
+	public function delete_image( $data ){
+		
+		global $connection, $user_info ;
+		
+		$sql = "update tb_imagens set active = '0', dt_modificacao = NOW(), usuario_edicao = '" . mysql_real_escape_string( $user_info{"user_key"} ) . "' where id_imagem in(" . $data . ") " ;
+		$connection->execute( $sql ) ;		
+	}
+	
+	
+	/**
+	 * recuperar dados da imagem
+	 */
+	public function get_image_info( $data ){
+		
+		global $connection ;
+		
+		$sql = sprintf( "select * from tb_imagens where id_imagem = %d and active='1'", $data ) ;
+		$result = $connection->execute( $sql, true ) ;
+		return $result ;
+	
+	}
+	
+}
+?>

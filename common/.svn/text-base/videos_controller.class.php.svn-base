@@ -1,0 +1,53 @@
+<?
+class videos_controller{
+	
+	public $model = null ;
+	
+	public function  __construct(){
+		$this->model = new videos ;
+	}
+	
+	/*
+	* retornar videos do canal do youtube
+	*/
+	public function index(){
+		return $this->model->get_video_list_feed() ;	
+	}
+	
+	public function get_list(){
+		
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		// controle de cache
+		$cache = new cache() ;
+		$cache_id = "video-home" ;
+		$cache_content = $cache->read( $cache_id ) ;
+		
+		if( !$cache_content ){
+		
+			$list = $this->index() ;
+			if( $list ){
+				ob_start() ;
+				$complement_title = "Vídeos" ;
+				$meta_description = "Listagem de vídeos do Portal." ;
+				$css_files = write_css_header( array( "videos" ) ) ;
+
+				include( $template_directory . "header.inc.php" ) ;
+				include( $template_directory . "videos_listar.inc.php" ) ;
+				include( $template_directory . "footer.inc.php" ) ;
+				
+				$content = ob_get_contents() ;
+				$cache->save( $cache_id, $content . "<!-- cached in " . date("Y-m-d H:i:s") . " -->" ) ;
+				ob_end_flush() ;
+			}
+			else{
+				header( "Location: " . $page_not_found  ) ;
+				exit();		
+			}
+		}
+		print $cache_content ;
+		
+	}
+}
+?>

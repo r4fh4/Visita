@@ -1,0 +1,113 @@
+<?php
+set_time_limit(0); 
+require_once( "scripts/init.php" ) ;
+// checar acesso a pagina
+get_page_access() ;
+
+$arquivo = new arquivos ;
+
+// inserir novo
+if( get_vars("insert") ){
+	
+	if( get_vars("titulo") || $_FILES["arquivo"] ){
+
+		$normalized_name = preg_replace( "/[\-'\"=\/\?<>#%&;:]/", "", trim( str_replace( " ", "-", trim( strtolower( normalize_text( $_FILES["arquivo"]["name"] ) ) ) ) ) ) ;
+		$original_file_path = $files_directory . $normalized_name ;
+		
+		if( is_file( $original_file_path ) && file_exists( $original_file_path )  ){
+			show_message_html( "Já existe um arquivo com esse nome!", false ) ;
+			exit() ;
+		}
+		
+		if( !array_key_exists( $_FILES["arquivo"]{"type"}, $list_mime ) ){
+			show_message_html( "O formato do arquivo é inválido!", false ) ;
+			exit() ;
+		}
+		
+		if(  $_FILES["arquivo"]{"size"}  && $_FILES["arquivo"]{"size"} > FILE_LIMIT_SIZE ){
+			show_message_html( 'O tamanho do arquivo (' . FILE_LIMIT_SIZE / 1024 . ' KB) é maior que o limíte permitido!', false ) ;
+			exit() ;
+		}
+		
+		// validar processo de upload
+		if( move_uploaded_file( $_FILES["arquivo"]["tmp_name"], $original_file_path ) ){
+			
+			$data = array(
+				"titulo_arquivo" => get_vars("titulo"),
+				"legenda_arquivo" => get_vars("legenda") ,
+				"type" => $list_mime{$_FILES["arquivo"]{"type"}},
+				"size" => $_FILES["arquivo"]{"size"},
+				"file_name" => $normalized_name,
+				"usuario_publicacao" => $user_info{"user_key"},
+				"categoria" => get_vars("categoria"),
+				"subcategoria" => get_vars("subcategoria"),
+			) ;
+			
+			$arquivo->insert_file( $data ) ;
+			show_message( "Arquivo publicado com sucesso!" ) ;		
+			redir_page( "arquivos_listar.php", true ) ;
+
+		}
+		else{
+			show_message_html( "O arquivo selecionado não pode ser gravado, selecione outro!" , false ) ;		
+			exit() ;
+		}
+	}
+	else{
+		show_message_html( "Dados em branco, favor preencher!", false ) ;		
+		exit() ;
+	}	
+	
+}
+
+// voltar para a lista
+if( get_vars("back_to_list") ){
+	redir_page( "arquivos_listar.php" ) ;
+}
+
+// editar arquivo
+if( get_vars("edit") ){
+	if( !get_vars("titulo") ){
+		show_message_html(  'Campo "Título" é obrigatório, favor preencher!', false ) ;
+		exit() ;	
+	}
+	$arquivo->edit_file_info( array( "id_arquivo" => get_vars("id_arquivo"), "titulo_arquivo" => get_vars("titulo"), "legenda_arquivo" => get_vars("legenda"), "usuario_id" => $user_info{"user_key"}, "categoria" => get_vars("categoria"), "subcategoria" => get_vars("subcategoria") ) ) ;
+	
+	// salvar log de ação do usuário
+	$authentication->save_log_access( 'User edit file "'.get_vars("id_arquivo").'" details.' ) ;
+	
+	show_message( "Dados alterados com sucesso." ) ;
+	redir_page( "arquivos_listar.php", true ) ;
+}
+
+// id inválido
+if( get_vars("id") ){
+
+	$arquivo_info = array();
+	$arquivo_info = $arquivo->get_file_info( get_vars("id") ) ;	
+	if(!$arquivo_info ){
+		redir_page( "arquivos_listar.php" ) ;
+	}
+	
+	// filtro por nível de usuário
+	if( $user_info{"user_level"} == $level_municipal_manager ){
+		if( $user_info{"user_key"} != $arquivo_info[0]{"usuario_publicacao"} ){
+			redir_page( "arquivos_listar.php" ) ;
+		}
+	}
+
+}
+
+include( $template_directory . "header.inc.php" ) ;
+
+include( $template_directory . "arquivos.inc.php" ) ;
+
+// salvar log de ação do usuário
+$authentication->save_log_access( "" ) ;
+
+//fechar conexao
+$connection->desconnect();
+
+include( $template_directory . "footer.inc.php" ) ;
+?>
+

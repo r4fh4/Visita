@@ -1,0 +1,37 @@
+<script language="javascript" type="text/javascript">
+$(document).ready(function(){
+	$("#login").focus();
+});
+</script>
+<h1></h1>
+<div id="login-main">
+	<form name="form" id="form" action="<?=$alias?>authenticate" method="post">
+		<div class="login">
+			<p class="element-hidden"><input type="text" name="email-send" value="" /></p>
+			<p class="legend">Autenticação necessária</p>
+			<p>
+			E-mail:<br /><input id="login" type="text" name="login" size="40" maxlength="150" /><br /><br />
+			Senha:<br /><input id="password" type="password" name="password" size="20" maxlength="20" /><br /><br />
+			<input type="submit" class="btn-form" name="ok" value="enviar" /> <input class="btn-form" type="reset" name="clear" value="limpar" />
+			<input type="hidden" name="target_redirect" value="<?=htmlspecialchars(get_vars("target_redirect"));?>" />
+			</p>
+			
+				<?php					
+				if( isset( $_SESSION{"error_message"} ) ){
+					$message = trim( htmlspecialchars( (isset($_SESSION{"error_message"}) ? $_SESSION{"error_message"} : null ) ) ) ;
+					echo '<p class="feedback-login">' . $message . '</p>' ;						
+					unset( $_SESSION{"error_message"} );
+					session_destroy() ;
+				}
+				?>
+			
+		</div>
+		<div>
+		<h3>Área restrita</h3>
+		<p>Para acessar está área é necessário que você se identifique através do formulário ao lado.</p>
+		<p>Caso não possua cadastro, <a href="<?=$alias?>cadastro">clique aqui</a> para fazer o seu e acessar o conteúdo desta área.</p>
+		<p>Caso já tenha efetuado seu cadastro certifique-se de ativado aravés do e-mai lenviado pelo Portal.</p>
+		<p>Esqueceu sua senha? <a href="<?=$alias?>redefinir-acesso">Clique aqui</a> para redefinir sua senha.</p>
+		</div>
+	</form>
+</div>

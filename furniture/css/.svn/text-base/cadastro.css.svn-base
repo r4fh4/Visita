@@ -1,0 +1,20 @@
+/*
+Contato CSS
+author: rafhael 2011-04-18
+*/
+.campoContato{
+	background-color:#FDFAF0;
+	border:1px solid #CCC
+}
+
+.campoErro{
+	border:1px solid #FF0000;
+	background-color:#EFD1D1;
+	color:#FF0000
+}
+
+#mainContato{
+	text-align:left;
+	margin:0 auto;
+	width:510px
+}

@@ -1,0 +1,24 @@
+dashboard={};
+
+dashboard.setDHTML=function(){
+	chart();
+	
+	$('#anos').change(function(){
+		var	id = $(this).val();
+		location.href='?ano='+id;
+	});
+},
+
+chart = function(){
+	var	xml = 'xml.php?ano='+$('#anos').val(),
+		myChart = new FusionCharts("../furniture/swf/FusionCharts/C_FCMap_SaoPaulo.swf", "chart8909", "800", "550", "0", "0");
+	myChart.setXMLUrl(xml);
+	myChart.setTransparent(true);
+	myChart.render("flash");
+}
+
+carrega = function(cidade, valor, comite){
+	var	html = '<b>'+$('#line_'+comite+' td.mName').text()+'</b>: '+$('#line_'+comite+' td.mValue').text()+'<br /><br />';
+		html += '<b>Cidade de '+decodeURIComponent(escape(cidade))+'</b>: '+valor+'<br />';
+	$('#dados').html(html).show();
+}

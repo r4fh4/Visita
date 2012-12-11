@@ -1,0 +1,137 @@
+<?php
+/**
+* Classe Segmentos
+* 
+* Classe para manipulação de segmentos
+* @author tamemiya 2011-03-16
+* @version 1.0
+*/
+class segmentos{
+	
+	function __construct(){
+	
+	}
+	
+	/**
+	 * listar categorias
+	 */
+	public function list_categoria( $data = null ){
+	
+		global $connection, $user_info ;		
+		$sql = sprintf( "select * from tb_segmentos_categoria where active ='1' " . ( $data ? " and id_categoria=" . mysql_real_escape_string( $data ) : "" ) . " order by ds_categoria asc" ) ;
+		$results = $connection->execute( $sql, true ) ;
+		return $results ;
+	}
+	
+	/**
+	 * listar subcategorias
+	 */
+	public function list_subcategoria( $restrict = false, $data = null ){
+		
+		global $connection, $user_info ;
+		
+		$where = "" ;
+		// Administrador e gerenciador geral
+		if( $restrict ){
+			if( $user_info{"user_level"} == 2 ){
+				$where = "usuario_grupo = 1 and" ;
+			}
+			else if( $user_info{"user_level"} == 3 ){
+				$where = "usuario_grupo = 2 and" ;
+			}
+			else if( $user_info{"user_level"} == 1 ){
+				$where = "" ;
+			}
+		}
+		
+		$sql = sprintf( "select * from tb_segmentos_subcategoria where " . $where . "  active ='1' " . ( $data ? " and id_subcategoria=" . mysql_real_escape_string( $data ) : "" ) . " order by ds_subcategoria asc" ) ;
+		$results = $connection->execute( $sql, true ) ;
+		return $results ;	
+	}
+	
+	/**
+	 * recuperar dados do segmento
+	 */
+	public function get_segmento_info( $data ){
+		
+		global $connection ;
+		
+		$sql = sprintf( "select * from tb_segmentos where id_segmento = %d and active='1'", $data ) ;
+		$result = $connection->execute( $sql, true ) ;
+		
+		return $result ;
+
+	}
+	
+	public function insert_segmento_info( $data ){
+		
+		global $connection ;
+		
+		$sql = "insert into tb_segmentos (texto, endereco, categoria, subcategoria, id_uf, id_cidade, active, dt_criacao, usuario_publicacao) values (
+				'" . mysql_real_escape_string( $data{"texto"} ) . "',
+				'" . mysql_real_escape_string( $data{"endereco"} ) . "',
+				" . mysql_real_escape_string( $data{"categoria"} ) . ",
+				" . mysql_real_escape_string( $data{"subcategoria"} ) . ",
+				" . ( $data{"id_uf"} ? "'".mysql_real_escape_string( $data{"id_uf"} )."'" : 'null' ) . ",
+				" . ( $data{"id_cidade"} ? "'".mysql_real_escape_string( $data{"id_cidade"} )."'" : 'null' ) . ",
+				1,
+				NOW(),
+				'" . mysql_real_escape_string( $data{"usuario_id"} ) . "'
+				)" ;
+			
+		$connection->execute( $sql ) ;		
+			
+	}
+	
+	public function edit_segmento_info( $data ){
+		
+		global $connection ;
+		
+		$sql = "update tb_segmentos set 
+				texto = '" . mysql_real_escape_string( $data{"texto"} ) . "',
+				endereco = '" . mysql_real_escape_string( $data{"endereco"} ) . "',
+				categoria = " . mysql_real_escape_string( $data{"categoria"} ) . ",
+				subcategoria = " . mysql_real_escape_string( $data{"subcategoria"} ) . ",
+				dt_modificacao = now(),
+				usuario_edicao = '" . mysql_real_escape_string( $data{"usuario_id"} ) . "' 
+				where id_segmento = '" . mysql_real_escape_string( $data{"id_segmento"} ) . "'" ;
+		$connection->execute( $sql ) ;
+		
+	}
+	
+	/**
+	 * método para deletar segmento
+	 */
+	public function delete_segmento( $data ){
+		
+		global $connection, $user_info ;		
+	
+		$sql = "update tb_segmentos set active = '0', usuario_edicao = '" . mysql_real_escape_string( $user_info{"user_key"} ) . "', dt_modificacao = NOW() where id_segmento in(" . $data . ") " ;
+		$connection->execute( $sql ) ;		
+	}
+	
+	public function verify_segmento_avaliabity( $categoria = null, $subcategoria = null, $id_uf = null, $id_cidade = null ){
+		
+		global $connection ;
+		$where = array() ;
+		if( $categoria ){
+			$where[] = " categoria = " . mysql_real_escape_string( $categoria ) ;
+		}
+		if( $subcategoria ){
+			$where[] = " subcategoria = " . mysql_real_escape_string( $subcategoria ) ;
+		}
+		if( $id_uf ){
+			$where[] = " id_uf = " . mysql_real_escape_string( $id_uf ) ;
+		}
+		if( $id_cidade ){
+			$where[] = " id_cidade = " . mysql_real_escape_string( $id_cidade ) ;
+		}
+		$where = implode( " and", $where ) ;
+		
+		$sql = "select * from tb_segmentos where " . $where . " and active = 1" ;
+		
+		$results = $connection->execute( $sql, true ) ;
+		return $results ;		
+	}
+}
+?>

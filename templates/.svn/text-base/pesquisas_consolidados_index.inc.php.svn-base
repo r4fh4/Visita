@@ -1,0 +1,11 @@
+<h1 class="breadcrumb"><a href="<?=$alias?>indicadores">Indicadores</a> / Consolidados</h1>
+<div id="container-search">
+	<br class="clean"/>
+	<p>
+		<a href="<?=$alias?>indicadores/consolidados/ideb/series_iniciais">Ideb - series iniciais</a><br />	
+		<a href="<?=$alias?>indicadores/consolidados/ideb/series_finais">Ideb - series finais</a><br />
+		<a href="<?=$alias?>indicadores/consolidados/ideb_escolas/series_iniciais">Ideb - Escolas - series iniciais</a><br />	
+		<a href="<?=$alias?>indicadores/consolidados/ideb_escolas/series_finais">Ideb- Escolas - series finais</a><br />
+	</p>
+</div>
+<br class="clean"/>

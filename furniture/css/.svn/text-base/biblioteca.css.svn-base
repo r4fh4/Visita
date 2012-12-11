@@ -1,0 +1,240 @@
+/*
+Biblioteca CSS
+author: rafhael 2011-03-28
+*/
+#boxPesquisa{
+	background-color:#f4f0d2;
+	height:70px
+}
+
+#boxPesquisa b,
+#formPequisa b{
+	font-size:11px
+}
+
+#pesquisaDirecao{
+	width:255px;
+	border-right:1px dashed #666666;
+	padding-right:40px;
+	height:55px
+}
+
+#pesquisaDirecao,
+#formPesquisa,
+#buttonPesquisa{
+	float:left
+}
+
+#formPesquisa{
+	width:335px;
+	text-align:right;
+	margin-left:30px;
+	font-size:9px;
+	color:#999
+}
+
+#formPesquisa b{
+	color:#FF9900;
+	padding-right:15px;
+	line-height:20px
+}
+
+#formPesquisa input{
+	border:1px solid #CCC;
+	width:215px
+}
+
+#boxHelp,
+#boxPesquisa{
+	width:750px;
+	border:1px solid #CCC;
+	text-align:left;
+	padding:17px 15px 0 30px;
+	margin:0 auto;
+	color:#666666
+}
+
+#boxHelp{
+	background-color:#ECECEC;
+	border:1px solid #CCC;
+	margin-top:3px;
+	height:35px;
+	font-size:9px
+}
+
+#boxHelp img,
+#readerDown{
+	float:left
+}
+
+#boxHelp img{
+	padding-left:10px;
+	margin-top:-10px
+}
+
+#arquivos{
+	margin-top:50px;
+}
+
+.expandir{
+	cursor:pointer;
+	float:right
+}
+
+.catAba{
+	margin-left:70px
+}
+
+.catMiddle{
+	margin: 10px 5px 5px 5px
+}
+
+.imgDownload{
+	border-bottom:1px solid #999;
+	margin:-27px 0 0 -1px
+}
+
+.tableDown{
+	margin:-12px 0 0 33px;
+	width:893px
+}
+
+div.hide{
+	display:none
+}
+
+td.title{
+	border-bottom:1px solid #999;
+	border-left:1px solid #999;
+	border-right:1px solid #999;
+	text-align: left
+}
+
+td.title img{
+	cursor:pointer;
+	padding:0 10px
+}
+
+td.title .name{
+	padding-left:10px;
+	padding-top:5px;
+	padding-bottom:5px;
+	cursor:pointer;
+	color:#666666
+}
+
+.fields,
+.subCat{
+	border-bottom:1px solid #999;
+	border-right:1px solid #999;
+	text-align:center;
+	font-size:9px
+}
+
+.subCat{
+	color:#F60
+}
+
+.fields{
+	color:#339999;
+	text-transform:uppercase
+}
+
+#downMiddle_1,
+#downMiddle_2,
+#downMiddle_3,
+#downMiddle_4,
+#downMiddle_5 {
+	height:31px;
+	text-transform:uppercase;
+	color:#FFF;
+	float:left;
+	width:100px;
+	
+}
+
+#downMiddle_1{
+	background-color:#CCCC99
+}
+
+#downMiddle_2 {
+	background-color:#66CCCC
+}
+
+#downMiddle_3 {
+	background-color:#A4C531
+}
+
+#downMiddle_4 {
+	background-color:#FFCC00
+}
+
+#downMiddle_5 {
+	background-color:#CCCCCC
+}
+
+#downLeft_1,
+#downLeft_2,
+#downLeft_3,
+#downLeft_4,
+#downLeft_5 {
+	width:11px;
+	height:31px;
+	float:left;
+	background-repeat:no-repeat;
+	background-image: url('../images/bordas_sprite.png');
+	width:11px
+}
+
+#downLeft_1{
+	background-position:-5px -97px
+}
+
+#downLeft_2{
+	background-position:-5px -65px
+}
+
+#downLeft_3{
+	background-position:-5px -129px
+}
+
+#downLeft_4{
+	background-position:-5px -32px
+}
+
+#downLeft_5{
+	background-position:-5px 0px
+}
+
+#downRight_1,
+#downRight_2,
+#downRight_3,
+#downRight_4,
+#downRight_5{
+	width:11px;
+	height:31px;
+	float:left;
+	background-repeat:no-repeat;
+	background-image: url('../images/bordas_sprite.png');
+	width:11px
+}
+
+#downRight_1{
+	background-position:-18px -97px
+}
+
+#downRight_2 {
+	background-position:-18px -65px
+}
+
+#downRight_3 {
+	background-position:-18px -129px
+}
+
+#downRight_4 {
+	background-position:-18px -32px
+}
+
+#downRight_5 {
+	background-position:-18px 0px
+}

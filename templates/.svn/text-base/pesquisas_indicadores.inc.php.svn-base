@@ -1,0 +1,25 @@
+<? header("Content-Type: text/html; charset=ISO-8859-1",true) ; ?>
+<script language="javascript" type="text/javascript">
+$(".list-indicador").click(function(){
+	set_indicadores( $(this).attr("id"), $(this).attr("alt") ) ;
+});
+</script>
+<?php
+switch( $template_type ){
+
+	// monta lista para seleção de indicadores na pesquisa
+	case "indicadores_list_selection" :	
+		
+		echo '<h2>3. Indicadores</h2>' ;
+		echo '<ul>' ;
+		foreach( $results as $item ){
+			?>
+			<li><a id="<?=$item{"id_indicador"}?>" class="list-indicador" alt="<?=htmlspecialchars($item{"ds_tema"}) ." > ".htmlspecialchars($item{"ds_assunto"}) ." > ". htmlspecialchars($item{"ds_indicador"})?>" href="javascript:void(0);"><?=htmlspecialchars($item{"ds_indicador"})?></a></li>
+			<?
+		}
+		echo '</ul>' ;
+	
+	break ;
+}
+
+?>

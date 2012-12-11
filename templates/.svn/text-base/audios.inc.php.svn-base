@@ -1,0 +1,89 @@
+<h1 class="breadcrumb">Áudios</h1>
+<div id="columnLeft550" class='leftNone'>
+	<!-- TOOLS -->
+	<div class="tools">
+		<ul>			
+			<li><a href="http://www.linkedin.com/shareArticle?mini=true&url=<?=$short_url?>&title=<?=urlencode(utf8_encode(htmlspecialchars($audio[0]{"titulo_audio"})))?>" target="_blank" title="LinkedIn"><span class="icone-tools linkedin"></span></a></li>
+			<li><a href="javascript:void(0);" onclick="tools( 'facebook', '<?=$short_url?>', '<?=urlencode(utf8_encode(htmlspecialchars($audio[0]['titulo_audio'])))?>' );" title="Facebook"><span class="icone-tools facebook"></span></a></li>
+			<li><a href="javascript:void(0);" onclick="tools( 'orkut', '<?=$short_url?>', '<?=urlencode(utf8_encode(htmlspecialchars($audio[0]['titulo_audio'])))?>' );" title="Orkut"><span class="icone-tools orkut"></span></a></li>
+			<li><a href="javascript:void(0);" onclick="tools( 'twitter', '<?=$short_url?>', '<?=urlencode(utf8_encode(htmlspecialchars($audio[0]['titulo_audio'])))?>' );" title="Twitter"><span class="icone-tools twitter"></span></a></li>
+			<li><a href="javascript:void(0);" onclick="tools( 'gmail', '<?=$short_url?>', '<?=urlencode(utf8_encode(htmlspecialchars($audio[0]['titulo_audio'])))?>', '<?=urlencode(utf8_encode(htmlspecialchars($audio[0]['legenda_audio'])))?>' );" title="Gmail"><span class="icone-tools gmail"></span></a></li>
+			<li><span class="icone-tools share-redes" title="compartilhe"></span></li>
+			<li><span class="icone-tools separator-audio"></span></li>
+			<li><a href="<?=$alias?>" title="voltar para a Página inicial"><span class="icone-tools home-back"></span></a></li>
+			<li><a href="<?=$alias?>audios/rss" target="_blank" title="Acessar RSS"><span class="icone-tools rss"></span></a></li>
+			<li><a href="javascript:void(0);" onclick="tools( 'open-mail' );" title="enviar por e-mail"><span class="icone-tools mail"></span></a></li>
+			<li><a href="javascript:void(0);" onclick="tools( 'big-text' );void(0);" title="Aumentar texto"><span class="icone-tools big-text"></span></a></li>
+			<li><a href="<?=$alias?>audios/listar" title="voltar para a listagem de notícias"><span class="icone-tools listagem-link"></span></a></li>
+		</ul>
+		<iframe name="container-print" id="container-print"></iframe>
+	</div>
+	<!-- /TOOLS -->
+	<!-- BOX SEND-MAIL -->
+	<div id="box-send-mail">
+		<form id="send-mail" name="send-mail" action="" method="post">
+			<input type="hidden" name="title" value="<?=htmlspecialchars($audio[0]['titulo_audio'])?>" />
+			<input type="hidden" name="description" value="<?=htmlspecialchars($audio[0]['legenda_audio'])?>" />
+			<?
+			$token1 = md5(uniqid(rand(), TRUE));
+			$token2 = strrev($token1);
+			?>
+			<input type="hidden" name="token1" value="<?=$token1;?>" />
+			<input type="hidden" name="token2" value="<?=$token2;?>" />
+			<input type="text" name="mail" class="my-mail" value="" />
+			<input type="hidden" name="url" value="<?=$short_url?>" />
+			<fieldset>
+				<legend>Enviar por E-mail</legend><br />
+				<label>Seu nome:<br /><input type="text" name="your-name" maxlength="150" /></label> 
+				<label>Seu e-mail:<br /><input type="text" name="your-mail" maxlength="150" /></label>
+				<label>E-mail(s) para enviar:<br /><input type="text" name="mails" maxlength="250" /><br /><span class="tip">Para mais de um e-mail, separe por vírgula. São permitidos 3 no máximo.</span></label>
+				<label>Mensagem:<br /><textarea name="mensagem" cols="37" rows="3" ></textarea></label><br />
+				<p class="result-mail"></p>				
+				<input type="button" name="close" id="close" value="Fechar" onclick="tools('close-mail');" class="button" />
+				<input type="reset" name="reset" value="Limpar" class="button" />
+				<input type="button" name="sender" id="sender" value="Enviar" onclick="tools('send-mail', '<?=$alias?>tools/mail/audios');" class="button" />
+			</fieldset>
+		</form>		
+		<br class="clean" />
+	</div>
+	<!-- /BOX SEND-MAIL -->
+	<h2 class='title'><?php echo htmlspecialchars($audio[0]['titulo_audio']); ?></h2>
+	<span class='tip autor'><?php echo convert_data($audio[0]['dt_criacao']); ?></span>
+	<br />
+	<span class='texto'>
+		<p><?php echo htmlspecialchars($audio[0]['legenda_audio']); ?></p>
+		<span class="tip">* clique em "Incorporar" para copiar o código e inserir o podcast no seu site.</span>	<br /><br />
+		<div class="box-audio-player">				
+			<div>
+			<object type="application/x-shockwave-flash" data="<?=$furniture_directory?>swf/dewplayer-playlist.swf?mp3=<?=$audios_directory . $audio[0]{"file_name"}?>&amp;showtime=1&amp;volume=50" width="240" height="20" id="dewplayer">
+				<param name="wmode" value="transparent" />
+				<param name="movie" value="<?=$furniture_directory?>swf/dewplayer-playlist.swf?mp3=<?=$audios_directory . $audio[0]{"file_name"}?>&amp;showtime=1&amp;volume=50" />
+			</object>
+			</div>			
+			<span><a href="<?=$audios_directory . $audio[0]{"file_name"}?>" target="_blank">Download</a></span><span><a href="javascript:void(0);" id="embed-button">Incorporar</a></span><br />
+			<? 	$embed_code = '<iframe name="player" src="' . $base_url_site . 'audios/embed/' . $audio[0]{"id_audio"} . '" width="330" frameborder="0" height="80" style="border:none"></iframe>' ; ?>
+			<input type="text" name="embed" id="embed" value="<?=htmlspecialchars( $embed_code );?>" />
+		</div>
+		<br class="clean" />
+		
+	</span>	
+</div>
+<div id="columnRight350">
+	<ul id="lastItens">
+		<?php if($records) {
+			foreach($records as $lista) {
+		?>
+				<li id="n<?php echo $lista['id_audio']; ?>">
+					<img src="<?=$furniture_directory?>images/icn-podcast.jpg" alt="" style="border:none;" />
+					<div class='lista'>
+						<a href="<?=$base_url_site . "audios/" . $lista['id_audio'] . '-' . normalize_text( htmlspecialchars( $lista['titulo_audio'] ), true );?>" title="<?=htmlspecialchars($lista['titulo_audio'])?>"><b><?php echo htmlspecialchars(strlen($lista['titulo_audio']) > 50 ? substr($lista['titulo_audio'],0,50).'...' : $lista['titulo_audio']); ?></b></a>
+						<br /><br />
+						<a href="<?=$base_url_site . "audios/" . $lista['id_audio'] . '-' . normalize_text( htmlspecialchars( $lista['titulo-audio'] ), true );?>"><?php echo htmlspecialchars($lista['legenda_audio']); ?></a>
+					</div>
+					<br class="clean" />
+				</li>
+			<?php }
+		} ?>
+	</ul>
+</div>
+<br /><br class="clean" />

@@ -1,0 +1,228 @@
+<?php
+/**
+* Classe authentication
+* 
+* Classe para autenticação
+* @author tamemiya 2011-03-16
+* @version 1.0
+*/
+class authentication{
+	
+	function __construct(){
+	
+	}
+	
+	/**
+	 * efetuar autenticação
+	 */	
+	 public function execute_authentication(){
+	 
+		global $secury_key2 ;
+		
+		@session_start() ;
+		
+		$user_info = null ;
+
+		// sempre verificar o USER_AGENT para evitar roubo de sessão
+		if ( array_key_exists( 'HTTP_USER_AGENT', $_SESSION ) ){
+			if ( $_SESSION['HTTP_USER_AGENT'] != md5( $_SERVER['HTTP_USER_AGENT'] . $secury_key2 ) ){
+			 
+				$_SESSION{"error_message"} = "Acesso restrito!." ;
+				header( "Location: login.php" ) ;
+				header("Content-Length: 0") ;
+				exit();
+			}
+		}
+		else{
+			$_SESSION['HTTP_USER_AGENT'] = md5( $_SERVER['HTTP_USER_AGENT'] . $secury_key2 ) ;
+		}	
+			
+		
+		$test_authenticate = $this->authenticate() ;
+		
+		if( !$test_authenticate ){
+
+			if( !isset($_SESSION{"error_message"}) ){
+				$_SESSION{"error_message"} = "Acesso restrito!" ;
+			}					
+			header( "Location: login.php" ) ;
+			header("Content-Length: 0") ;
+			exit();
+		}
+		if( isset( $_SESSION{"login_data"} ) ){
+			$user_info = $_SESSION{"login_data"} ;
+			$user_info{"modules"} = $this->get_user_modules( $user_info{"user_level"} ) ;
+		}
+		
+		if( isset($_SESSION{"error_message"}) ){
+			unset( $_SESSION{"error_message"} ) ;
+		}		
+		return $user_info ;	 
+	 }	
+	
+	/**
+	 * método para autenticar usuário.
+	 */
+	public function authenticate(){
+
+		global $secury_key, $connection ;		
+		
+		$login	= trim( strip_tags( ( isset($_POST{"login"}) ? $_POST{"login"} : "" ) ) ) ;
+		$pws	= trim( strip_tags( ( isset($_POST{"password"}) ? $_POST{"password"} : "" ) ) ) ;
+		$now	= date( "Y-m-d H:i:s" ) ;
+
+		// verificar se existe sessão criada
+		if( isset($_SESSION{"login_data"}) ){
+
+			$session_data = $_SESSION{"login_data"} ;				
+			if( $session_data{"login_key"} == md5( $secury_key .  $session_data{"ip"} . $session_data{"user_key"} ) ){
+				$sql = sprintf( "select * from tb_usuario where id_usuario = '%d' and active='1' limit 1", mysql_real_escape_string( $session_data{"user_key"} ) ) ;
+				$results = $connection->execute( $sql, true ) ;
+				
+				if( $results ){
+					session_regenerate_id() ;
+					return true ;			
+				}
+			}
+		}
+		
+		// caso não haja sessão pega os dados do form de login.
+		if( !empty( $login ) || !empty( $pws ) ){
+
+			$login	= clear_content( trim( $login ) ) ;
+			$pws	= clear_content( trim( $pws ) ) ;
+
+			$sql = sprintf( "select * from tb_usuario where login = '%s' and active='1' limit 1", mysql_real_escape_string( $login ) ) ;
+			$results = $connection->execute( $sql, true ) ;
+
+			// se encontrou o login digitado verifica a senha
+			if( $results ){				
+			
+				// senhas batem
+				if( !empty($results[0]{"password_content"}) && $results[0]{"password_content"} == md5( $pws ) ) {
+						
+					// alterar status do usuário para logado
+					$sql = "update tb_usuario set logged = '1', dt_last_login = '" . $now . "' where id_usuario = '" . mysql_real_escape_string( $results[0]{"id_usuario"} ) . "' " ;
+					$connection->execute( $sql ) ;
+
+					$ip						= $_SERVER['REMOTE_ADDR'] ;
+					$hora					= time();
+					$secury_key				= md5( $secury_key . $ip . $results[0]{"id_usuario"} ) ;
+					$_SESSION{"login_data"} = array( 
+						"full_name"		=> $results[0]{"nm_usuario"} ,
+						"email"			=> $results[0]{"email"} ,
+						"login_key"		=> $secury_key , 
+						"ip"			=> $ip , 
+						"user_key"		=> $results[0]{"id_usuario"} ,
+						"user_level"	=> $results[0]{"id_grupo"} ,
+						"user_uf"		=> $results[0]{"id_uf"} ,
+						"user_cidade"	=> $results[0]{"id_cidade"} ,
+
+					) ;
+					unset( $login ) ;
+					unset( $pws ) ;
+					session_regenerate_id() ;
+					header( "Location: index.php" ) ;
+					header("Content-Length: 0") ;
+					exit() ;		
+				}
+				else{ 
+					if(!isset($_SESSION{"error_message"})){
+						$_SESSION{"error_message"} = "Dados de acesso incorretos, contate o Administrador do Sistema." ;
+					}
+					return false ;
+				}
+			}
+			else{
+				if(!isset($_SESSION{"error_message"})){
+					$_SESSION{"error_message"} = "Dados de acesso incorretos, contate o Administrador do Sistema." ;
+				}
+				return false ;
+			}
+		}
+		else{
+			if(!isset($_SESSION{"error_message"})){
+				$_SESSION{"error_message"} = "Preencha os campos para efetuar o login." ;
+			}
+			return false ;
+		}		
+		return false ;
+	}
+	
+	/**
+	 * método para logout do sistema.
+	 */
+	static public function logout(){
+		
+		global $connection ;
+		$user_info = $_SESSION["login_data"] ;
+		
+		$sql = "update tb_usuario set logged = '0', dt_last_login = NOW() where id_usuario = '" . mysql_real_escape_string( $user_info{"user_key"} ) . "' " ;
+		$connection->execute( $sql ) ;
+		
+		$_SESSION["login_data"] = null ;
+		unset( $user_info ) ;
+		unset( $_SESSION{"login_data"} );
+		session_destroy() ;
+		
+		header( "Location: login.php" ) ;
+		header("Content-Length: 0");
+		header("Cache-Control: no-cache");
+		header("Pragma: no-cache");
+		exit();
+		
+	}
+	
+	/**
+	 * método para recupear módulos de acesso do usuário.
+	 */
+	public function get_user_modules( $user_level = null ){
+			
+		global $connection ;
+		
+		$sql = sprintf( "select * from tb_modulo_grupo where id_grupo = %d and active = '1'", mysql_real_escape_string( $user_level ) ) ;
+
+		$results = $connection->execute( $sql, true ) ;
+		
+		if( $results ){
+			$items_menu = array() ;
+			foreach( $results as $item ){
+				$items_menu{ $item{"ds_modulo"} }	= $item{"ds_modulo"} ;
+				$items_menu{ $item{"ds_modulo"} }	= normalize_text( $item{"ds_modulo"} ) ;
+			}
+			return $items_menu ;
+		}
+		
+		return false ;
+		
+	}
+	
+	/**
+	 * método para salvar log de acessos.
+	 */
+	public function save_log_access( $data ){
+		
+		global $connection, $user_info ;
+		
+		$sql = sprintf( "
+			insert into tb_usuario_log (id_usuario, ip_usuario, page, comment, active, dt_criacao) 
+			values 
+			(
+			'%d',
+			'%s',
+			'%s',
+			'%s',
+			'1',
+			NOW()
+			)
+		", 
+		mysql_real_escape_string( $user_info{"user_key"} ) ,
+		mysql_real_escape_string( $user_info{"ip"} ) ,
+		mysql_real_escape_string( $_SERVER["REQUEST_URI"] ) ,
+		mysql_real_escape_string( $data )
+		) ;
+
+		$connection->execute( $sql ) ;	
+	}
+}
+?>

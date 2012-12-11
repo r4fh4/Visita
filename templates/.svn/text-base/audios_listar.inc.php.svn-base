@@ -1,0 +1,83 @@
+<link rel="alternate" title="<?=$website_name?> Últimos Áudios" href="<?=$base_url_site . "noticias/rss"?>" type="application/rss+xml" />
+<script type="text/javascript">
+	$(document).ready(function(){
+		noticias.setDHTML();
+	});
+</script>
+<h1 class="breadcrumb">Áudios</h1>
+<div id="columnLeft550" class='leftFull'>
+	<button class='boxMarrom'>Pesquise no Site</button>
+	<br /><br />
+	<div id="boxPesquisa" class='clean'>
+		<div id="searchCat">
+			<b>DEFINE UMA CATEGORIA</b>
+			<br /><br />
+			<div class='subTitle'>Filtre os áudios por categoria.<br />Ex.: Eventos, comunicados, etc.<br /><br /></div>
+			<br /><br />
+			<select name="tema" id="tema" class='campoTexto'>
+				<option value='0'>Selecione ... </option>
+				<?php asort($categorias); foreach($categorias as $key => $value) { ?>
+					<option value='<?=$key?>' <?php echo ($cat == $key ? 'selected="selected"' : ''); ?> >
+						<?php echo htmlspecialchars($value); ?>
+					</option>
+				<?php } ?>
+			</select>
+			<br />
+			<button type="button" class="buttonPesquisaTema" title="Pesquisar">enviar</button><br />			
+		</div>
+		<div id="searchName">
+			<b>PALAVRA-CHAVE</b>
+			<br /><br />
+			<div class='subTitle'>Escreva um nome, uma frase, faça combinações.<br />Ex.: criança+violência.</div>
+			<br /><br />
+			<input name="search" id="search" type="text" class='campoTexto'>
+			<br />
+			<button type="button" class="buttonPesquisa" title="Pesquisar">enviar</button>
+			<br /><br /><a href="<?=$base_url_site?>audios/listar">Limpar filtros</a>
+		</div>
+	</div>
+	<br class='clean'/>
+	<div id="result">
+		<button class='boxMarrom'>Resultado da Pesquisa</button>
+		<ul id="searchNews">
+			<?php if($records) {
+				foreach($records as $lista) { ?>
+					<li>
+						<span class="box-data-news"><?=date("d/m", htmlspecialchars( strtotime( $lista['dt_criacao'] ) ) ) ?></span>
+						<span class="box-title-news">
+						<a href="<?=$base_url_site . "audios/" . $lista['id_audio'] . '-' . normalize_text( htmlspecialchars( $lista['titulo_audio'] ), true );?>"><?=htmlspecialchars($lista['titulo_audio']); ?></a>
+						</span>	
+						<br class="clean" />
+					</li>
+				<?php }
+			} else { ?>
+				<div class='error'>A Pesquisa não encontrou nenhum resultado, tente novamente.</div>
+			<?php } ?>
+		</ul>
+		<br /><br />
+		<div id="paginate"><? print render_paginate( $page , $total_pages , $url , $results_per_page ); ?></div>
+	</div>
+</div>
+<div id="columnRight350">
+	<ul id="lastItens">
+		<?php if( $list ) {
+			$i=0;
+			foreach($list as $key=>$lista) { 
+				if($i<=5){
+		?>
+				<li id="n<?php echo $lista['id_audio']; ?>">
+					<img src="<?=$furniture_directory?>images/icn-podcast.jpg" alt="" style="border:none;" />
+					<div class='lista'>
+						<a href="<?=$base_url_site . "audios/" . $lista['id_audio'] . '-' . normalize_text( htmlspecialchars( $lista['titulo_audio'] ), true );?>" title="<?=htmlspecialchars($lista['titulo_audio'])?>"><b><?php echo htmlspecialchars(strlen($lista['titulo_audio']) > 50 ? substr($lista['titulo_audio'],0,50).'...' : $lista['titulo_audio']); ?></b></a>
+						<br /><br />
+						<a href="<?=$base_url_site . "audios/" . $lista['id_audio'] . '-' . normalize_text( htmlspecialchars( $lista['titulo-audio'] ), true );?>"><?php echo htmlspecialchars($lista['legenda_audio']); ?></a>
+					</div>
+					<br class="clean" />
+				</li>
+			<?php 
+				$i++ ;
+				}
+			}
+		} ?>
+	</ul>
+</div>

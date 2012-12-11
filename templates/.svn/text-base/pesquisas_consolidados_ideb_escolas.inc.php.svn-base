@@ -1,0 +1,142 @@
+<h1 class="breadcrumb"><a href="<?=$alias?>indicadores">Indicadores</a> / Consolidados</h1>
+<div id="container-search">
+	<div id="simple-chart-box">
+		<p>
+			<br />
+			<h3>Dados sobre o Ideb - Escolas (Índice de Desenvolvimento da Educação Básica)</h3>
+			<b><?=$title_page?></b>	
+			<br /><br />		
+		</p>
+		<p>
+			<?foreach( $ideb_faixas_classificacao as $item_legenda ){?>
+				<span class="consolidado-ideb-legenda" style="background-color:<?=$item_legenda{"color"}?>">&nbsp;</span><?=$item_legenda{"label"}?> 
+			<?}?>
+		</p>
+	</div>
+
+	<ul id="aba-consolidados">
+		<li id="maiores-aba" class="selected-aba-consolidados">Maiores</li>
+		<li id="menores-aba">Menores</li>
+	</ul>	
+	<?if($data_results){?>
+	<div id="main-consolidado-ideb">
+	<!-- MAIORES -->
+	<table id="maiores-grid" width="900" class="grid-maiores-menores table-main-grid grid-consolidados-ideb">
+		<thead>
+			<tr>
+				<th width="5%" rowspan="2">Pos.</th>							
+				<th width="44%" rowspan="2">Escola</th>
+				<?foreach( $avaliable_years as $itens ){?>
+					<th width="10%" style="background-color:#D8D6D6;" rowspan="2">IDEB<br /><?=$itens?></th>
+				<?}?>
+				<th class="value" width="21%" colspan="<?=count($ideb_projecoes)?>">Metas pactuadas</th>
+			</tr>
+			<tr>
+				<?foreach( $ideb_projecoes as $item ){?>
+				<th width="3%" class="value"><?=str_replace( "proj_", "", $item )?></th>	
+				<?}?>			
+			</tr>
+		</thead>
+		<tbody>	
+			<? $i=0; foreach( $list_maiores as $k ){ ?>
+				<tr <?=( $i%2==0 ? 'class="odd"' : "" )?> <?=( $k{"mark"} ? 'style="font-weight:bold !important;" ' : '' )?>>
+					<td class="value"><?=$k{"posicao"}?></td>
+					<td><?=$k{"label"}?></td>
+					<?foreach( $avaliable_years as $y ){?>
+						<td class="value" style="background-color:<?=classificate_ideb( $idebs_por_ano[$y][$k{"id_escola"}]{"valor"} )?>;"><?=( $idebs_por_ano[$y][$k{"id_escola"}]{"valor"} ? number_format(  $idebs_por_ano[$y][$k{"id_escola"}]{"valor"}, 1, ".", "" ) : "-" )?></td>
+					<?}?>
+					<?foreach( $ideb_projecoes as $proj ){?>
+						<td class="value" style="background-color:<?=classificate_ideb( $k{$proj} )?>;"><?=number_format( $k{$proj}, 1, ".", "" )?></td>
+					<?}?>
+				</tr>
+			<?$i++; }?>
+		</tbody>
+	</table>
+	
+	<!-- MENORES -->
+	<table id="menores-grid" width="900" class="grid-maiores-menores table-main-grid grid-consolidados-ideb" style="display:none;">
+		<thead>
+			<tr>
+				<th width="5%" rowspan="2">Pos.</th>							
+				<th width="44%" rowspan="2">Escola</th>
+				<?foreach( $avaliable_years as $itens ){?>
+					<th width="10%" style="background-color:#D8D6D6;" rowspan="2">IDEB<br /><?=$itens?></th>
+				<?}?>
+				<th class="value" width="21%" colspan="<?=count($ideb_projecoes)?>">Metas pactuadas</th>
+			</tr>
+			<tr>
+				<?foreach( $ideb_projecoes as $item ){?>
+				<th width="3%" class="value"><?=str_replace( "proj_", "", $item )?></th>	
+				<?}?>			
+			</tr>
+		</thead>
+		<tbody>	
+			<? $i=0; foreach( $list_menores as $k ){ ?>
+				<tr <?=( $i%2==0 ? 'class="odd"' : "" )?> <?=( $k{"mark"} ? 'style="font-weight:bold !important;" ' : '' )?>>
+					<td class="value"><?=$k{"posicao"}?></td>
+					<td><?=$k{"label"}?></td>
+					<?foreach( $avaliable_years as $y ){?>
+						<td class="value" style="background-color:<?=classificate_ideb( $idebs_por_ano[$y][$k{"id_escola"}]{"valor"} )?>;"><?=( $idebs_por_ano[$y][$k{"id_escola"}]{"valor"} ? number_format(  $idebs_por_ano[$y][$k{"id_escola"}]{"valor"}, 1, ".", "" ) : "-" )?></td>
+					<?}?>
+					<?foreach( $ideb_projecoes as $proj ){?>
+						<td class="value" style="background-color:<?=classificate_ideb( $k{$proj} )?>;"><?=number_format( $k{$proj}, 1, ".", "" )?></td>
+					<?}?>
+				</tr>
+			<?$i++; }?>
+		</tbody>
+	</table>
+	
+	</div>
+	<?}else{?>
+		<div class="error">Dados indisponíveis para o Indicador e localidade selecionados.</div>
+	<?}?>
+	<br class="clean"/>
+
+	<div class="form-consolidados-ideb">
+		<b>Busque por localidade dentro do Estado de SP</b><br /><br />
+		<form id="form-cidade" method="GET" action="<?=$alias?>indicadores/consolidados/ideb_escolas/<?=$data{"search_type"}?>">
+			<div id="box-municipal"></div><input id="form-consolidados-ideb-button" class="form-submit-search border-radius" type="button" name="ok" value="ok" />
+		</form>
+		
+	</div>
+	<div class="form-consolidados-ideb">
+		<b>Localidade consultada:</b><br /><br />
+		<?			
+			foreach( $list_results{"localidade_info"} as $item ){
+				print $item{"nm_cidade"} . " (" . $uf_list[$item{"id_uf"}]{"sigla"} . ")" ;
+			}
+		?>
+	</div>
+</div>
+<br class="clean"/>
+<script language="javascript" type="text/javascript"><!--
+	$("#maiores-aba").click(function(){
+		$(this).addClass("selected-aba-consolidados") ;	
+		$("#menores-aba").removeClass("selected-aba-consolidados") ;	
+		$("#menores-grid").hide() ;
+		$("#maiores-grid").fadeIn('slow') ;
+		
+	});
+	$("#menores-aba").click(function(){
+		$(this).addClass("selected-aba-consolidados") ;	
+		$("#maiores-aba").removeClass("selected-aba-consolidados") ;
+		$("#maiores-grid").hide() ;
+		$("#menores-grid").fadeIn('slow') ;
+				
+	});
+	$(document).ready(function(){
+		$("#form-consolidados-ideb-button").click(function(){
+
+			if( $("input[name='localidade']").val() == "-" ){
+				alert("Selecione uma localidade!") ;
+				return false ;
+			}
+			$("#form-cidade").submit();
+		});
+		$.get( "<?=$alias?>indicadores/cidades/35?template=select_box", function(data) { $('#box-municipal').html(data) ; }) ;
+	});
+
+function set_localidade( value ){
+	$("input[name='localidade']").attr( "value", value ) ;
+}
+//--></script>

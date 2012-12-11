@@ -1,0 +1,82 @@
+<?php
+/**
+ * Classe Audios
+ * 
+ * Classe para manipulação de audios
+ * @author tamemiya 2011-04-30
+ * @version 1.0
+ */
+
+class audios{
+	
+	var $list_sixes			= array() ;
+	var $default_format		= "" ;
+	
+	function __construct(){
+			
+	}
+	
+	/**
+	 * método para inclusão de dados da audio
+	 */
+	public function insert_audio( $data = null ){
+		
+		global $connection ;
+		
+		if( $data ){
+			
+			$sql = 
+			"insert into tb_audios ( titulo_audio, legenda_audio, categoria, usuario_publicacao, active, dt_criacao, file_name ) 
+			values ( '" . mysql_real_escape_string( $data{"titulo"} ) . "','" . mysql_real_escape_string( $data{"legenda"} ) . "', '" . mysql_real_escape_string( $data{"categoria"} ) . "', '" . mysql_real_escape_string( $data{"usuario_publicacao"} ) . "', '1', NOW(), '" . mysql_real_escape_string( $data{"file_name"} ) . "' )" ;			
+			
+			$connection->execute( $sql ) ;
+			return $connection->last_insert_id() ;
+								
+		}
+		return false ;	
+	}
+	
+	/**
+	 * método de edição de informações da audio
+	 */
+	public function edit_audio_info( $data ){
+		
+		global $connection ;
+		
+		$sql  = "update tb_audios set 
+				titulo_audio = '" . mysql_real_escape_string( $data{"titulo_audio"} ) . "' , 
+				legenda_audio = '" . mysql_real_escape_string( $data{"legenda_audio"} ) . "' , 
+				categoria = '" . mysql_real_escape_string( $data{"categoria"} ) . "' ,
+				usuario_edicao = '" . mysql_real_escape_string( $data{"usuario_id"} ) . "' ,
+				dt_modificacao = NOW() 
+				where id_audio = "  . mysql_real_escape_string( $data{"id_audio"} ) ;		
+		$connection->execute( $sql ) ;
+			
+	}
+	
+	/**
+	 * método para deletar imagens 
+	 */
+	public function delete_audio( $data ){
+		
+		global $connection, $user_info ;
+		
+		$sql = "update tb_audios set active = '0', dt_modificacao = NOW(), usuario_edicao = '" . mysql_real_escape_string( $user_info{"user_key"} ) . "' where id_audio in(" . $data . ") " ;
+		$connection->execute( $sql ) ;		
+	}
+	
+	
+	/**
+	 * recuperar dados da audio
+	 */
+	public function get_audio_info( $data ){
+		
+		global $connection ;
+		
+		$sql = sprintf( "select * from tb_audios where id_audio = %d and active='1'", mysql_real_escape_string( $data ) ) ;
+		$result = $connection->execute( $sql, true ) ;
+		return $result ;	
+	}
+	
+}
+?>

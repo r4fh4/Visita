@@ -1,0 +1,4 @@
+<?	
+//Create an XML data document in a string variable
+echo $grafh;	
+?>

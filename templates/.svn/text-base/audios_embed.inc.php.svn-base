@@ -1,0 +1,47 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+		<title><?=$page_title?></title>
+		<?if( isset($meta_description) ){?>
+			<meta name="description" content="<?=$meta_description?>" />
+		<?}?>
+		<style type="text/css" media="screen">
+		body{
+			margin:0px;
+			padding:0px;
+			font:11px Verdana;
+		}
+		.box-audio-player {
+			background-color: #EBEBEB;
+			border: 1px solid #CCCCCC;
+			height: auto;
+			padding: 5px;
+			width: 300px;
+		}
+		.box-audio-player h3{
+			margin:0px;
+			padding:0px;
+			margin-bottom:10px;			
+			font-size:11px;
+		}
+		.box-audio-player h3 a{
+			color:#333;
+			text-decoration:none;
+		}
+		.clean{
+			clear:both;
+		}
+		</style>
+	</head>
+	<body>
+		<div class="box-audio-player">	
+			<h3><a href="<?=$base_url_site?>audios/<?=$audio[0]{"id_audio"}?>" target="_blank"><?=$page_title?></a></h3>
+			<object type="application/x-shockwave-flash" data="<?=$base_url_site?>furniture/swf/dewplayer-playlist.swf?mp3=<?=$audios_directory . $audio[0]{"file_name"}?>&amp;showtime=1" width="300" height="20" id="dewplayer">
+				<param name="wmode" value="transparent" />
+				<param name="movie" value="<?=$base_url_site?>furniture/swf/dewplayer-playlist.swf?mp3=<?=$audios_directory . $audio[0]{"file_name"}?>&amp;showtime=1" />
+			</object>
+			<br class="clean" />
+		</div>
+	</body>
+</html>

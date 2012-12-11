@@ -1,0 +1,71 @@
+<h2 class="page-title">Página de Administração</h2>
+<p>Página de Administração do sistema, gerencie usuários e acessos ao Sistema.</p>
+<!--<ul id="sub-menu">
+	<li><a href="administracao_usuario.php">Adicionar Usuário</a></li>
+	<li>|</li>
+	<li><a href="grupo.php">Adicionar Grupo</a></li>
+</ul> -->
+
+<form name="form" method="POST" action="administracao_listar.php">
+<!-- ACTIONS BUTTONS -->
+<p class="action-buttons">
+	<input type="submit" class="btn-form" name="new" style="float:left;" value="Inserir novo" />
+	<input type="text" name="search_content" value="<?=htmlspecialchars(get_vars("search_content"))?>" size="50" />
+	<input type="submit" class="btn-form" name="search" value="Buscar" />
+	<input type="submit" class="btn-form" name="clear_search" value="Limpar" /><span class="tip"></span>
+	<input type="submit" class="btn-form" name="delete" value="Apagar" />
+</p>
+
+<!-- LIST DATA -->
+<div id="paginate"><? print render_paginate( $page , $total_pages , $url , $results_per_page ); ?></div>
+<?if( $item_records ){?>
+	<table id="main-grid" width="98%" align="center">
+		<thead>
+			<tr>						
+				<th width="5%">Editar</th>
+				<th width="20">Grupo</th>
+				<th width="70%">Usuário</th>
+				<th width="5%">Apagar</th>
+			</tr>
+		</thead>
+		<tbody>
+			<?
+			$i = 0 ;			
+			foreach( $item_records as $item ){
+				?>
+				<tr <?php print ( $i % 2 ?  'class="ops"' : "" )?>>
+					<td class="check-action"><a href="administracao.php?id=<?=htmlspecialchars($item{"id_usuario"})?>"><img src="furniture/images/icn-edit.png" alt="Editar" title="Editar" /></a>
+					</td>
+					<td><?=htmlspecialchars($item{"ds_grupo"})?></td>
+					<td><b><?=htmlspecialchars($item{"nm_usuario"})?></b><br/><br />
+					</td>
+					<td class="check-action">
+					<?if($item{"id_grupo"}!=1){?>
+						<input type="checkbox" name="action_item[]" value="<?=$item{"id_usuario"}?>">
+					<?}
+					else{ echo "-" ; }?>
+					</td>
+				</tr>		
+				<?
+				$i++ ;
+			}
+			?>
+		</tbody>
+	</table>
+	<div id="paginate"><? print render_paginate( $page , $total_pages , $url , $results_per_page ); ?></div>
+<?
+}
+else{
+	
+	?><h3>Nenhum resultado encontrado!</h3><?
+}
+?>
+
+<!-- ACTIONS BUTTONS -->
+<p class="action-buttons">
+	<input type="submit" class="btn-form" name="new" style="float:left;" value="Inserir novo" />
+	<input type="submit" class="btn-form" name="delete" value="Apagar" />
+</p>
+</form>
+
+		

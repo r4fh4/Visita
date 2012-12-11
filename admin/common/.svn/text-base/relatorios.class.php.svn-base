@@ -1,0 +1,131 @@
+<?php
+/**
+* Classe Relatórios
+* 
+* Classe para manipulação de relatórios
+* @author tamemiya 2011-03-31
+* @version 1.0
+*/
+class relatorios{
+	
+	function __construct(){
+	
+	}
+	
+	/**
+	 * listar categorias
+	 */
+	public function list_categoria(){
+	
+		global $connection, $user_info ;		
+		$sql = sprintf( "select * from tb_relatorios_categoria where active ='1'  order by ds_categoria asc" ) ;
+		$results = $connection->execute( $sql, true ) ;
+		return $results ;
+	}
+	
+	/**
+	 * listar subcategorias
+	 */
+	public function list_subcategoria( $restrict = false ){
+		
+		global $connection, $user_info ;
+		
+		$where = "" ;
+		// Adminsitrador e gerenciador geral
+		if( $restrict ){
+			if( $user_info{"user_level"} == 2 ){
+				$where = "usuario_grupo = 1 and" ;
+			}
+			else if( $user_info{"user_level"} == 3 ){
+				$where = "usuario_grupo = 2 and" ;
+			}
+			else if( $user_info{"user_level"} == 1 ){
+				$where = "" ;
+			}
+		}
+		
+		$sql = sprintf( "select * from tb_relatorios_subcategoria where " . $where . "  active ='1'  order by ds_subcategoria asc" ) ;
+		$results = $connection->execute( $sql, true ) ;
+		return $results ;	
+	}
+	
+	/**
+	 * listar dados do relatorio
+	 */
+	public function get_relatorio_info( $data, $list = false, $all = false ){
+		
+		global $connection ;
+		
+		if( $list ){
+			$sql = sprintf( "select * from tb_relatorios where id_relatorio in (%s) " . ( $all ? "" : "and active='1'" ) , "'" .implode( "','" ,$data ) . "'" ) ;
+		}
+		else{
+			$sql = sprintf( "select * from tb_relatorios where id_relatorio = %d " . ( $all ? "" : "and active='1'" ), mysql_real_escape_string ( $data ) ) ;
+		}
+
+		$result = $connection->execute( $sql, true ) ;
+		
+		if( $result ){
+			if( $result[0]{"master"} == 1 ){
+				$list_child_reports = unserialize( $result[0]{"relatorios_filhos"} ) ;
+				$item_results = $this->get_relatorio_info( $list_child_reports, true ) ;
+				$result[0]{"relatorios_filhos"} = $item_results ;
+			}
+		}
+		return $result ;
+
+	}
+	
+	public function insert_relatorio_info( $data ){
+		
+		global $connection ;
+		
+		$sql = "insert into tb_relatorios ( titulo, texto, categoria, subcategoria, id_uf, id_cidade, relatorios_filhos, dt_criacao, usuario_publicacao, master, publicado) values (
+				'" . mysql_real_escape_string( $data{"titulo"} ) . "',
+				'" . mysql_real_escape_string( $data{"texto"} ) . "',
+				" . mysql_real_escape_string( $data{"categoria"} ) . ",
+				" . mysql_real_escape_string( $data{"subcategoria"} ) . ",
+				" . ( $data{"id_uf"} ? "'".mysql_real_escape_string( $data{"id_uf"} )."'" : 'null' ) . ",
+				" . ( $data{"id_cidade"} ? "'".mysql_real_escape_string( $data{"id_cidade"} )."'" : 'null' ) . ",
+				'" . mysql_real_escape_string( $data{"relatorios_filhos"} ) . "',
+				now(),
+				'" . mysql_real_escape_string( $data{"usuario_id"} ) . "',
+				'" . mysql_real_escape_string( $data{"master"} ) . "',
+				'" . mysql_real_escape_string( $data{"publicado"} ) . "'
+				)" ;
+							
+		$connection->execute( $sql ) ;		
+			
+	}
+	
+	public function edit_relatorio_info( $data ){
+		
+		global $connection ;
+		
+		$sql = "update tb_relatorios set 
+				titulo = '" . mysql_real_escape_string( $data{"titulo"} ) . "',
+				texto = '" . mysql_real_escape_string( $data{"texto"} ) . "',
+				categoria = " . mysql_real_escape_string( $data{"categoria"} ) . ",
+				subcategoria = " . mysql_real_escape_string( $data{"subcategoria"} ) . ",
+				relatorios_filhos = '" . mysql_real_escape_string( $data{"relatorios_filhos"} ) . "',
+				master = '" . mysql_real_escape_string( $data{"master"} ) . "',
+				publicado = '" . mysql_real_escape_string( $data{"publicado"} ) . "',
+				dt_modificacao = now(),
+				usuario_edicao = '" . mysql_real_escape_string( $data{"usuario_id"} ) . "' 
+				where id_relatorio = '" . mysql_real_escape_string( $data{"id_relatorio"} ) . "'" ;
+
+		$connection->execute( $sql ) ;
+		
+	}
+	
+
+	public function delete_relatorio( $data ){
+		
+		global $connection, $user_info ;		
+	
+		$sql = "update tb_relatorios set active = '0', usuario_edicao = '" . mysql_real_escape_string( $user_info{"user_key"} ) . "', dt_modificacao = NOW() where id_relatorio in(" . $data . ") " ;
+		$connection->execute( $sql ) ;		
+	}
+	
+}
+?>

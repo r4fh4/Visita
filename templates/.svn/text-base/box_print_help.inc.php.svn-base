@@ -1,0 +1,8 @@
+<!-- BOX ALERT PRINT -->
+<div id="hiddenModalContent" style="display:none">
+	<h3>Dicas de impressão</h3>
+	<p><b>• Impressão do gráfico:</b><br/>Para imprimir os gráficos ou salvá-los como imagem clique com o botão direito sobre o gráfico para visualizar as opções.</p>
+	<p><b>• Impressão da página de pesquisa:</b><br />Para imprimir a página de pesquisa recomendamos utilizar o navegador <b>Internet Explorer</b>.</p>
+	<p><b>• Obs.:</b><br />Mantenha sempre seu navegador e plugins do Flash sempre atualizados para uma melhor utilização do sistema.</p>
+	<p><input id="print-search" type="button" class="back-search border-radius" name="print" value="Imprimir" /></p>
+</div>

@@ -1,0 +1,52 @@
+<?php
+if (basename($_SERVER["PHP_SELF"]) == "init.php") {
+    die("Acesso negado.");
+}
+
+
+// arquivos padrões
+require_once( "context.php" ) ;
+require_once( "config.php" ) ;
+require_once( "lists.php" ) ;
+
+// arquivos comuns
+require_once( $common_directory . "connection.class.php" ) ;
+require_once( $common_directory . "user.class.php" ) ;
+require_once( $common_directory . "authentication.class.php" ) ;
+require_once( $common_directory . "functions.php" ) ;
+require_once( $common_directory . "image_tool.class.php" ) ;
+require_once( $common_directory . "imagens.class.php" ) ;
+require_once( $common_directory . "audios.class.php" ) ;
+require_once( $common_directory . "arquivos.class.php" ) ;
+require_once( $common_directory . "noticias.class.php" ) ;
+require_once( $common_directory . "politicas.class.php" ) ;
+require_once( $common_directory . "segmentos.class.php" ) ;
+require_once( $common_directory . "programas.class.php" ) ;
+require_once( $common_directory . "relatorios.class.php" ) ;
+require_once( $common_directory . "filesystem.class.php" ) ;
+require_once( $common_directory . "tools/mpdf/mpdf.php");
+
+// arquivos da aplicação
+require_once( "scripts/functions.php" ) ;
+$user_info = null ;
+$connection = new connection( $db_server, $db_user, $db_pass, $db_name ) ;
+if( $connection ){
+	
+	$authentication = new authentication ;
+	$user_info = $authentication->execute_authentication() ;
+	
+	if( !$user_info ){
+		$_SESSION{"error_message"} = "Acesso restrito!." ;
+		header( "Location: login.php" ) ;
+		header("Content-Length: 0") ;
+		exit();
+	}
+
+}
+preg_match( "/(\.php\/).*/", $_SERVER{"REQUEST_URI"}, $matches ) ;
+if( $matches ){
+		header( "Location: " . $base_url_adm ) ;
+		header("Content-Length: 0") ;
+		exit();
+}
+?>

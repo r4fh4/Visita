@@ -1,0 +1,194 @@
+<?php
+require_once( "scripts/init.php" ) ;
+
+// checar acesso a pagina
+get_page_access() ;
+
+$user = new user() ;
+
+// checar email
+if( get_vars("check_email") ){
+
+	if( !get_vars("email") || !check_email( get_vars("email") ) ){
+		echo utf8_encode( '<b style="color:#D31717;">E-mail digitado incorreto!</b>' ) ;
+		?><script>$("input[name=email_error]").val(1);</script><?
+		exit();
+	}
+	else{
+		if( $user->check_login_email_avaliable( array( "check_email" => 1 , "email" => get_vars( "email" ) ) ) ){
+			echo utf8_encode( '<b style="color:#6DBC4B;">E-mail válido!</b>' ) ;
+			?><script>$("input[name=email_error]").val(0);</script><?			
+		}
+		else{
+			echo utf8_encode( '<b style="color:#D31717;">E-mail digitado já está sendo usado!</b>' ) ;?><script>$("input[name=email_error]").val(1);</script><?
+		}
+		exit() ;
+	}
+}
+
+// checar password
+if( get_vars("check_pass") ){		
+	if( (!get_vars("password") || strlen( get_vars("password") ) > 10 || strlen( get_vars("password") ) < 5 || !check_invalid_input(  get_vars("password") )) || (!get_vars("password_match") || strlen( get_vars("password_match") ) > 10 || strlen( get_vars("password_match") ) < 5 || !check_invalid_input(  get_vars("password_match") )) ){
+		echo utf8_encode( '<b style="color:#D31717;">Digite a senha de forma correta!</b>' ) ;
+		?><script>$("input[name=pass_error]").val(1);</script><?
+		exit();
+	}
+	else{
+		if( get_vars("password") == get_vars("password_match") ){
+			echo utf8_encode( '<b style="color:#6DBC4B;">Senha válida!' ) ;		
+			?><script>$("input[name=pass_error]").val(0);</script><?			
+		}
+		else{
+			echo utf8_encode( '<b style="color:#D31717;">Senhas digitadas não conferem!</b>' ) ;?><script>$("input[name=pass_error]").val(1);</script><?
+		}
+		exit() ;
+	}
+}
+
+// checar login
+if( get_vars("check_login") ){		
+	
+	if(!get_vars("login") || strlen( get_vars("login") ) > 20 || strlen( get_vars("login") ) < 5 || !check_invalid_input(  get_vars("login") ) ){
+		echo utf8_encode( '<b style="color:#D31717;">Digite o login de forma correta!</b>' ) ;
+		exit();
+	}
+	else{
+		if( $user->check_login_email_avaliable( array( "check_login" => 1 , "login" => get_vars( "login" ) ) ) ){
+			echo utf8_encode( '<b style="color:#6DBC4B;">Login válido!</b>' ) ;
+			?><script>$("input[name=login_error]").val(0);</script><?
+		}
+		else{
+			echo utf8_encode( '<b style="color:#D31717;">Login digitado já está sendo usado!</b>' ) ;?><script>$("input[name=login_error]").val(1);</script><?
+		}
+		exit() ;
+	}
+}
+
+// se for incluir novo
+if( get_vars("insert") ){
+	$list_error = null ;
+	if( !get_vars("nm_usuario") ){
+		$list_errors[] = 'Campo "Nome" é de preenchimento obrigatório!' ;
+	}
+	if( !get_vars("email") || !check_email( get_vars("email") ) ){
+		$list_errors[] = 'Campo "E-mail" é de preenchimento obrigatório ou contém problemas!' ;
+	}
+	if(!get_vars("login") || strlen( get_vars("login") ) > 20 || strlen( get_vars("login") ) < 5 || !check_invalid_input(  get_vars("login") ) ){
+		$list_errors[] = 'Campo "Login" é de preenchimento obrigatório ou contém problemas!' ;
+	}
+	if( (!get_vars("password") || strlen( get_vars("password") ) > 10 || strlen( get_vars("password") ) < 5 || !check_invalid_input(  get_vars("password") )) || (!get_vars("password_match") || strlen( get_vars("password_match") ) > 10 || strlen( get_vars("password_match") ) < 5 || !check_invalid_input(  get_vars("password_match") )) ){
+		$list_errors[] = 'Campo "Senha" é de preenchimento obrigatório ou contém problemas!' ;
+	}
+	if( get_vars("password") != get_vars("password_match") ){
+		$list_errors[] = 'Senhas digitadas não conferem!' ;
+	}
+	if( get_vars("id_uf") == "-" || get_vars("id_cidade") == "-" ){
+		$list_errors[] = 'Campos Estado/Cidade são obrigatórios!' ;
+	}
+	
+	if( is_array($list_errors) ){
+		show_message_html( implode( "<br />" , $list_errors ), false ) ;
+		exit() ;		
+	}
+	else{
+		
+		$data = array(
+			"nm_usuario" => get_vars("nm_usuario"), 
+			"login" => get_vars("login"),
+			"password_content" => get_vars("password"),
+			"email" => get_vars("email"),
+			"id_grupo" => get_vars("id_grupo"),
+			"id_uf" => get_vars("id_uf"),
+			"id_cidade" => get_vars("id_cidade"),
+		) ;
+		
+		if( $user->insert_user( $data ) ){ 
+			// salvar log de ação do usuário
+			$authentication->save_log_access( "Inclusão de usuário" ) ;
+			show_message( "Usuário cadastrado com sucesso!" ) ;
+			redir_page( "administracao_listar.php", true ) ;
+		}		
+	
+	}
+	
+}
+
+if( get_vars("edit") ){
+
+	$list_error = null ;
+	
+	if( !get_vars("nm_usuario") ){
+		$list_errors[] = 'Campo "Nome" é de preenchimento obrigatório!' ;
+	}
+	if( !get_vars("email") || !check_email( get_vars("email") ) ){
+		$list_errors[] = 'Campo "E-mail" é de preenchimento obrigatório ou contém problemas!' ;
+	}
+	if( get_vars("password") || get_vars("password_content") ){
+		if( (!get_vars("password") || strlen( get_vars("password") ) > 10 || strlen( get_vars("password") ) < 5 || !check_invalid_input(  get_vars("password") )) || (!get_vars("password_match") || strlen( get_vars("password_match") ) > 10 || strlen( get_vars("password_match") ) < 5 || !check_invalid_input(  get_vars("password_match") )) ){
+			$list_errors[] = 'Campo "Senha" é de preenchimento obrigatório ou contém problemas!' ;
+		}
+		if( get_vars("password") != get_vars("password_match") ){
+			$list_errors[] = 'Senhas digitadas não conferem!' ;
+		}
+		
+	}
+	if( get_vars("id_uf") == "-" || get_vars("id_cidade") == "-" ){
+		$list_errors[] = 'Campos Estado/Cidade são obrigatórios!' ;
+	}
+	
+	if( is_array($list_errors) ){
+		show_message_html( implode( "<br />" , $list_errors ), false ) ;
+		exit() ;
+	}
+	else{
+		
+		$data = array(
+			"id_usuario" => get_vars("id_usuario"),
+			"nm_usuario" => get_vars("nm_usuario"), 
+			"email" => get_vars("email"),
+			"id_grupo" => get_vars("id_grupo"),
+			"id_uf" => get_vars("id_uf"),
+			"id_cidade" => get_vars("id_cidade"),
+		) ;
+		if( get_vars("password") ){
+			$data{"password"} = get_vars("password") ;
+		}
+		
+		$user->edit_user( $data );
+		$authentication->save_log_access( "Edição dos dados de usuário '" . get_vars("id_usuario") . "'" ) ;
+		
+		show_message( "Dados do usuário editados com sucesso!" ) ;
+		redir_page( "administracao_listar.php", true ) ;
+	
+	
+	}
+}
+
+include( $template_directory . "header.inc.php" ) ;
+
+// passo ID
+if( get_vars("id") ){
+
+	$user_info = array();
+	$user_info = $user->get_user_info( get_vars("id") ) ;
+	if(!$user_info){
+		redir_page( "administracao_listar.php" ) ;
+	}
+}
+
+// voltar para a lista
+if( get_vars("back_to_list") ){
+	redir_page( "administracao_listar.php" ) ;
+}
+
+include( $template_directory . "administracao.inc.php" ) ;
+
+// salvar log de ação do usuário
+$authentication->save_log_access( "" ) ;
+
+//fechar conexao
+$connection->desconnect();
+
+include( $template_directory . "footer.inc.php" ) ;
+?>
+

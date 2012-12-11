@@ -1,0 +1,137 @@
+/*
+Notícias CSS
+author: rafhael 2011-03-30
+*/
+
+#searchNews{
+	margin-top:50px;
+	min-height:410px;
+}
+
+#searchNews li{
+	margin-bottom:5px;
+}
+
+#searchNews li b{
+	color:#666666
+}
+
+#paginate{
+	text-align:center;
+	background-color:#F0EEDE;
+	height:20px;
+	line-height:20px
+}
+
+#paginate a{
+	color:#999999
+}
+
+#searchCat,
+#searchName{
+	float:left;
+	width:200px;
+	text-align:center
+}
+
+#searchName{
+	padding-left:30px
+}
+
+#searchCat{
+	border-right:1px dashed #CCC;
+	padding-right:30px
+}
+
+.buttonPesquisaTema{
+	margin:23px 0 0 10px;
+	font-weight:bold;
+	color:#FFFFFF;
+	padding:5px 8px;
+	background-color:#FF9900;
+	border:0;
+	font-size:11px;
+	border-radius:5px;
+	-moz-border-radius:5px;
+	-webkit-border-radius:5px;
+	cursor:pointer
+}
+
+.boxMarrom{
+	margin:0 15px 20px 20px;
+	font-weight:bold;
+	color:#FFFFFF;
+	padding:7px 8px;
+	background-color:#CCC8B6;
+	border:0;
+	font-size:11px;
+	float:left;
+	border-bottom-left-radius:5px;
+	border-bottom-right-radius:5px;
+	-moz-border-radius-bottomright:5px;
+	-moz-border-radius-bottomleft:5px;
+	-webkit-border-bottom-right-radius:5px;
+	-webkit-border-bottom-left-radius:5px;
+}
+
+.campoTexto{
+	background-color:#fdfaf0;
+	border:1px solid #cac9c9;
+	font-size:11px;
+	font-family: Verdana;
+	width:170px
+}
+
+.subTitle{
+	text-align:left;
+	width:185px;
+	margin:0 auto
+}
+
+#boxPesquisa{
+	margin:0 auto;
+	padding:5px 0 0 40px
+}
+
+#result{
+	border-top:1px solid #CCC;
+	margin-top:30px;
+	text-align:left
+}
+
+#result ul{
+	padding:0 20px
+}
+p.imagem-destaque{
+	float:right;
+	padding:5px;
+	margin:0px 0px 10px 15px;
+	border:1px solid #ccc;
+}
+.box-data-news{			
+	float:left;
+	text-align:center;
+	padding:8px;
+	margin-right:10px;
+	margin-bottom:5px;
+	font-weight:bold;
+	background-color:#ebebeb;
+}
+.box-title-news{
+	width:85%;
+	float:left;
+}
+
+.lista-title{
+	width:100%;
+	height:24px;
+	margin-bottom:5px;
+	overflow:hidden;
+}
+.lista-chamada{
+	width:100%;
+	height:54px;
+	line-height:13px;
+	margin-bottom:5px;
+	overflow:hidden;
+}

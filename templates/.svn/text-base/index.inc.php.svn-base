@@ -1,0 +1,105 @@
+	<!-- LEFT COLUMN -->
+	<div id="home-left-column">
+		<h1 class="home-section">saneamento</h1>
+		<ul class="home-list-destaques">
+			<li><div class="title-destaque-left"><a href="#">Coleta de Esgotos</a></div><div class="chamada-destaque-left"><a href="#">Entenda como funciona a coleasdadadadta de enda como funciona a coleta de esgotos em residências, no comércio e indústrias.</a></div></li>
+			<li><div class="divisor-destaques"></div></li>
+			<li><div class="title-destaque-left"><a href="#">Conselho Estadual</a></div><div class="chamada-destaque-left"><a href="#">Entenda como funciona a coleta de esgotos em residências, no comércio e indústrias.</a></div></li>
+		</ul>
+		
+		<h1 class="home-section">recursos hídricos</h1>
+		<ul class="home-list-destaques">
+			<li><div class="title-destaque-left"><a href="#">Gerenciamento do sistema</a></div><div class="chamada-destaque-left"><a href="#">Entenda como funciona a coleta de esgotos em residências, no comércio e indústrias.</a></div></li>
+			<li><div class="divisor-destaques"></div></li>
+			<li><div class="title-destaque-left"><a href="#">Novo perfil</a></div><div class="chamada-destaque-left"><a href="#">Entenda como funciona a coleta de esgotos em residências, no comércio e indústrias.</a></div></li>
+		</ul>
+		
+		<h1 class="home-section">ambiente</h1>
+		<ul class="home-list-destaques">
+			<li><div class="title-destaque-left"><a href="#">Fórum Mundial das Águas</a></div><div class="chamada-destaque-left"><a href="#">Entenda como funciona a coleta de esgotos em residências, no comércio e indústrias.</a></div></li>
+			<li><div class="divisor-destaques"></div></li>
+			<li><div class="title-destaque-left"><a href="#">Rodoanel</a></div><div class="chamada-destaque-left"><a href="#">Entenda como funciona a coleta de esgotos em residências, no comércio e indústrias.</a></div></li>
+		</ul>
+	</div>
+	<!-- /LEFT COLUMN -->
+	<!-- RIGHT COLUMN -->
+	<div id="home-right-content">
+		<div id="home-destaques-box">
+			<h1 class="home-section home-noticias">notícias</h1>
+			<h1 class="home-section home-leia-mais"><a href="<?=$alias?>temp/?page=noticias">+ listar todas</a></h1>
+			<div class="divisor"></div>
+			<div class="home-foto-destaque-principal"><img src="<?=$furniture_directory?>imagesv2/foto-destaque.jpg" alt="" title="Divulgação" /></div>
+			<div class="home-list-destaques-principal-box">
+				<div class="title-destaque"><a href="<?=$alias?>temp/?page=noticias">Governo de SP inicia esgotamento sanitário em Guararema</a></div><div class="chamada-destaque"><a href="<?=$alias?>temp/?page=noticias">O início das obras, que contou com a presença do governador Geraldo Alckmin sexta-feira, dia 3/6, faz parte da segunda edição do Governo Presente, que desta vez visitou o Vale do Paraíba.</a></div>
+				<div class="title-destaque destaque-sec"><a href="<?=$alias?>temp/?page=noticias">Governo de SP  enda como funciona a coleta deinicia esgotamento sanitário em Guararema</a></div>
+				<div class="title-destaque destaque-sec"><a href="<?=$alias?>temp/?page=noticias">Governo de SP inicia esgotamento sanitário em Guararema</a></div>							
+			</div>
+			<div class="divisor"></div>
+			<div id="home-box-busca">
+				<form name="home-busca" method="post" action="">
+					<input type="text" name="q" />
+					<a href="#" id="busca-send"></a>
+				</form>
+			</div>
+		</div>
+		<div id="home-acesso-rapido-box">
+			<h1 class="home-section">acesso rápido</h1>
+			<a href="<?=$alias?>temp/?page=projetos"><img src="<?=$furniture_directory?>imagesv2/home-img1.jpg" alt=""/></a>
+			<a href="<?=$alias?>temp/?page=projetos"><img src="<?=$furniture_directory?>imagesv2/home-img2.jpg" alt=""/></a>
+			<a href="<?=$alias?>temp/?page=projetos"><img src="<?=$furniture_directory?>imagesv2/home-img3.jpg" alt=""/></a>
+		</div>
+		<div class="divisor"></div>
+		<div id="home-dados-box">
+			<h1 class="home-section home-dados">base de dados</h1>
+			<span class="home-dados-menu-box">
+				<a href="<?=$alias;?>temp/?page=indicadores">índices</a>  |  <a href="<?=$alias;?>temp/?page=indicadores">gráficos</a>  |  <a href="#">downloads</a>
+			</span>
+			<br class="divisor"/>
+			<div id="home-dados-content">
+				<h2>Faça aqui consultas simples ou cruzamentos avançados de dados</h2>
+				<p>Os indicadores são valiosos instrumentos para acompanhar o desenvolvimento do Estado ou de um município.</p>
+				<p>Acompanhe em infográficos a análise dos recursos hídricos do Estado de São Paulo, conheça índices do setor, visualize mapas e faça download de arquivos. </p>
+				<p>Conheça as principais doenças relacionadas à água e conceitos valiosos em educação ambiental.</p>
+			</div>
+			<div id="home-slider-dados">
+				<input type="button" title="anterior" class="button-controller left-button-controller" name="left" id="left-button-controller" />
+				<div id="list-infografico-home">
+					<ul class="block-infografico-home">
+						<li><img src="<?=$furniture_directory?>imagesv2/icn-home-slider-01.jpg" alt="" /></li>		
+						<li><img src="<?=$furniture_directory?>imagesv2/icn-home-slider-02.jpg" alt="" /></li>
+						<li><img src="<?=$furniture_directory?>imagesv2/icn-home-slider-03.jpg" alt="" /></li>
+						<li><img src="<?=$furniture_directory?>imagesv2/icn-home-slider-04.jpg" alt="" /></li>
+					</ul>
+				</div>
+				<input type="button" title="próximo" class="button-controller right-button-controller" name="right" id="right-button-controller" />
+			</div>						
+		</div>
+	</div>
+	<!-- /RIGHT COLUMN -->
+	<div class="divisor"></div>
+	<!-- FULL COLUMN -->
+	<div id="home-full-content">
+		<!-- BOX TV/RADIO -->
+		<div id="home-box-tv-radio">
+			<div class="sub-box">
+				<div class="left"><h3>TV Portal</h3><a href="#">ASSISTA</a></div>
+				<div class="right"><img src="<?=$furniture_directory?>imagesv2/icn-home-videos.jpg" class="home-player-youtube" width="290" height="190" alt="" /><!--<iframe class="home-player-youtube" frameborder="0" width="290" height="190" src="http://www.youtube.com/embed/wGn_REKTOGU"></iframe>--></div>
+			</div>
+			<div class="sub-box">
+				<div class="left"><h3>Rádio Portal</h3><a href="#">OUÇA</a></div><div class="right"></div>
+				<div class="right">
+					<ul>
+						<li><span class="square"></span><a href="#">Alckmin abre seminário Economia Verde em São PauloAlckmin assina projeto de lei para manter Feira. </a></li>
+						<li><div class="divisor-destaques"></div></li>
+						<li><span class="square"></span><a href="#">Alckmin abre seminário Economia Verde em São PauloAlckmin assina projeto de lei para manter Feira. </a></li>
+						<li><div class="divisor-destaques"></div></li>
+						<li><span class="square"></span><a href="#">Alckmin abre seminário Economia Verde em São PauloAlckmin assina projeto de lei para manter Feira. </a></li>
+						<li><div class="divisor-destaques"></div></li>
+						<li><span class="square"></span><a href="#">Alckmin abre seminário Economia Verde em São PauloAlckmin assina projeto de lei para manter Feira. </a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /FULL COLUMN -->
+	<div class="divisor"></div>

@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+		<meta name="robots" content="noindex" />
+		<title>Ajuda - Publicação de Notícias</title>
+		<link href="../furniture/css/global-help.css" type="text/css" rel="stylesheet" />
+	</head>
+	<body>
+	<div id="left-col"><img src="../furniture/images/icn-help.jpg" alt="" /></div>
+	<div id="right-col">
+		<h1>Ajuda - Publicação de Notícias</h1>
+		<p>
+		Aqui voccê vai encontrar dicas e tirar dúvidas sobre a publicação e edição de notícias do Sistema Administrador do Portal.
+		</p>
+		
+		<h2>Sobre o título e texto da Chamada</h2>
+		<p>
+		Cuidado ao copiar o texto para o título e/ou chamada de outras fontes, principalmente de outros sites pois o texto que for inserido nos campos "título" e "Chamada" serão exatamente os mesmos que aparecerão no site, por exemplo, evite de colocar texto todo em caixa alta.<br /><br />O límite máximo de caracteres é de <b>150 caracteres</b> para que a quantidade de caracteres não afete  layout do site.
+		</p>
+		
+		<h2>Adicionar imagem de Destaque</h2>
+		<p>Ao definir uma notícia como destaque <b>obrigatoriamente</b> você deverá selecionar uma imagem de destaque para a mesma. Mesmo que sua notícia não seja destaque você também pode definir uma imagem de destaque para ela.</p>
+		<p>Para definir uma imagem de destaque basta clicar em "Buscar Imagem", clicar sobre a imagem desejada e clicar no botão "Definir como imagem de Destaque".</p>
+		
+		<h2>Inserindo imagens no texto da notícia</h2>
+		<p>Caso você deseje é possível inserir imagens no texto da sua notícia ou se prefirir deixe apenas a imagem de destaque, a seguir seguem os passos para inserir imagem no texto da notícia.</p>
+		<p>Clique em "Buscar Imagem", selecione uma imagem, copie o link da imagem do tamanho desejado.
+		</p>
+		<p>Após realizar os passos anteriores, no editor de textos posicione o cursor onde quiser que sua imagem apareça, clique em <img src="../furniture/images/help/icn-insert-image.jpg" class="middle-align" alt="" /> para inserir a imagem.
+		</p>
+		<p>Na janela que se abrir cole o link da imagem no campo "URL", você pode definir o alinhamento da imagem e também espaçamento vertical e horizontal nos campos "VSpace" e "HSpace" respectivamente.</p>
+		<p>Para definir o crédito da imagem inserida no texto basta clicar na aba "Avançado" e insirir o crédito da imagem no campo "Título". Ao finalizar basta clicar em "OK" para que a imagem seja inserida no texto.</p>		
+	</div>
+	</body>
+</html>

@@ -1,0 +1,78 @@
+<h2 class="page-title">Incluír/Editar Arquivo</h2>
+<p>Inclua ou edite os dados dos arquivos gravados no sistema.<br />Para incluír arquivos só serão aceitos nos formatos <b>PDF</b>, <b>DOC</b>, <b>XLS</b> ou <b>PPT</b> (Documentos, Planilhas, Apresentações em Power Point e Planilhas).</p>
+<form id="form" name="form" class="input-form" method="POST" action="arquivos.php" enctype="multipart/form-data" target="response-form">
+	
+	<!-- TITULO -->
+	<label>
+		<b>Título do Arquivo*:</b><br />
+		<input type="text" name="titulo" value="<?=htmlspecialchars($arquivo_info[0]{"titulo_arquivo"})?>" class="text" />
+	</label>
+	
+	<!-- LEGENDA -->
+	<label>
+		<b>Legenda do Arquivo:</b><br />
+		<input type="text" name="legenda" value="<?=htmlspecialchars($arquivo_info[0]{"legenda_arquivo"})?>" class="text" />
+	</label>
+	
+	<!-- ARQUIVO -->
+	<?if(!isset($arquivo_info[0]{"id_arquivo"})){?>
+		<label>
+			<b>Selecionar arquivo*:</b><br />
+			<input type="file" name="arquivo" /><span class="tip"> ( somente arquivos do tipo ".doc", ".pdf" ".xls" ou ".ppt" com no máximo <?=( FILE_LIMIT_SIZE/1024 ) ?>KB ou <?= ( FILE_LIMIT_SIZE / 1024 )/1000 ?>MB )</span>
+		</label>
+	<?}?>
+	
+	<!-- CATEGORIA/SUBCATEGORIA -->
+	<div>
+		<p style="float:left;">
+			<b>Categoria*:</b><br />
+			<?
+			$selected_categ =  ( isset($arquivo_info[0]{"categoria"}) ? $arquivo_info[0]{"categoria"} : null ) ;
+			$list_categ = $arquivo->list_categoria() ;	
+			$item_categ = array() ;
+			foreach( $list_categ as $item_ctg ){
+				$item_categ{$item_ctg{"id_categoria"}} = $item_ctg{"ds_categoria"} ;		
+			}
+			print gui_render_select( "categoria" , $item_categ , ( $selected_categ ? $selected_categ : null ) ) ;
+			?>
+		</p>
+		
+		<p style="float:left;margin-left:20px;">
+			<b>Sub-Categoria*:</b><br />
+			<?
+			$selected_subcateg = ( isset($arquivo_info[0]{"subcategoria"}) ? $arquivo_info[0]{"subcategoria"} : null ) ;
+			$list_subcateg = $arquivo->list_subcategoria() ;	
+			$item_aubcateg = array() ;
+			foreach( $list_subcateg as $item_subctg ){
+				$item_subcateg{$item_subctg{"id_subcategoria"}} = $item_subctg{"ds_subcategoria"} ;		
+			}
+			print gui_render_select( "subcategoria" , $item_subcateg , ( $selected_subcateg ? $selected_subcateg : null ) ) ;
+			?>
+		</p>
+		
+		<div style="clear:both;"><br /></div>
+		
+	</div>
+	<?
+	if(isset($arquivo_info[0]{"id_arquivo"})){
+	?>
+	<input type="hidden" name="id_arquivo" value="<?=$arquivo_info[0]{"id_arquivo"}?>" />
+
+	<?
+	}
+	?>
+	<!-- BOTÕES/AÇÕES -->
+	<p>
+		<input type="submit" class="btn-form" name="<?=(isset($arquivo_info[0]{"id_arquivo"}) ? "edit" : "insert");?>" value="<?=(isset($arquivo_info[0]{"id_arquivo"}) ? "Editar" : "Inserir");?>" />
+		<?if(!isset($arquivo_info[0]{"id_arquivo"})){?><input type="reset" class="btn-form" name="limpar" value="Limpar" /><?}?>
+		<input type="button"  class="btn-form"onclick="javascript:$(location).attr('href', 'arquivos_listar.php' ) ;" name="back_to_list" value="Voltar para a lista" />
+	</p>
+	
+	<div style="clear:both;"><br /></div>
+	
+</form>
+
+<div style="clear:both;"><br /></div>
+
+<iframe id="response-form" name="response-form" frameborder="0" class="iframe"></iframe>
+

@@ -1,0 +1,69 @@
+<?
+class index_controller{
+	
+	public $model = null ;
+	
+	public function  __construct(){
+	}
+	
+	public function index( $data = null ){
+	
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		// controle de cache
+		$cache = new cache() ;
+		$cache_id = "home_index" ;
+		$cache_content = $cache->read( $cache_id ) ;
+		
+		if( !$cache_content ){
+			
+			ob_start() ;
+			
+			// busca destaques
+			$noticias = new noticias ;
+			$destaques = $noticias->get_news_destaque() ;
+			$destaques_results = null ;
+			if( $destaques ) {				
+				$i = 0 ;
+				foreach( $destaques  as $data ){
+					$image_item = explode( "|", htmlspecialchars( $data{'imagem'} ) ) ;
+					$destaques_results[$i]{"image_url"}		= $images_directory . $image_item[0] . "-250x170.jpg" ;	
+					$destaques_results[$i]{"image_credit"}	= $image_item[1] ;	
+					
+					$destaques_results[$i]{"id"}	= $data{"id_noticia"} ;
+					$destaques_results[$i]{"url"}	=  $base_url_site . "noticias/" .  $data{"id_noticia"} . "-" . normalize_text( htmlspecialchars($data{"titulo"}), true ) ;
+					$destaques_results[$i]{"title"}	=  htmlspecialchars( $data{"titulo"} ) ;
+					$destaques_results[$i]{"chamada"}	=  htmlspecialchars( $data{"chamada"} ) ;
+					$destaques_results[$i]{"subcategoria"}	=  htmlspecialchars( $data{"ds_subcategoria"} ) ;
+					$i++ ;
+				}							
+			}
+			
+			$indicadores = new indicadores_controller() ;
+			$chart_home = renderChartHTML( $alias . "furniture/swf/FusionCharts/MSColumn3D.swf", $alias . "data/xml/home-chart.xml", "", "myFirst", 450,170, false); 
+			
+			// busca audios
+			$audios = new audios_controller() ;
+			$result_audios = $audios->get_last_audios() ;
+			
+			// busca videos
+			$videos = new videos_controller() ;
+			$list_videos = $videos->index() ;
+			
+			$css_files = write_css_header( array( "index" ) ) ;
+			include( $template_directory . "header.inc.php" ) ;
+			include( $template_directory . "index.inc.php" ) ;
+			include( $template_directory . "footer.inc.php" ) ;
+			
+			$content = ob_get_contents() ;
+			$cache->save( $cache_id, $content . "<!-- cached in " . date("Y-m-d H:i:s") . " -->" ) ;
+			ob_end_flush() ;
+		}
+		
+		print $cache_content ;
+		
+	}	
+	
+}
+?>

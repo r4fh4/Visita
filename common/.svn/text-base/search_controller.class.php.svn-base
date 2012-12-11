@@ -1,0 +1,72 @@
+<?php
+/*
+* Classe para pesquisa/busca no site
+* @author: tamemiya
+* @since 2011-06-29 15:00:00
+*/
+class search_controller{
+	
+	public function __construct(){
+	
+	}
+	
+	/*
+	* Método para carregar MAIN da busca
+	*/
+	public function search_main(){
+	
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		// parametros para busca
+		$q					= get_vars( "q" ) ;
+		$type_search		= ( get_vars( "type_search" ) ? get_vars( "type_search" ) : "noticias" ) ;
+		$sr					= get_vars('sr') ;
+		$result_list		= null ;
+		
+		if( $q ){
+		
+			// buscar dados com parametros passados
+			switch( $type_search ){
+				case( 'noticias' ) :
+					$title_type_search	= "Notícias" ;
+					$tb_name	= "tb_noticias" ;
+					$where[]	= "active = '1' AND publicada = '1'";
+					$where[]	= " MATCH ( titulo, chamada, texto ) AGAINST ( '" . str_replace( " ", "* ", mysql_real_escape_string( $q ) ) . "*' IN BOOLEAN MODE )" ;			
+				break ;
+				case( 'audios' ) :
+					$title_type_search	= "Áudios" ;
+					$tb_name	= "tb_audios" ;
+					$where[]	= "active='1'" ;
+					$where[]	= " MATCH ( titulo_audio, legenda_audio ) AGAINST ( '" . str_replace( " ", "* ", mysql_real_escape_string( $q ) ) . "*' IN BOOLEAN MODE )" ;					
+				break ;
+				case( 'arquivos' ) :
+					$title_type_search	= "Arquivos" ;
+					$tb_name	= "tb_arquivos" ;
+					$where[]	= "active='1'" ;
+					$where[]	= " MATCH ( titulo_arquivo, legenda_arquivo ) AGAINST ( '" . str_replace( " ", "* ", mysql_real_escape_string( $q ) ) . "*' IN BOOLEAN MODE )" ;
+				break ;
+				default :
+					$title_type_search	= "Notícias" ;
+					$tb_name	= "tb_noticias" ;
+					$where[]	= "active = '1' AND publicada = '1'";
+					$where[]	= " MATCH ( titulo, chamada, texto ) AGAINST ( '" . str_replace( " ", "* ", mysql_real_escape_string( $q ) ) . "*' IN BOOLEAN MODE )" ;
+				break ;
+			}
+			
+			list( $r , $result_list , $page , $total_pages ) = default_search( $tb_name , $where, "", "dt_criacao desc" ) ;			
+			$url =  set_url( $url , array( "q" => $q, "type_search" => $type_search ) ) ;
+		
+		}
+		
+		$complement_title = "Busque conteúdo no Portal" ;
+		$meta_description = "Busque conteúdo no Portal nesta página" ;	
+		// chamar template
+		include( $template_directory . "header.inc.php" ) ;
+		include( $template_directory . "busca_index.inc.php" ) ;
+		include( $template_directory . "footer.inc.php" ) ;		
+		$connection->disconnect() ;	
+	}
+	
+}
+?>

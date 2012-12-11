@@ -1,0 +1,54 @@
+<script language="javascript" type="text/javascript"><!--
+	var title_videos = new Array() ;
+	var player_videos = new Array() ;
+	var url_videos = new Array() ;
+<?
+if( $list ) {
+	$i = 0 ;
+	$side_list = "" ;
+	foreach( $list as $item ) {
+		
+		if( $i==0 ){
+			$video_player	= $item->player ;
+			$video_title	= htmlspecialchars( utf8_decode( $item->title ) ) ;
+			$video_url		= $item->url ;
+		}
+		
+		print 'title_videos[' . $i . '] = "' . htmlspecialchars( utf8_decode( $item->title ) ) . '";' . chr(13) ;		
+		print 'player_videos[' .$i . '] = "' . $item->player . '";' . chr(13) ;
+		print 'url_videos[' .$i . '] = "' . $item->url . '";' . chr(13) ;
+		
+		$side_list .= '
+		<li>
+			<a href="javascript:void(0);" onclick="set_video_on_page(' . $i . ');"><img src="' . $item->thumb . '" alt="' .  htmlspecialchars( utf8_decode( $item->title ) ). '" title="' . htmlspecialchars( utf8_decode( $item->title ) ) . '" /></a>
+			<div class="lista">
+				<a href="javascript:void(0);"  onclick="set_video_on_page(' . $i . ');" title="' . htmlspecialchars( utf8_decode( $item->title ) ) . '"><b>' . htmlspecialchars( utf8_decode( $item->title ) ) . '</b></a>
+		';
+		$side_list .= '
+			</div>
+		</li>		
+		' ;	
+		$i++ ;
+	}
+}
+?>
+function set_video_on_page( item_index ){
+	$("#player-youtube-big").attr("src", player_videos[item_index] ) ;
+	$("#title-video").html( title_videos[item_index] ) ;
+}
+//--></script>
+<h1 class="breadcrumb">Vídeos</h1>
+<div id="columnLeft550"  class="leftNone">
+	<p>Confira os últimos vídeos adicionados clicando na listagem ao lado para visualizar ou acesse o canal oficial.<br /><br /<></p>
+	<iframe id="player-youtube-big" class="player-youtube-big" frameborder="0" width="524" height="352" src="<?=$video_player?>"></iframe>
+	<h2 id="title-video" class="title"><?=$video_title?></h2>
+	<p><a href="http://www.youtube.com/user/<?=YOUTUBE_CHANNEL?>" target="_blank">Acessar Canal no Youtube</a></p>
+</div>
+<div id="columnRight350">
+	<div id="list-videos" class="list-videos">	
+	<ul id="lastItensVideos">
+		<?php echo $side_list ; ?>			
+	</ul>
+	</div>
+	<p class="link-channel-video"><a id="" href="http://www.youtube.com/user/<?=YOUTUBE_CHANNEL?>" target="_blank">Ver todos os vídeos no canal oficial</a></p>
+</div>

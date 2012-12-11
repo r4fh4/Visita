@@ -1,0 +1,43 @@
+<?php
+function get_page_access(){
+
+	global $admin_pages, $user_info ;
+	
+	foreach( $admin_pages as $pages => $value ){
+		
+		if( preg_match( "/(" . $pages . ")/", $_SERVER["REQUEST_URI"] ) ){			
+			 verify_access_page( $value, $user_info{"modules"} ) ;
+		}
+	}
+	
+}
+
+function verify_access_page( $current_page, $list_access ){
+	
+	if( !in_array( $current_page, $list_access ) ){
+		header( "Location: index.php" ) ;
+		header("Content-Length: 0");
+		exit() ;
+	}
+	
+}
+
+function build_admin_menu(){
+
+	global $user_info ;
+	
+	$menu	= '<ul>' ;
+	$menu	.= '<li ' . ( preg_match( "/(index)/", $_SERVER["REQUEST_URI"] ) ? 'class = "selected"' : "" ) . '><a href="index.php">Home</a></li>' ;
+	asort($user_info{"modules"}) ;
+	foreach( $user_info{"modules"} as $key => $value ){
+		$menu	.= '<li ' . ( preg_match( "/(" . $value . ")/", $_SERVER["REQUEST_URI"] ) ? 'class = "selected"' : "" ) . '><a href="' . $value. '_listar.php">' . $key . '</a></li>' ;
+	}
+	$menu .= '</ul>' ;
+	
+	print $menu ;
+
+
+}
+
+
+?>

@@ -1,0 +1,1088 @@
+<?
+class indicadores_controller{
+	
+	var $authenticated = false ;
+	public $model = null ;
+	
+	public function  __construct(){
+		$this->model = new indicadores ;		
+	}
+	
+	public function index(){
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		session_start();
+		$complement_title = "Indicadores" ;
+		$meta_description = "Consulte os dados dos indicadores disponíveis no Portal" ;
+		$list_area_assunto = $this->model->get_info_temas() ;
+		
+		$authenticated = true ;
+		$css_files = write_css_header( array( "pesquisas" ) ) ;
+		include( $template_directory . "header.inc.php" ) ;
+		include( $template_directory . "pesquisas_index.inc.php" ) ;
+		include( $template_directory . "footer.inc.php" ) ;		
+		$connection->disconnect() ;		
+	}
+	
+	/*
+	* carrega página com resultado da pesquisa
+	*/
+	public function generate_search( $data ){
+		
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		$authenticated = false ;
+		$authentication = new cadastro_controller ;
+		$this->authenticated = $authentication->authenticate( $uri ) ;
+		
+		if( $data{"search_type"} ){
+			$list_indicadores = $_POST{"indicadores"} ;
+			switch( $data{"search_type"} ){
+				
+				case "simples" :				
+					$this->simple_search( get_vars( "abrangencia" ), $list_indicadores, get_vars( "localidade" ) ) ;					
+				break ;
+				
+				case "avancada":
+					$this->advanced_search( get_vars( "abrangencia" ), $list_indicadores ) ;	
+				break ;
+				
+				case "maiores-menores":
+					$this->maiores_menores_search(  get_vars( "abrangencia" ), $list_indicadores, get_vars( "localidade" ) ) ;
+				break ;
+				
+				default:
+					header( "Location: " . $base_url_site . "page-not-found.html" ) ;
+					exit() ;
+				break ;				
+			}
+			
+		}
+		else{
+			header( "Location: " . $base_url_site . "indicadores" ) ;
+			exit() ;
+		}		
+	}
+	
+	/*
+	* carrega main do consolidados desejado
+	*/
+	public function generate_consolidados_main( $data ){
+		
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		if( $data{"indicador"} ){
+			switch( $data{"indicador"} ){
+				case "ideb"			: $this->consolidados_ideb( $data ) ; break ;
+				case "ideb_escolas"	: $this->consolidados_ideb_escolas( $data ) ; break ;
+			}			
+		}
+		else{
+			$complement_title = "Indicadores " . $list_tipos_pesquisas{"consolidados"}{"description"} ;
+			$meta_description = $list_tipos_pesquisas{"consolidados"}{"description"} ;
+			
+			$css_files = write_css_header( array( "pesquisas" ) ) ;
+			include( $template_directory . "header.inc.php" ) ;
+			include( $template_directory . "pesquisas_consolidados_index.inc.php" ) ;
+			include( $template_directory . "footer.inc.php" ) ;		
+			$connection->disconnect() ;
+		}
+		
+	}
+	
+	
+	/*
+	* consolidados - ideb escolas
+	*/
+	public function consolidados_ideb_escolas( $data ){
+			
+		set_time_limit(0) ;
+		// carregar variavies globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		switch( $data{"search_type"} ){
+			case("series_iniciais")	: 
+				$indicador = 191 ; 
+				$title_page = "Ensino Fundamental Público - Séries iniciais(até a 4ª série)" ;
+				$dependencia = 2 ;
+			break ;
+			case("series_finais") :
+				$indicador = 192 ;
+				$title_page = "Ensino Médio Público - Séries finais(de 5ª até a 8ª série)" ;
+				$dependencia = 1 ;
+			break ;
+			default :
+				header( "Location: " . $base_url_site . "indicadores/consolidados" ) ;
+				exit() ;
+			break ;
+		}
+		
+		// variáveis padrões
+		$localidade			= ( get_vars("id_cidade") && get_vars("id_cidade") != 355030 ? get_vars("id_cidade") : 355030 ) ; // localidade default é São Paulo (capital) caso n]ao tenha sido definida
+		$limit_list_ranking	= 15 ;
+		$list_maiores		= array() ;
+		$list_menores		= array() ;
+		$data_results		= false ;
+		$list_results		= $this->model->get_ideb_escolas_consolidados( $indicador, $localidade, $dependencia ) ;
+		
+		if( $list_results{"list"} ){		
+			$data_results = true ;
+			foreach( $list_results{"list"} as $k => $value ){
+				$avaliable_years[$value{"ano"}] = $value{"ano"} ;
+			}
+			
+			foreach( $avaliable_years as $item ){
+				foreach( $list_results{"list"}  as $k => $value ){
+					if( $value{"ano"}==$item ){
+						$idebs_por_ano{$value{"ano"}}[$value{"id_escola"}]{"valor"}		= $value{"valor"} ;
+						$idebs_por_ano{$value{"ano"}}[$value{"id_escola"}]{"id_escola"} = $value{"id_escola"} ;
+						$idebs_por_ano{$value{"ano"}}[$value{"id_escola"}]{"ds_escola"} = $value{"ds_escola"} ;
+						$idebs_por_ano{$value{"ano"}}[$value{"id_escola"}]{"proj_2009"} = $value{"proj_2009"} ;
+						$idebs_por_ano{$value{"ano"}}[$value{"id_escola"}]{"proj_2011"} = $value{"proj_2011"} ;
+						$idebs_por_ano{$value{"ano"}}[$value{"id_escola"}]{"proj_2013"} = $value{"proj_2013"} ;
+						$idebs_por_ano{$value{"ano"}}[$value{"id_escola"}]{"proj_2015"} = $value{"proj_2015"} ;
+						$idebs_por_ano{$value{"ano"}}[$value{"id_escola"}]{"proj_2017"} = $value{"proj_2017"} ;
+						$idebs_por_ano{$value{"ano"}}[$value{"id_escola"}]{"proj_2019"} = $value{"proj_2019"} ;
+						$idebs_por_ano{$value{"ano"}}[$value{"id_escola"}]{"proj_2021"} = $value{"proj_2021"} ;						
+					}
+				}
+			}
+			$last_year = max( $avaliable_years ) ;
+			// maiores 
+			$i = 1 ;
+			foreach( $idebs_por_ano[$last_year] as $item ){
+				if( $i <=$limit_list_ranking ){
+					$list_maiores[] = array(
+						"id_escola" => $item{"id_escola"} , 
+						"posicao"	=> $i ,
+						"label"		=> $item{"ds_escola"} ,
+						"valor"		=> $item{"valor"} ,
+						"proj_2009"	=> $item{"proj_2009"} ,
+						"proj_2011"	=> $item{"proj_2011"} ,
+						"proj_2013"	=> $item{"proj_2013"} ,
+						"proj_2015"	=> $item{"proj_2015"} ,
+						"proj_2017"	=> $item{"proj_2017"} ,
+						"proj_2019"	=> $item{"proj_2019"} ,
+						"proj_2021"	=> $item{"proj_2021"} ,
+						"mark"		=> false , 
+					) ;
+					$i++ ;
+				}
+				else{
+					break ;
+				}
+			}
+			
+			// menores
+			$list_reverse = array_reverse( $idebs_por_ano[$last_year], true ) ;
+			$i = 1 ;
+			foreach( $list_reverse as $item ){
+				if( $i <=$limit_list_ranking ){
+					$list_menores[] = array(
+						"id_escola" => $item{"id_escola"} , 
+						"posicao"	=> $i ,
+						"label"		=> $item{"ds_escola"} ,
+						"valor"		=> $item{"valor"} ,
+						"proj_2009"	=> $item{"proj_2009"} ,
+						"proj_2011"	=> $item{"proj_2011"} ,
+						"proj_2013"	=> $item{"proj_2013"} ,
+						"proj_2015"	=> $item{"proj_2015"} ,
+						"proj_2017"	=> $item{"proj_2017"} ,
+						"proj_2019"	=> $item{"proj_2019"} ,
+						"proj_2021"	=> $item{"proj_2021"} ,
+						"mark"		=> false ,
+					) ;
+					$i++ ;
+				}
+				else{
+					break ;
+				}
+			}
+			
+			asort( $avaliable_years ) ;		
+		}
+
+		$complement_title = "Indicadores " . $title_page ;
+		$css_files = write_css_header( array( "pesquisas" ) ) ;
+		include( $template_directory . "header.inc.php" ) ;
+		include( $template_directory . "pesquisas_consolidados_ideb_escolas.inc.php" ) ;
+		include( $template_directory . "footer.inc.php" ) ;		
+		$connection->disconnect() ;			
+		
+	}
+	
+	/*
+	* consolidados - ideb
+	*/	
+	public function consolidados_ideb( $data ){
+		
+		set_time_limit(0) ;
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		switch( $data{"search_type"} ){
+			case("series_iniciais")	: $indicador = 171 ; $title_page = "Ensino Fundamental Público - Séries iniciais(até a 4ª série)" ; break ;
+			case("series_finais")	: $indicador = 172 ; $title_page = "Ensino Médio Público - Séries finais(de 5ª até a 8ª série)" ; break ;
+			default :
+				header( "Location: " . $base_url_site . "indicadores/consolidados" ) ;
+				exit() ;
+			break ;
+		}
+		
+		$abrangencia		= "estado" ;
+		$estado				= 35 ;
+		$capital_cd_ibge	= 355030 ;
+		$localidade_select	= get_vars("id_cidade") ; 
+		$limit_list_ranking	= 15 ;
+		$avaliable_years	= null ;
+		$idebs_info_capital = null ;
+		$idebs_info_localidade = null ;
+		
+		// lista do estado
+		$list_results = $this->model->get_ideb_consolidados( $indicador, 6, $abrangencia, $estado ) ;		
+		foreach( $list_results{"avaliable_years"} as $key => $value ){
+			
+			foreach( $list_results as $item ){			
+				if( $value{"ano"} == $item{"ano"} ){
+					$idebs_por_ano{$value{"ano"}}[$item{"cd_ibge"}] = $item{"valor"} ;					
+				}
+				if( $capital_cd_ibge == $item{"cd_ibge"}){
+					$idebs_info_capital[$capital_cd_ibge] = array( 
+						"cd_ibge"	=> $item{"cd_ibge"} ,
+						"localidade" => $item{"nm_cidade"} , 
+						"proj_2009" => $item{"proj_2009"} ,
+						"proj_2011" => $item{"proj_2011"} ,
+						"proj_2013" => $item{"proj_2013"} ,
+						"proj_2015" => $item{"proj_2015"} ,
+						"proj_2017" => $item{"proj_2017"} ,
+						"proj_2019" => $item{"proj_2019"} ,
+						"proj_2021" => $item{"proj_2021"} ,
+					) ;
+					if( $value{"ano"} == $item{"ano"} ){
+						$idebs_info_capital{$value{"ano"}}[$capital_cd_ibge] = $item{"valor"} ;
+						
+					}					
+					
+				}
+				if( $localidade_select && $localidade_select != $capital_cd_ibge && $localidade_select == $item{"cd_ibge"}){
+					$idebs_info_localidade[$localidade_select] = array( 
+						"cd_ibge"	=> $item{"cd_ibge"} ,
+						"localidade" => $item{"nm_cidade"} , 
+						"proj_2009" => $item{"proj_2009"} ,
+						"proj_2011" => $item{"proj_2011"} ,
+						"proj_2013" => $item{"proj_2013"} ,
+						"proj_2015" => $item{"proj_2015"} ,
+						"proj_2017" => $item{"proj_2017"} ,
+						"proj_2019" => $item{"proj_2019"} ,
+						"proj_2021" => $item{"proj_2021"} ,
+					) ;
+					if( $value{"ano"} == $item{"ano"} ){
+						$idebs_info_localidade{$value{"ano"}}[$localidade_select] = $item{"valor"} ;
+					}
+					
+				}
+				
+			}
+			$avaliable_years[] = $value{"ano"} ;
+		}
+		
+		// maiores
+		$i = 1 ;
+		$count = 1 ;
+		$limiter = 0 ;
+		foreach( $list_results as $item ){			
+			if( $item{"ano"} == $list_results{"avaliable_years"}[0]{"ano"} && $i <= $limit_list_ranking ){
+				$line_maiores[$item{"cd_ibge"}] = array( 
+					"cd_ibge"	=> $item{"cd_ibge"} ,
+					"posicao"	=> $i ,
+					"localidade" => $item{"nm_cidade"} , 
+					"proj_2009" => $item{"proj_2009"} ,
+					"proj_2011" => $item{"proj_2011"} ,
+					"proj_2013" => $item{"proj_2013"} ,
+					"proj_2015" => $item{"proj_2015"} ,
+					"proj_2017" => $item{"proj_2017"} ,
+					"proj_2019" => $item{"proj_2019"} ,
+					"proj_2021" => $item{"proj_2021"} ,
+					"mark"		=> ( $localidade_select == $item{"cd_ibge"}  ? true : false ) ,
+				) ;
+				$i++ ;
+			}
+			if( $item{"ano"} == $list_results{"avaliable_years"}[0]{"ano"} ){
+				if( $item{"cd_ibge"} == $capital_cd_ibge ){
+					$idebs_info_capital{"posicao"} = $count ;
+					$idebs_info_capital{"cd_ibge"} = $capital_cd_ibge ;
+				}
+				if( $localidade_select && $localidade_select != $capital_cd_ibge && $item{"cd_ibge"} == $localidade_select ){
+					$idebs_info_localidade{"posicao"} = $count ;
+					$idebs_info_localidade{"cd_ibge"} = $localidade_select ;
+				}
+				$count++ ;
+			}
+			
+			if( $idebs_info_capital{"posicao"} && $idebs_info_localidade{"posicao"}  ){
+				break ;
+			}
+			$limiter++ ;			
+		}	
+		
+		// menores
+		$list_results = array_reverse(  $list_results, true ) ;
+		$i = 1 ;
+		foreach( $list_results as $item ){
+			if( $item{"ano"} == $list_results{"avaliable_years"}[0]{"ano"} && $i <= $limit_list_ranking ){
+				$line_menores[$item{"cd_ibge"}] = array( 
+					"cd_ibge"	=> $item{"cd_ibge"} ,
+					"posicao"	=> $i ,
+					"localidade" => $item{"nm_cidade"} , 
+					"proj_2009" => $item{"proj_2009"} ,
+					"proj_2011" => $item{"proj_2011"} ,
+					"proj_2013" => $item{"proj_2013"} ,
+					"proj_2015" => $item{"proj_2015"} ,
+					"proj_2017" => $item{"proj_2017"} ,
+					"proj_2019" => $item{"proj_2019"} ,
+					"proj_2021" => $item{"proj_2021"} ,
+					"mark"		=> ( $localidade_select == $item{"cd_ibge"} ? true : false ) ,
+				) ;
+				$i++ ;
+			}
+			if( $i > $limit_list_ranking ){
+				break ;
+			}			
+		}
+		asort( $avaliable_years ) ;
+		unset( $list_results ) ;
+		
+		$complement_title = "Indicadores " . $title_page ;
+		$css_files = write_css_header( array( "pesquisas" ) ) ;
+		include( $template_directory . "header.inc.php" ) ;
+		include( $template_directory . "pesquisas_consolidados_ideb.inc.php" ) ;
+		include( $template_directory . "footer.inc.php" ) ;		
+		$connection->disconnect() ;
+
+	}
+	
+	/*
+	* carrega o main da pesquisa solicitada
+	*/
+	public function generate_search_main( $data ){
+		
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		//requer autenticação
+		$authenticated = false ;
+		$authentication = new cadastro_controller ;
+		$this->authenticated = $authentication->authenticate( $uri ) ;
+		
+		if( $data{"search_type"} ){
+			switch( $data{"search_type"} ){
+				case "simples"			: $this->simple_search_main() ; break ;
+				case "avancada"			: $this->advanced_search_main() ; break ;
+				case "maiores-menores"	: $this->maiores_menores_search_main() ; break ;
+				default :
+					header( "Location: " . $base_url_site . "indicadores" ) ;
+					exit() ;
+				break ;
+			}
+		}else{
+			header( "Location: " . $base_url_site . "indicadores" ) ;
+			exit() ;
+		}
+	}
+	
+	/*
+	* carrega form da pesquisa simples
+	*/
+	public function simple_search_main( $authenticated = null ){
+	
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		$complement_title = "Indicadores " . $list_tipos_pesquisas{"simples"}{"description"} ;
+		$meta_description = $list_tipos_pesquisas{"simples"}{"description"} ;
+		$list_area_assunto = $this->model->get_info_temas() ;
+		
+		$authenticated = $this->authenticated ;
+		$css_files = write_css_header( array( "pesquisas" ) ) ;
+		include( $template_directory . "header.inc.php" ) ;
+		include( $template_directory . "pesquisas_simples_index.inc.php" ) ;
+		include( $template_directory . "footer.inc.php" ) ;		
+		$connection->disconnect() ;		
+		
+	}
+	
+	/*
+	* carrega form da pesquisa avancada
+	*/
+	public function advanced_search_main( $authenticated = null ){
+	
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		$complement_title = "Indicadores " . $list_tipos_pesquisas{"avancada"}{"description"} ;
+		$meta_description = $list_tipos_pesquisas{"avancada"}{"description"} ;
+		$list_area_assunto = $this->model->get_info_temas() ;
+		
+		$authenticated = $this->authenticated ;
+		$css_files = write_css_header( array( "pesquisas" ) ) ;
+		include( $template_directory . "header.inc.php" ) ;
+		include( $template_directory . "pesquisas_avancada_index.inc.php" ) ;
+		include( $template_directory . "footer.inc.php" ) ;		
+		$connection->disconnect() ;		
+		
+	}
+	
+	/*
+	* carrega form da pesquisa maiores e menores
+	*/
+	public function maiores_menores_search_main( $authenticated = null ){
+	
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		$complement_title = "Indicadores " . $list_tipos_pesquisas{"maiores-menores"}{"description"} ;
+		$meta_description = $list_tipos_pesquisas{"maiores-menores"}{"description"} ;
+		$list_area_assunto = $this->model->get_info_temas() ;
+		
+		$authenticated = $this->authenticated ;
+		$css_files = write_css_header( array( "pesquisas" ) ) ;
+		include( $template_directory . "header.inc.php" ) ;
+		include( $template_directory . "pesquisas_maiores_menores_index.inc.php" ) ;
+		include( $template_directory . "footer.inc.php" ) ;		
+		$connection->disconnect() ;	
+	}
+	
+	public function get_info_indicadores( $data ){
+		
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		if( verify_referer_ajax() ){
+		
+			if( isset($data{"tema"}) && $data{"tema"} == "all" ){
+				$results = ( $this->model->get_indicadores_info_by_tema() ) ;
+			}
+			else if( isset($data{"tema"}) && isset( $temas_indicadores[$data{"tema"}] ) ){
+				$results = ( $this->model->get_indicadores_info_by_tema( $temas_indicadores[$data{"tema"}]{"id"} ) ) ;
+			}
+			else if( isset($data{"assunto"}) ){
+				$results = $this->model->get_indicadores_info_by_assunto( $data{"assunto"}, get_vars( "filter" ) ) ;							
+			}
+			if( $results ){
+				if( get_vars( "template" ) ){
+					// define o tipo de output que terei
+					$template_type = get_vars( "template" ) ;
+					include( $template_directory . "pesquisas_indicadores.inc.php" ) ;
+
+				}
+				else{
+					return $results ;
+				}
+				$connection->disconnect() ;
+				
+			}else{
+				header( "Location: " . $base_url_site . "page-not-found.html" ) ;
+			}
+		
+		}
+		
+		return false ;	
+		
+	}
+	
+	/*
+	* monta resultado da pesquisa simples
+	*/
+	public function simple_search( $abrangencia, $list_indicadores, $localidade ){
+		
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		//requer autenticação
+		$authenticated = false ;
+		$authentication = new cadastro_controller ;
+		$this->authenticated = $authentication->authenticate( $uri ) ;
+
+		$periodo				= ( $_POST{"periodo"} ? ( $_POST{"periodo"} !="-" ? $_POST{"periodo"} : null ) : null ) ;				
+		$avaliable_years = array() ;
+		$faixa					= ( get_vars("faixa") ? ( get_vars("faixa")!="-" ? get_vars("faixa") : null ) : null ) ;
+		$dependencia			= ( get_vars("dependencia") ? ( get_vars("dependencia")!="-" ? get_vars("dependencia") : null ) : null ) ;
+		$chart					= false ;
+		$years_avaliable		= null ;
+		
+		$results = $this->model->get_info_indicador( $list_indicadores ) ;
+		if( count($list_indicadores) <= 5 && $results ){			
+			$i = 0 ;
+			foreach( $results as $key => $value ){
+				if( $i==0 ){
+					$first_indicador = $value{"id_indicador"} ;					
+				}
+				$info[$value{"id_indicador"}]{"nome"} = $value{"ds_tema"} . " / "  . $value{"ds_indicador"} ;
+				$info[$value{"id_indicador"}]{"assunto"} = $value{"ds_assunto"} ;
+				$info[$value{"id_indicador"}]{"tema"} = $value{"ds_tema"} ;
+				$info[$value{"id_indicador"}]{"id_assunto"} = $value{"id_assunto"} ;
+				$info[$value{"id_indicador"}]{"id_tema"} = $value{"id_tema"} ;
+				$info[$value{"id_indicador"}]{"tabela"} = $list_indicadores_tables[$value{"id_nome_tabela"}] ;
+				$info[$value{"id_indicador"}]{"id"} = $value{"id_indicador"} ;
+				$info[$value{"id_indicador"}]{"tp_valor"} = $value{"tp_valor"} ;
+				$info[$value{"id_indicador"}]{"conceito"} = $value{"conceito"} ;
+				$info[$value{"id_indicador"}]{"uso"} = $value{"uso"} ;
+				$info[$value{"id_indicador"}]{"metodologia"} = $value{"metodologia"} ;
+				$info[$value{"id_indicador"}]{"calculo"} = $value{"calculo"} ;
+				$info[$value{"id_indicador"}]{"fonte"} = $value{"fonte"} ;
+				$info[$value{"id_indicador"}]{"periodicidade"} = $value{"periodicidade"} ;
+				$years_avaliable[] = $this->model->get_anos_by_indicador( $value{"id_indicador"}, $list_indicadores_tables[$value{"id_nome_tabela"}] ) ;
+			
+				$results_indicador_values[$value{"id_indicador"}] = $this->model->get_values_indicador( $value{"id_indicador"}, $list_indicadores_tables[$value{"id_nome_tabela"}], $abrangencia, $localidade, $periodo, $faixa, $dependencia ) ;
+				
+				$i++ ;
+			}			
+			
+			$indicador_selecionado 	= ( get_vars("selected_indicador") ? get_vars("selected_indicador") : $first_indicador ) ;
+			
+			// retorno os dados e ordeno por indicador/ano
+			foreach( $results_indicador_values as $key => $values ){
+				if($values){
+					foreach( $values as $item ){
+						$list_avaliable_years[$item{"ano"}] = $item{"ano"} ;
+						$years[] =  $item{"ano"} ;
+						$avaliable_values[$key][$item{"ano"}] = $item{"valor"} ;
+						if( $item{"id_dependencia"} ){ $default{"id_dependencia"} = $item{"id_dependencia"} ; }
+						if( $item{"id_idade"} ){ $default{"id_idade"} = $item{"id_idade"} ; }
+					}
+					
+				}
+
+			}
+			
+			if( is_array($years_avaliable) ){
+				foreach( $years_avaliable as $it ){
+					if( is_array($it) ){
+						foreach( $it as $k => $v ){						
+							$combo_avaliable_years[$v{"ano"}] = $v{"ano"} ;						
+						}
+					}
+				}
+				asort( $combo_avaliable_years ) ;
+			}
+			
+			$fax_init	= ( $faixa ? ( $faixa!="-" ? $faixa : $default{"id_idade"} ) : $default{"id_idade"}) ;
+			$dep_init	= ($dependencia ? ( $dependencia!="-" ? $dependencia : $default{"id_dependencia"} ) : $default{"id_dependencia"} ) ;
+			
+			if( is_array($list_avaliable_years) ){ 
+				$list = array_unique( $list_avaliable_years ) ; 
+				ksort($list);
+				
+				if( !get_vars("periodo") || get_vars("periodo") == "-"  ){
+					$avaliable_years = array_reverse( array_slice( array_reverse( $years ) , 0, 5 ) ) ;
+				}
+				else{
+					$avaliable_years = $periodo ;
+				}
+				$avaliable_years = array_unique( $avaliable_years );
+				
+				// retornar dados da localidade
+				switch( get_vars("abrangencia") ){
+					case "nacional" : $localidade_label = "Brasil" ; break ;
+					case "regional" : $localidade_label = "Região " . $region_list[get_vars("localidade")] ; break ;
+					case "estadual" : $localidade_label = $uf_list[get_vars("localidade")]{"sigla"} . "/" . $uf_list[get_vars("localidade")]{"label"} ;	break;
+					default :
+						$info_localidade = list_cidades( get_vars("localidade") ) ;
+						$localidade_label = $info_localidade[get_vars("localidade")]{"nm_cidade"} . "/" . $uf_list[$info_localidade[get_vars("localidade")]{"id_uf"}]{"sigla"} ;
+					break ;
+						
+				}
+
+				// montar chart
+				foreach( $avaliable_years as $item ){
+					$xml_categories .= "<category label='" . $item . "' />" ;
+				}
+				$xml_categories = "<categories>" . $xml_categories . "</categories>" ;
+
+				$xml = "<chart caption='Gráfico gerado pelos dados da pesquisa' showBorder='1' showPlotBorder='1' showYAxisValues='0' bgColor='ebebeb' canvasBorderThickness='0' plotBorderColor='CCCCCC' canvasBorderColor='CCCCCC' showValues='0' exportEnabled='1' exportHandler='" .  $alias . "common/tools/Fusioncharts/FCExporter.php' exportAtClient='0' exportAction='download'>" ;
+				
+				
+				
+				$xml .= $xml_categories ;
+				$i = 0 ;			
+				foreach( $results_indicador_values as $key => $value ){		
+
+					$xml .= "<dataset color='".$list_colors[$i]."'>" ;
+					 
+					foreach( $avaliable_years as $years ) {
+						if( $avaliable_values[$key][$years] ){
+
+							$xml .= "<set value='" . $avaliable_values[$key][$years] . "' />" ;
+						}
+						else{
+							$xml .= "<set value='-' />" ;
+						}			
+					}
+					$xml .= "</dataset>" ;
+					$i++ ;
+				}
+				$xml .= "</chart>" ;		
+				$chart = $this->build_chart( "MSColumn2D.swf", $xml, "Bars", 900, 250 ) . "<br /><br />" ;				
+			}
+			
+			$complement_title = "Indicadores " . $list_tipos_pesquisas{"title"}{"description"} ;
+			$meta_description = $list_tipos_pesquisas{"simples"}{"description"} ;
+			
+			$authenticated = false ;
+			$css_files = write_css_header( array( "pesquisas" ) ) ;
+			include( $template_directory . "header.inc.php" ) ;
+			include( $template_directory . "pesquisas_simples.inc.php" ) ;
+			include( $template_directory . "footer.inc.php" ) ;
+			$connection->disconnect() ;
+		}
+		else{
+			header( "Location: " . $base_url_site . "indicadores" ) ;
+			exit();
+		}
+	}
+	
+	/*
+	* monta resultado da pesquisa avançada
+	*/
+	public function advanced_search( $abrangencia, $list_indicadores ){
+		
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		//requer autenticação
+		$authenticated = false ;
+		$authentication = new cadastro_controller ;
+		$this->authenticated = $authentication->authenticate( $uri ) ;
+
+		$periodo				= ( $_POST{"periodo"} ? ( $_POST{"periodo"} !="-" ? $_POST{"periodo"} : null ) : null ) ;
+		$dependencia	= ( get_vars("dependencia") ? ( get_vars("dependencia")!="-" ? get_vars("dependencia") : null ) : null ) ;
+		$faixa			= ( get_vars("faixa") ? ( get_vars("faixa")!="-" ? get_vars("faixa") : null ) : null ) ;				
+		$avaliable_years		= array() ;
+		$chart					= false ;
+		$list_localidades		= $_POST{"localidades"} ;
+		
+		if( is_array($list_indicadores) && count($list_indicadores) > 1 ){
+			header( "Location: " . $base_url_site . "indicadores" ) ;
+			exit();
+		}
+		
+		$results = $this->model->get_info_indicador( $list_indicadores ) ;
+		if( $results && is_array( $list_localidades ) && count(  $list_localidades ) <=5 ){	
+			foreach( $results as $value ){
+
+				$info{"nome"} = $value{"ds_tema"} . " / "  . $value{"ds_indicador"} ;
+				$info{"assunto"} = $value{"ds_assunto"} ;
+				$info{"tema"} = $value{"ds_tema"} ;
+				$info{"id_assunto"} = $value{"id_assunto"} ;
+				$info{"id_tema"} = $value{"id_tema"} ;
+				$info{"tabela"} = $list_indicadores_tables[$value{"id_nome_tabela"}] ;
+				$info{"id"} = $value{"id_indicador"} ;
+				$info{"tp_valor"} = $value{"tp_valor"} ;
+				$info{"conceito"} = $value{"conceito"} ;
+				$info{"uso"} = $value{"uso"} ;
+				$info{"metodologia"} = $value{"metodologia"} ;
+				$info{"calculo"} = $value{"calculo"} ;
+				$info{"fonte"} = $value{"fonte"} ;
+				$info{"periodicidade"} = $value{"periodicidade"} ;				
+			}
+			
+			foreach( $list_localidades as $item_localidade ){
+				
+				switch( $abrangencia ){
+					case "regional" :					
+						$list_label_localidades[$item_localidade] = "Região " . $region_list[ $item_localidade ] ;
+					break ;
+					case "estadual" :
+						$item_uf = $uf_list[ $item_localidade ] ;
+						$list_label_localidades[$item_localidade] = $item_uf{"label"} ;
+					break ;
+					default :
+						$item = list_cidades( $item_localidade ) ;
+						$item_uf = $uf_list[ $item[$item_localidade]{"id_uf"} ] ;
+						$list_label_localidades[$item_localidade] = $item[$item_localidade]{"nm_cidade"} . "/" . $item_uf{"sigla"} ;
+					break ;
+				}
+				
+				$results_indicador_values[ $list_label_localidades[$item_localidade]. "-" . $item_localidade ] = $this->model->get_values_indicador( $info{"id"}, $info{"tabela"}, $abrangencia, $item_localidade, $periodo, $faixa, $dependencia ) ;
+				
+				$input_itens_localidades .= '<input type="checkbox" checked="checked" class="hide-box" name="localidades[]" value="' . $item_localidade . '" />' ;
+				
+			}
+			ksort($results_indicador_values);
+				
+			// retorno os dados e ordeno por indicador/ano
+			foreach( $results_indicador_values as $key => $values ){
+				$index = explode( "-", $key ) ;
+				if($values){
+					foreach( $values as $item ){
+						$list_avaliable_years[$item{"ano"}] = $item{"ano"} ;
+						$years[] =  $item{"ano"} ;
+						$avaliable_values[$index[1]][$item{"ano"}] = $item{"valor"} ;
+						if( $item{"id_dependencia"} ){ $default{"id_dependencia"} = $item{"id_dependencia"} ; }
+						if( $item{"id_idade"} ){ $default{"id_idade"} = $item{"id_idade"} ; }						
+					}
+				}
+
+			}
+			
+			// anos disponiveis para o indicador
+			$list_years_avaliable = $this->model->get_anos_by_indicador( $info{"id"}, $info{"tabela"} ) ;
+			foreach( $list_years_avaliable as $key => $value  ){
+				$combo_avaliable_years[$value{"ano"}] = $value{"ano"} ;
+			}
+			$combo_avaliable_years = array_reverse( $combo_avaliable_years, true ) ;
+			
+			$fax_init	= ( $faixa ? ( $faixa!="-" ? $faixa : $default{"id_idade"} ) : $default{"id_idade"}) ;
+			$dep_init	= ($dependencia ? ( $dependencia!="-" ? $dependencia : $default{"id_dependencia"} ) : $default{"id_dependencia"} ) ;			
+			
+			if( is_array($list_avaliable_years) ){ 
+				$list = array_unique( $list_avaliable_years ) ; 
+				ksort($list);
+				
+			
+				if( !get_vars("periodo") || get_vars("periodo") == "-"  ){
+					$avaliable_years = array_reverse( array_slice( array_reverse( $years ) , 0, 5 ) ) ;
+				}
+				else{
+					$avaliable_years = $periodo ;
+				}
+				$avaliable_years = array_unique( $avaliable_years ) ;
+				asort( $avaliable_years ) ;
+				// retornar dados da localidade
+				switch( get_vars("abrangencia") ){
+					case "nacional" : $localidade_label = "Brasil" ; break ;
+					case "regional" : $localidade_label = "Região " . $region_list[get_vars("localidade")] ; break ;
+					case "estadual" : $localidade_label = $uf_list[get_vars("localidade")]{"sigla"} . "/" . $uf_list[get_vars("localidade")]{"label"} ;	break;
+					default :
+						$info_localidade = list_cidades( get_vars("localidade") ) ;
+						$localidade_label = $info_localidade[get_vars("localidade")]{"nm_cidade"} . "/" . $uf_list[$info_localidade[get_vars("localidade")]{"id_uf"}]{"sigla"} ;
+					break ;
+						
+				}
+
+				// montar chart
+				foreach( $avaliable_years as $item ){
+					$xml_categories .= "<category label='" . $item . "' />" ;
+				}
+				$xml_categories = "<categories>" . $xml_categories . "</categories>" ;
+				
+				$xml = "<chart caption='Gráfico gerado pelos dados da pesquisa' showBorder='1' showPlotBorder='1' showYAxisValues='0' bgColor='ebebeb' canvasBorderThickness='0' plotBorderColor='CCCCCC' canvasBorderColor='CCCCCC' showValues='0' exportEnabled='1' exportHandler='" .  $alias . "common/tools/Fusioncharts/FCExporter.php' exportAtClient='0' exportAction='download'>" ;
+							
+				$xml .= $xml_categories ;
+				$i = 0 ;			
+				foreach( $results_indicador_values as $key => $value ){		
+					$index = explode( "-", $key ) ;
+					$xml .= "<dataset color='".$list_colors[$i]."'>" ;
+					array_unique( $avaliable_years ); 
+					foreach( $avaliable_years as $years ) {
+						if( $avaliable_values[$index[1]][$years] ){
+
+							$xml .= "<set value='" . $avaliable_values[$index[1]][$years] . "' />" ;
+						}
+						else{
+							$xml .= "<set value='-' />" ;
+						}			
+					}
+					$xml .= "</dataset>" ;
+					$i++ ;
+				}
+				$xml .= "</chart>" ;		
+				//$chart = $this->build_chart( "MSColumn2D.swf", $xml, "Bars", 900, 250 ) . "<br /><br />" ;
+				$chart = $this->build_chart( "MSColumn2D.swf", $xml, "Bars", 900, 250 ) . "<br /><br />" ;
+			}
+			
+			$complement_title = "Indicadores " . $list_tipos_pesquisas{"title"}{"description"} ;
+			$meta_description = $list_tipos_pesquisas{"simples"}{"description"} ;
+			
+			$authenticated = false ;
+			$css_files = write_css_header( array( "pesquisas" ) ) ;
+			include( $template_directory . "header.inc.php" ) ;
+			include( $template_directory . "pesquisas_avancada.inc.php" ) ;
+			include( $template_directory . "footer.inc.php" ) ;
+			$connection->disconnect() ;
+		}
+		else{
+			header( "Location: " . $base_url_site . "indicadores" ) ;
+			exit();
+		}
+	}
+	
+	/*
+	* monta resultado da pesquisa maiores e menores
+	*/
+	public function maiores_menores_search(  $abrangencia = null, $list_indicadores= null, $localidade = null ){
+		
+		set_time_limit(0) ;
+		# carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		# requer autenticação
+		$authenticated = false ;
+		$authentication = new cadastro_controller ;
+		$this->authenticated = $authentication->authenticate( $uri ) ;
+		
+		$avaliable_years		= array() ;
+		$itens_maiores			= array() ;
+		$itens_menores			= array() ;
+		$chart					= false ;
+		$escolas_list			= false ;
+		$itens					= array() ;		
+		
+		$periodo		= ( get_vars("periodo") ? ( get_vars("periodo")  !="-" ? get_vars( "periodo" ) : null ) : null ) ;
+		$dependencia	= ( get_vars("dependencia") ? ( get_vars("dependencia")!="-" ? get_vars("dependencia") : null ) : null ) ;
+		$faixa_et		= ( get_vars("faixa_et") ? ( get_vars("faixa_et")!="-" ? get_vars("faixa_et") : null ) : null ) ;
+		$localidade		= ( get_vars("localidade") ? get_vars("localidade") : null ) ;
+		$default_year	= $periodo ;
+		
+		if( is_array($list_indicadores) && count($list_indicadores) == 1 && $abrangencia && $localidade ){
+			
+			// dados do indicador
+			$results = $this->model->get_info_indicador( $list_indicadores ) ;
+			$info = array() ;
+			if( $results ){
+				foreach( $results as $value ){
+					$info{"nome"} = $value{"ds_tema"} . " / "  . $value{"ds_indicador"} ;
+					$info{"assunto"} = $value{"ds_assunto"} ;
+					$info{"tema"} = $value{"ds_tema"} ;
+					$info{"id_assunto"} = $value{"id_assunto"} ;
+					$info{"id_tema"} = $value{"id_tema"} ;
+					$info{"tabela"} = $list_indicadores_tables[$value{"id_nome_tabela"}] ;
+					$info{"id"} = $value{"id_indicador"} ;
+					$info{"tp_valor"} = $value{"tp_valor"} ;
+					$info{"conceito"} = $value{"conceito"} ;
+					$info{"uso"} = $value{"uso"} ;
+					$info{"metodologia"} = $value{"metodologia"} ;
+					$info{"calculo"} = $value{"calculo"} ;
+					$info{"fonte"} = $value{"fonte"} ;
+					$info{"periodicidade"} = $value{"periodicidade"} ;				
+				}
+				
+				// dados da localidade
+				switch( $abrangencia ){
+					case "estadual" : $localidade_label = $uf_list[$localidade]{"sigla"} . "/" . $uf_list[$localidade]{"label"} ;	break;
+					default :
+						if($info{"tabela"}=="ideb_escolas"){
+							$info_localidade = list_cidades( get_vars("localidade") ) ;
+							$localidade_label = $info_localidade[$localidade]{"nm_cidade"} . "/" . $uf_list[$info_localidade[$localidade]{"id_uf"}]{"sigla"} ;
+						}
+					break ;					
+				}
+				
+				# buscar listas de rankings				
+				# se for estadual
+				if( $abrangencia == "estadual" ){
+					
+					$list_result_data = $this->model->get_list_ranking_indicador( $info{"id"}, $info{"tabela"},  $periodo, $faixa_et, $dependencia, $abrangencia, $localidade ) ;
+					
+					// seta valores para template
+					$default_year	= ( $default_year ? $default_year : $list_result_data{"last_years"}[0]{"ano"} ) ;					
+					
+					if( $list_result_data ){
+						$chart = true ;
+						foreach( $list_result_data{"last_years"} as $itens_years ){
+							$combo_avaliable_years[$itens_years{"ano"}] = $itens_years{"ano"} ;
+						}
+						asort( $combo_avaliable_years ) ;
+						$i = 1 ;						
+						
+						// escolas IDEB
+						if($info{"tabela"}=="ideb_escolas"){
+							
+							$escolas_list = true ;							
+							// lista das maiores escolas
+							foreach( $list_result_data as $list ){
+								if( $i<=20 && $list{"ds_escola"} ){
+									$itens_maiores[] = array( "position" => $i, "label" => $list{"ds_escola"} . ' <span class="tip">('. $list{"nm_cidade"}. ')</span>' , "sigla" => $uf_list[$list{"id_uf"}]{"sigla"}, "value" => indicadores_values( $info{"tp_valor"}, $list{"valor"} ), "default_value" => $list{"valor"}, "mark" => false ) ;
+									if( $i== 1){
+										$default_localidade	= $uf_list[$list{"id_uf"}]{"label"} ;																		
+									}
+									$i++ ;
+								}
+								
+							}							
+							$list_menores = array_reverse( $list_result_data ) ;							
+							// lista das menores escolas
+							$i = 1 ;
+							foreach( $list_menores as $list ){
+								if( $i<=20 &&  $list{"ds_escola"} ){
+									$itens_menores[] = array( "position" => $i, "label" => $list{"ds_escola"} . ' <span class="tip">('. $list{"nm_cidade"}. ')</span>' , "sigla" => $uf_list[$list{"id_uf"}]{"sigla"}, "value" => indicadores_values( $info{"tp_valor"}, $list{"valor"} ), "default_value" => $list{"valor"}, "mark" => false ) ;
+									$i++ ;
+								}
+								
+							}							
+							$default_dependencia	= $default_dependencias{"ideb_escolas"} ;	
+							
+						}
+						
+						// demais indicadores
+						else{				
+							foreach( $list_result_data as $list ){
+								if( $list{"id_uf"} ){
+									$itens[] = array( "position" => $i, "label" => $uf_list[$list{"id_uf"}]{"label"} . "(" . $uf_list[$list{"id_uf"}]{"sigla"} . ")" , "sigla" => $uf_list[$list{"id_uf"}]{"sigla"}, "value" => indicadores_values( $info{"tp_valor"}, $list{"valor"} ), "default_value" => $list{"valor"}, "mark" => ( $list{"id_uf"} == $localidade ? true : false ) ) ;
+									$i++ ;
+									if( $list{"id_uf"} == $localidade ){
+										$default_localidade	= $uf_list[$list{"id_uf"}]{"label"} ;										
+										$default_value		= indicadores_values( $info{"tp_valor"}, $list{"valor"} ) ;
+										$default_year		= $list{"ano"} ;
+									}
+								}
+								
+							}
+						}
+					}
+					
+				}
+				# se for abrang. capital/municipal
+				else{					
+					// listar ranking
+					$list_result_data = $this->model->get_list_ranking_indicador( $info{"id"}, $info{"tabela"},  $periodo, $faixa_et, $dependencia, $abrangencia,  $localidade ) ;
+					
+					// guardar anos disponíveis para o indicador selecionado
+					if( is_array($list_result_data{"last_years"}) ){
+						foreach( $list_result_data{"last_years"} as $itens_years ){
+							$combo_avaliable_years[$itens_years{"ano"}] = $itens_years{"ano"} ;
+						}
+						asort( $combo_avaliable_years ) ;
+					}
+					
+					if( $list_result_data ){					
+						
+						// seta valores para template
+						$default_year	= ( $default_year ? $default_year : $list_result_data{"last_years"}[0]{"ano"} ) ;
+						
+						$chart = true ;
+						
+						# IDEB - escolas
+						if($info{"tabela"}=="ideb_escolas"){
+							$escolas_list = true ;
+							
+							$i = 1 ;
+							// itens maiores
+							foreach( $list_result_data as $list ){															
+								
+								if( $i<=20  && $list{"ds_escola"} ){
+									$itens_maiores[] = array( "position" => $i, "label" => $list{"ds_escola"} , "value" => indicadores_values( $info{"tp_valor"}, $list{"valor"} ), "mark" => false ) ;
+									$i++ ;
+								}								
+							}
+							// itens menores
+							$list_menores = array_reverse( $list_result_data ) ;							
+							$i = 1 ;
+							foreach( $list_menores as $list ){
+								if( $i<=20 && $list{"ds_escola"} ){
+									$itens_menores[] = array( "position" => $i, "label" => $list{"ds_escola"} , "value" => indicadores_values( $info{"tp_valor"}, $list{"valor"} ), "mark" => false ) ;
+									$i++ ;
+								}								
+							}							
+							
+						}
+						# demais indicadores
+						else{						
+							
+							// lista dos 20 maiores
+							$i = 1 ;
+							foreach( $list_result_data as $list ){
+								if( $localidade == $list{"cd_ibge"} ){
+									$localidade_label = $list{"nm_cidade"} . "/" . $uf_list[ substr( $localidade, 0, 2 ) ]{"sigla"} ;
+									$default_localidade{"valor"} =  indicadores_values( $info{"tp_valor"}, $list{"valor"} ) ;
+								}
+								
+								if( $i<=20 && $list{"valor"} > 0  ){
+									$itens_maiores[] = array( "position" => $i, "label" => $list{"nm_cidade"} . "/" . $uf_list[ substr( $localidade, 0, 2 ) ]{"sigla"}, "value" => indicadores_values( $info{"tp_valor"}, $list{"valor"} ), "mark" => ( $list{"cd_ibge"} == $localidade ? true : false ) ) ;
+									$i++ ;
+								}								
+							}		
+							// lista dos 20 menores							
+							$list_menores = array_reverse( $list_result_data ) ;							
+							$i = 1 ;
+							foreach( $list_menores as $list ){
+								if( $i<=20 && $list{"valor"} > 0  ){
+									$itens_menores[] = array( "position" => $i, "label" => $list{"nm_cidade"} . "/" . $uf_list[ substr( $localidade, 0, 2 ) ]{"sigla"}, "value" => indicadores_values( $info{"tp_valor"}, $list{"valor"} ), "mark" => ( $list{"cd_ibge"} == $localidade ? true : false ) ) ;
+									$i++ ;
+								}
+								
+							}
+						}
+					}
+				}
+				
+				// faixa etária e dependência administrativa iniciais
+				$fax_init		= ( $faixa ? ( $faixa!="-" ? $faixa : $list_result_data{"faixa"} ) : $list_result_data{"faixa"} ) ;
+				$dep_init		= ($dependencia ? ( $dependencia!="-" ? $dependencia : $list_result_data{"id_dependencia"} ) : $list_result_data{"id_dependencia"} ) ;
+
+				$complement_title = "Indicadores " . $list_tipos_pesquisas{"title"}{"description"} ;
+				$meta_description = $list_tipos_pesquisas{"maiores-menores"}{"description"} ;
+
+				$authenticated = false ;
+				$css_files = write_css_header( array( "pesquisas" ) ) ;
+				
+				include( $template_directory . "header.inc.php" ) ;
+				include( $template_directory . "pesquisas_maiores_menores.inc.php" ) ;
+				include( $template_directory . "footer.inc.php" ) ;
+				$connection->disconnect() ;				
+				
+			}
+			else{
+				header( "Location: " . $base_url_site . "indicadores" ) ;
+				exit();
+			}
+			
+			
+		}
+		else{
+			header( "Location: " . $base_url_site . "indicadores" ) ;
+			exit();
+		}		
+		
+	}
+
+	/**	 
+	 * Montar gráficos com Fusioncharts
+	 * variáveis:
+	 * $chart_type ( nome do arquivo do chart, exemplo "Area2D.swf" )
+	 * $chart_data_xml ( xml com informações para passar ao chart)
+	 * $chart_id ( "id" para o elemento HTML do chart que será escrito no template )
+	 * $chart_width ( largura do chart )
+	 * $chart_height ( altura do chart )
+	 * $chart_transparency ( transparência ,default: false )
+	*/
+	
+	public function build_chart( $chart_type, $chart_data_xml, $chart_id, $chart_width, $chart_height, $chart_transparency = false ){
+		
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;		
+		//Create the chart - Column 3D Chart with data from strXML variable using dataXML method
+		return renderChartHTML( $furniture_directory . "swf/Fusioncharts/" . $chart_type , "", $chart_data_xml, $chart_id, $chart_width, $chart_height, $chart_transparency, false, true ) ;		
+		
+	}
+	
+	public function get_cidades_info_indicador( $data ){
+		
+		//requer autenticação
+		if( verify_referer_ajax() ){		
+			if( get_vars("template") ){
+				
+				$template = strip_tags( get_vars("template") ) ;
+				switch( $template ){
+					case "select_box" :
+					
+						header( "Content-Type: text/html; charset=ISO-8859-1",true ) ;
+						$list_cidades = list_cidades( false, $data{"id_uf"} ) ;
+						if( $list_cidades ){
+							foreach( $list_cidades as $key => $value ){
+								$item_cidade{$key} = $value{"nm_cidade"} ;
+							}
+							print "<b>Cidade: </b> " . gui_render_select( "id_cidade" , $item_cidade, null, "-", 'id="id_cidade" class="select-box" onchange="set_localidade(this.value);"' ) ;
+						}
+						return false ;
+						
+					break ;
+				}				
+			}
+		}
+		return false ;
+	}
+	
+}
+?>

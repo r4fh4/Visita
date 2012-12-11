@@ -1,0 +1,179 @@
+.btn-user{
+	background-color: #333;
+	color: #BBB;
+	border-radius: 3px;
+	font-size: 11px;
+	font-weight: bold;
+	border: 0;
+	height: 40px;
+	line-height: 40px
+}
+
+.btn-informacoes{
+	background: url('../images/btn-informacoes.png');
+	width: 92px;
+	height: 30px;
+	border: 0;
+	border-radius: 3px
+}
+
+.btn-historia{
+	background: url('../images/btn-historia.png');
+	width: 92px;
+	height: 30px;
+	border: 0;
+	border-radius: 3px
+}
+
+.btn-preco{
+	background: url('../images/btn-precos.png');
+	width: 92px;
+	height: 30px;
+	border: 0;
+	border-radius: 3px
+}
+
+.btn-horario{
+	background: url('../images/btn-horarios.png');
+	width: 92px;
+	height: 30px;
+	border: 0;
+	border-radius: 3px
+}
+
+.btn-imagem{
+	background: url('../images/btn-imagens.png');
+	width: 92px;
+	height: 30px;
+	border: 0;
+	border-radius: 3px
+}
+
+.btn-comentario{
+	background: url('../images/btn-comentarios.png');
+	width: 92px;
+	height: 30px;
+	border: 0;
+	border-radius: 3px
+}
+
+.btn-destino{
+	background: url('../images/btn-destino.png');
+	width: 93px;
+	height: 30px;
+	border: 0;
+	border-radius: 3px;
+	margin: 10px auto;
+	cursor: pointer
+}
+
+.btn-voltar{
+	margin-right: 10px;
+	height: 40px
+}
+
+.btn-action{
+	cursor: pointer
+}
+
+.action-buttons{
+	width: 93px;
+	margin: 10px auto 0
+}
+
+.opacity{
+	opacity:0.3;
+	filter: alpha(opacity=30); /* For IE8 and earlier */
+}
+
+#box-choose{
+	width: 350px;
+	margin: 0 auto
+}
+
+.choose-list li{
+	width: 125px;
+	float: left;
+	margin: 20px;
+	text-align: center
+}
+
+.text{
+	color: #F90;
+	text-align: justify
+}
+
+.box{
+	margin: 0 auto;
+	text-align: center;
+	width: 350px
+}
+
+#box-imagem{
+	width: 435px
+}
+
+#imagem-list li{
+	float: left;
+	width: 120px;
+	margin: 0 10px 20px;
+}
+
+#imagem-list li a{
+	font-size: 10px;
+	font-weight: bold;
+	color: #F90;
+	text-decoration: none
+}
+
+#imagem-list li img{
+	width: 120px;
+	height: 70px;
+	margin-bottom: 10px;
+	border: 2px solid #FFF;
+	border-radius: 10px
+}
+
+#choose_pontos{
+	background-color: #000;
+	color: #FFF;
+	font-family: Verdana;
+	font-size: 11x;
+	border: 1px solid #333;
+	font-weight: bold;
+	padding: 5px
+}
+
+.left{
+	float: left
+}
+
+.btn-voltar.left{
+	margin: 11px 10px 0 75px
+}
+
+#box-comentario h4{
+	color: #FFF
+}
+
+#text-comentario{
+	background-color: #333;
+	color: #BBB;
+	padding: 10px;
+	font-size: 13px;
+	border: 0;
+	width: 250px;
+	border-radius: 5px
+}
+
+.coment-list li {
+	width: 345px;
+	text-align: left;
+	color: #FFF;
+	padding: 20px 0;
+	border-bottom: 1px dashed #F90
+}
+
+.coment-list li:first-child{ 
+	border-top: 1px dashed #F90
+}

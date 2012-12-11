@@ -1,0 +1,35 @@
+<?php
+require_once( "scripts/init.php" ) ;
+
+// checar acesso a pagina
+get_page_access() ;
+
+
+$url = $_SERVER{"REQUEST_URI"} ;
+$info_log = "" ;
+$results_per_page = 12 ;
+
+// parametros para query
+$where[] = "active = '1'" ;
+
+// filtro por nível de usuário
+if( $user_info{"user_level"} == $level_municipal_manager ){ // ( municipal )
+	//$where[] = "usuario_publicacao = " . $user_info{"user_key"} ;
+}
+
+if( get_vars("search_content") ){	
+	$terms = explode( " ", get_vars("search_content") ) ;
+	$terms = implode( " ", $terms ) ;
+	$where[] = "MATCH ( legenda_imagem,credito_imagem ) AGAINST ('" . str_replace( " ", "* ", mysql_real_escape_string( $terms ) ) . "*' IN BOOLEAN MODE)" ;
+	$url = set_url( $url, array( "search_content" => get_vars("search_content") ) ) ;
+}
+
+list( $r , $records , $page , $total_pages ) = default_search( "tb_imagens" , $where, "", "dt_criacao desc" ) ;
+
+
+include( $template_directory . "imagens_thumb_listar.inc.php" ) ;
+//fechar conexao
+$connection->desconnect();
+
+?>
+

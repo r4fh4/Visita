@@ -1,0 +1,28 @@
+<rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" version="2.0">
+	<channel>
+		<title><?=$website_name?> -  Últimos Áudios</title>
+    	<link><?=$base_url_site?>audios</link>
+    	<description>Listagem dos últimos podcasts do Portal.</description>
+		<category>Áudios</category>
+		<copyright><?=$website_name . " - " . $website_description?></copyright>
+		<image>
+			<title><![CDATA[<?=$website_name?>]]></title>
+			<url><?=$base_url_site . "audios/rss"?></url>
+			<link><?=$base_url_site . "audios/rss"?></link>
+		</image>
+				<?
+				foreach( $records as $item ){
+				?>
+				<item>
+					<title><![CDATA[<?=htmlspecialchars( $item['titulo_audio'] )?>]]></title>
+					<link><![CDATA[<?=$base_url_site . "audios/" . $item['id_audio'] . '-' . normalize_text( htmlspecialchars( $item['titulo_audio'] ), true );?>]]></link>
+					<description><![CDATA[<?=htmlspecialchars( $item['legenda_audio'] )?>]]></description>
+					<itunes:author>Portal do Governo do Estado de São Paulo</itunes:author>
+					<itunes:subtitle></itunes:subtitle>
+					<itunes:keywords>Podcast - Portal do Governo do Estado de São Paulo</itunes:keywords>
+					<enclosure url="<?=$base_url_site_data . 'audios/' .  $item{"file_name"}?>" length="" type="audio/mpeg"/>
+					<pubDate><?=date("D, d M Y H:i:s -0300", htmlspecialchars( strtotime( $item['dt_criacao'] ) ) ) ?></pubDate>
+				</item>
+				<?}?>
+	</channel>
+</rss>

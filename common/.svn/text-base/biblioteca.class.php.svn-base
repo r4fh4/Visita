@@ -1,0 +1,58 @@
+<?php
+/**
+* Classe biblioteca 
+* 
+* Classe para a biblioteca
+* @author tamemiya 2011-03-28
+* @version 1.0
+*/
+class biblioteca{
+	
+	function __construct(){}
+	
+	/**
+	 * método para recuperar arquivos da biblioteca
+	 */
+	function getArquivos($search=null){
+		
+		global $connection;
+		$arquivos = array();
+		
+		//Prepara a busca para entrar no full_text
+		$search = $search ? explode(' ',$search) : false;
+		$search = $search ? $search = implode('* ', $search).'*' : false;
+		
+		$query = 'SELECT id_categoria, ds_categoria FROM tb_categoria_conteudo WHERE active = 1 ORDER BY id_categoria';
+		$dados = $connection->execute($query,true);
+		
+		$mQuery = 'SELECT a.id_arquivo, a.titulo_arquivo, a.size, a.type, a.qtd_downloads, b.ds_subcategoria, a.categoria, a.file_name ';
+		$mQuery .= 'FROM tb_arquivos a INNER JOIN tb_subcategoria_conteudo b ON a.subcategoria = b.id_subcategoria WHERE a.active = 1 ';
+		$mQuery .= ($search ? " AND MATCH(titulo_arquivo) AGAINST ('%s' IN BOOLEAN MODE) ": '');
+		$mQuery .= 'ORDER BY a.categoria, a.titulo_arquivo ';
+		
+		$sql = sprintf($mQuery,mysql_real_escape_string($search));
+		
+		$mDados = $connection->execute($sql,true);
+		
+		if($dados) {
+			foreach($dados as $key=>$tipoArq) {
+				$arquivos[$key]['id_categoria'] = $tipoArq['id_categoria'];
+				$arquivos[$key]['ds_categoria'] = $tipoArq['ds_categoria'];
+				$arquivos[$key]['dados'] = array();
+				if($mDados) {
+					foreach($mDados as $keyArq=>$arq) {
+						if($arq['categoria'] == $tipoArq['id_categoria']){
+							array_push($arquivos[$key]['dados'],$arq);
+						}
+					}
+				}
+				if(count($arquivos[$key]['dados']) == 0) unset($arquivos[$key]);
+			}
+			return $arquivos;
+		}
+		
+		return false;
+	}
+
+}
+?>

@@ -1,0 +1,474 @@
+<?php
+/**
+* Classe Indicadores
+* 
+* Classe para manipulação de indicadores
+* @author tamemiya 2011-04-26
+* @version 1.0
+*/
+class indicadores{
+
+	public function __construct(){
+	
+	}
+
+	/*
+	* retorna indicadores por tema
+	*/
+	public function get_indicadores_info_by_tema( $id_tema = null ){
+		
+		global $connection ;
+		
+		$sql = "
+			select sql_cache
+			  t.id_tema, t.ds_tema, a.ds_assunto, a.alias as name, i.*
+			from
+			  tb_tema as t,
+			  tb_assunto as a,
+			  tb_indicador as i
+			where
+			  " . ( $id_tema ? "t.id_tema = " . mysql_real_escape_string( $id_tema ) . " and" : "" ) . "
+			  t.ativo = 1 and
+			  a.ativo = 1 and
+			  i.ativo = 1 and
+			  t.id_tema = a.id_tema and
+			  a.id_assunto = i.id_assunto
+			order by
+			  t.ds_tema asc,
+			  a.ds_assunto asc,
+			  i.ds_indicador asc		
+		" ;
+		
+		$item_indicador = array() ;
+		$result = $connection->execute( $sql, true ) ;
+		return $result ;
+
+	}
+	
+	/*
+	* retorna indicadores por assunto
+	*/
+	public function get_indicadores_info_by_assunto( $id_assunto = null, $filter = null ){
+		
+		global $connection, $list_indicadores_deny_access ;
+		
+		$sql = "
+			select sql_cache
+			  a.ds_assunto, i.*, t.ds_tema, a.alias as name
+			from
+			  tb_assunto as a,
+			  tb_indicador as i,
+			  tb_tema as t
+			where
+			  " . ( $id_assunto ? "a.id_assunto = " . mysql_real_escape_string( $id_assunto ) . " and" : "" ) . "			  
+			  a.ativo = 1 and
+			  i.ativo = 1 and
+			  " . ( $filter ? "i.id_indicador not in( " . implode( ",", $list_indicadores_deny_access[$filter] ) . " ) and" : "" ) . "
+			  a.id_assunto = i.id_assunto and
+			  a.id_tema = t.id_tema
+			order by
+			  a.ds_assunto asc,
+			  i.ds_indicador		
+		" ;
+		
+		$result = $connection->execute( $sql, true ) ;
+		return $result ;	
+	}
+	
+	/*
+	* retorna dados do indicador
+	*/
+	public function get_info_indicador( $id_indicador = null ){
+		
+		global $connection ;
+		
+		$sql = "
+			select sql_cache 
+			  a.ds_assunto, i.*, t.ds_tema, t.id_tema, a.alias as name
+			from
+			  tb_assunto as a,
+			  tb_indicador as i,
+			  tb_tema as t
+			where
+			  " . ( $id_indicador ? "i.id_indicador in (" . mysql_real_escape_string( strip_tags( implode( "," , $id_indicador ) ) ) . ") and" : "" ) . "			  
+			  a.ativo = 1 and
+			  i.ativo = 1 and
+			  a.id_assunto = i.id_assunto and
+			  a.id_tema = t.id_tema
+			order by
+			  i.ds_indicador asc	
+		" ;
+		//print $sql; exit();
+		$result = $connection->execute( $sql, true ) ;
+		return $result ;	
+	}
+	
+	/*
+	* função para retornar valores do indicador nos filtros determinados
+	*/	
+	public function get_values_indicador(  $indicador, $tabela, $abrangencia, $localidade, $periodo = null, $faixa = null, $dependencia = null, $order = null, $get_id_grafico = true  ){
+	
+		global $connection, $list_indicadores_tables ;
+		$where = null ;
+		
+		if(is_numeric($tabela)){
+			$tabela = $list_indicadores_tables[$tabela];
+		}
+
+		$where = $this->set_default_options($tabela, $abrangencia, $localidade, $periodo, $faixa, $dependencia);
+		
+		$filters = ( is_array($where) ? " and " . implode(" and ", $where ) : "" ) . ($order ? 'ORDER BY '.$order : " ORDER BY i.ano ASC")  ;
+		
+		if( $get_id_grafico ){
+			$sql = sprintf( "select i.*, c.nm_cidade, g.id_cidade_grafico from %s i LEFT JOIN tb_cidades c ON i.cd_ibge = c.cd_ibge LEFT JOIN tb_cidade_grafico g ON c.cd_ibge = g.cd_ibge where id_indicador = %d " . $filters, $tabela, $indicador ) ;
+		}
+		else{
+			$sql = sprintf( "select sql_cache i.*, c.nm_cidade from %s i LEFT JOIN tb_cidades c ON i.cd_ibge = c.cd_ibge where id_indicador = %d " . $filters, $tabela, $indicador ) ;
+		}
+		// print $sql . ";<br /><br />";
+		$results = $connection->execute( $sql, true ) ;
+		return $results ;
+	}
+
+	/*
+	* função para retornar temas/assunto
+	*/	
+	public function get_info_temas( $id_tema = null ){
+	
+		global $connection ;
+		
+		$sql = sprintf( "select sql_cache t.id_tema, t.ds_tema, t.alias, a.id_assunto, a.ds_assunto, a.alias as name
+				from
+				tb_tema as t inner join tb_assunto as a on t.id_tema = a.id_tema
+				where t.ativo = '1' and a.ativo = '1' " . ( $id_tema ? " and a.id_tema = %d " : "" ) . " order by t.ds_tema asc, a.ds_assunto asc", mysql_real_escape_string( $id_tema )) ;
+		$result = $connection->execute( $sql, true ) ;
+		return $result ;		
+	}
+	
+	/*
+	* Seta valores padrões para a tabela de indicadores
+	*/
+	private function set_default_options($tabela, $abrangencia, $localidade, $periodo = null, $faixa = null, $dependencia = null){
+		global $default_faixas, $default_dependencias ;
+		$where = null;
+		
+		if( $abrangencia ){
+			switch( $abrangencia ){
+				
+				case "nacional" :
+					$where[] = " i.id_pais = 0" ;
+				break ;
+				case "regional" :
+					$where[] = " i.id_regiao = " . mysql_real_escape_string( $localidade ) ;
+				break ;
+				case "estadual" :
+					$where[] = " i.id_uf = " . mysql_real_escape_string( $localidade ) ;
+				break ;
+				case "capital" :
+					$where[] = " i.cd_ibge = " . mysql_real_escape_string( $localidade ) ;
+				break ;
+				case "municipal" :
+					$where[] = " i.cd_ibge = " . mysql_real_escape_string( $localidade ) ;
+				break ;
+			}
+		}
+		
+		switch( $tabela ){
+		
+			case "tb_educacao" :				
+				$where[] = " i.id_dependencia = " . ( $dependencia ? mysql_real_escape_string( $dependencia ) :  $default_dependencias[$tabela] ) ;				
+			break ;
+			case "tb_demografia" :
+				$where[] = " i.id_idade = " . ( $faixa ? mysql_real_escape_string( $faixa ) : $default_faixas[$tabela] ) ;
+			break ;
+			case "tb_assistencia" :
+				$where[] = " i.mes = 13 " ;
+			break ;
+			case "ideb" :
+				$where[] = " i.id_dependencia = " . ( $dependencia ? mysql_real_escape_string( $dependencia ) :  $default_dependencias[$tabela] ) ;
+			break ;
+			case "ideb_escolas" :
+				$where[] = " i.id_dependencia = " . ( $dependencia ? mysql_real_escape_string( $dependencia ) :  $default_dependencias[$tabela] ) ;
+			break ;
+		}
+		
+
+		if( $periodo ){
+			if( is_array($periodo) ){
+				$where[] = " i.ano in( " . implode( ",", $periodo ) . " ) " ;
+			}
+			else{
+				$where[] = " i.ano = '" . $periodo . "' " ;
+			}
+		}
+		
+		return $where;
+	}
+	
+	/*
+		Pega valor de todos as cidades do estado de SP com o ano correspondente
+	*/
+	public function get_values_by_uf_ano($indicador,$tabela,$ano){
+		global $connection, $list_indicadores_tables ;
+		$where = null ;
+		
+		if(is_numeric($tabela)){
+			$tabela = $list_indicadores_tables[$tabela];
+		}
+		
+		$where = $this->set_default_options($tabela,null,null,$ano);
+		
+		$filters = ( is_array($where) ? " and " . implode(" and ", $where ) : "" ) . " ORDER BY valor DESC"  ;
+		
+		$sql = sprintf( "select i.*, nm_cidade, id_cidade_grafico from %s i LEFT JOIN tb_cidades c ON i.cd_ibge = c.cd_ibge LEFT JOIN tb_cidade_grafico g ON c.cd_ibge = g.cd_ibge where id_indicador = %d AND LEFT(i.cd_ibge,2) = 35 " . $filters, $tabela, $indicador ) ;
+
+		$results = $connection->execute( $sql, true ) ;
+		return $results ;
+	}
+	
+	/*
+	* retornar dados para pesquisa maiores  e menores
+	+ author: tiagoamemiya 2011-06-01
+	*/
+	function get_list_ranking_indicador( $indicador, $tabela, $periodo = null, $faixa = null, $dependencia = null, $abrangencia, $localidade = null ){	
+		
+		global $connection, $list_indicadores_tables, $default_dependencias, $default_faixas ;
+		$where = null ;
+		$localidades = "" ;
+		
+		if(is_numeric($tabela)){
+			$tabela = $list_indicadores_tables[$tabela];
+		}
+		$where = $this->set_default_options( $tabela, null, null, null, $faixa, $dependencia ) ;
+		$last_year = $this->get_anos_by_indicador( $indicador, $tabela ) ;
+		$year_search = ( $periodo ? $periodo : $last_year[0]{"ano"} ) ;
+		
+		# por estado	
+		if( $abrangencia == "estadual" ){					
+			
+			// IDEB - escolas
+			if( $tabela=="ideb_escolas" ){			
+				$filters = ( is_array($where) ? " AND " . implode(" AND ", $where ) : "" ) . " AND i.ano = " . $year_search . " AND i.id_uf =" . mysql_real_escape_string( $localidade ) . " AND i.valor > 0   GROUP BY(e.ds_escola) ORDER BY i.valor DESC"  ;
+				$sql = sprintf( "SELECT SQL_CACHE e.ds_escola, e.id_serie, c.nm_cidade, c.id_uf, i.valor FROM %s i LEFT JOIN tb_escolas e ON i.id_escola = e.id_escola LEFT JOIN tb_cidades c ON i.cd_ibge = c.cd_ibge WHERE i.id_indicador = %d " . $filters, $tabela, $indicador ) ;	
+			}
+			// demais indicadores
+			else{			
+				$filters = ( is_array($where) ? " AND " . implode(" AND ", $where ) : "" ) . " AND i.ano = " . $year_search . " AND i.id_uf IS NOT NULL AND i.cd_ibge IS NULL AND i.valor > 0 ORDER BY i.valor DESC"  ;
+				$sql = sprintf( "SELECT SQL_CACHE i.* FROM %s i WHERE i.id_indicador = %d " . $filters, $tabela, $indicador ) ;				
+			}			
+			
+		}
+		# por capital/municipio
+		else{			
+			
+			// IDEB - escolas
+			if( $tabela=="ideb_escolas" ){				
+				$filters = ( is_array($where) ? " AND " . implode(" AND ", $where ) : "" ) . " AND i.ano = " . $year_search . " AND i.cd_ibge =" . mysql_real_escape_string( $localidade ) . " AND i.valor > 0   GROUP BY(e.ds_escola) ORDER BY i.valor DESC"  ;
+				$sql = sprintf( "SELECT SQL_CACHE e.ds_escola, e.id_serie, c.nm_cidade, c.id_uf, i.valor FROM %s i LEFT JOIN tb_escolas e ON i.id_escola = e.id_escola LEFT JOIN tb_cidades c ON i.cd_ibge = c.cd_ibge WHERE i.id_indicador = %d " . $filters, $tabela, $indicador ) ;				
+			}
+			// demais indicadores
+			else{			
+				$filters = ( is_array($where) ? " AND " . implode(" AND ", $where ) : "" ) .  ' AND i.ano= ' . $year_search . " AND LEFT( i.cd_ibge, 2) = " . substr( $localidade, 0, 2 ) . " ORDER BY valor DESC" ;			
+				$sql = sprintf( "SELECT SQL_CACHE  i. valor, i.cd_ibge, c.nm_cidade FROM %s i INNER JOIN tb_cidades c USING(cd_ibge) where i.id_indicador = %d" . $filters , $tabela, $indicador ) ; 				
+			}
+		
+		}
+		//print $sql ;
+		
+		$results = $connection->execute( $sql, true ) ;
+
+		// retornar ano, dependencia e faixa etárias dos resultados caso as mesmas não tenha sido definidas
+		$results{"id_dependencia"}	= ( isset($default_dependencias{$tabela}) ? $default_dependencias{$tabela} : "" ) ;
+		$results{"faixa"}			= ( isset($default_faixas{$tabela}) ? $default_faixas{$tabela} : "" ) ;
+		$results{"last_years"}		= $last_year ;
+		
+		return $results ;
+		
+	}
+	
+	/*
+	* Pega os últimos 10 anos do indicador indicador
+	*/
+	public function get_anos_by_indicador($indicador,$tabela){
+		global $connection, $list_indicadores_tables ;
+		$where = null ;
+		
+		if(is_numeric($tabela)){
+			$tabela = $list_indicadores_tables[$tabela];
+		}
+		
+		$where = $this->set_default_options($tabela,null,null);
+		
+		$filters = ( is_array($where) ? " and " . implode(" and ", $where ) : "" ) . " ORDER BY ano DESC"  ;
+		
+		$sql = sprintf( "select  distinct(ano) from %s i where id_indicador = %d " . mysql_real_escape_string( $filters ), mysql_real_escape_string( $tabela ), mysql_real_escape_string( $indicador ) ) ;
+		//print $sql; exit();
+		$results = $connection->execute( $sql, true ) ;
+		return $results ;
+	}
+	
+	/*
+	* Pega os valores dos últimos 10 anos do indicador
+	*/
+	public function indicador_cidade_last_years($indicador,$tabela,$id){
+		global $connection, $list_indicadores_tables ;
+		$where = null ;
+		
+		if(is_numeric($tabela)){
+			$tabela = $list_indicadores_tables[$tabela];
+		}
+		
+		$where = $this->set_default_options($tabela,'municipal',$id);
+		
+		$filters = ( is_array($where) ? " and " . implode(" and ", $where ) : "" ) . " ORDER BY ano DESC LIMIT 10"  ;
+		
+		$sql = sprintf( "select nm_cidade, valor, ano from %s i LEFT JOIN tb_cidades c ON i.cd_ibge = c.cd_ibge where id_indicador = %d " . mysql_real_escape_string( $filters ), mysql_real_escape_string( $tabela ), mysql_real_escape_string( $indicador ) ) ;
+		
+		$results = $connection->execute( $sql, true ) ;
+		return $results ;
+	}
+	
+	/*
+	* Pega a média dos valores dos estados e do Brasil
+	*/
+	public function carrega_media_indicador_uf($indicador,$tabela){
+		global $connection, $list_indicadores_tables ;
+		$where = null ;
+		
+		if(is_numeric($tabela)){
+			$tabela = $list_indicadores_tables[$tabela];
+		}
+		
+		$where = $this->set_default_options($tabela,null,null);
+		
+		$filters = ( is_array($where) ? " and " . implode(" and ", $where ) : "" ) . " ORDER BY valor DESC"  ;
+		
+		$sql = sprintf( "select ds_uf as nm_cidade, valor, ano, c.id_uf from %s i INNER JOIN tb_uf c ON i.id_uf = c.id_uf where id_indicador = %d " . mysql_real_escape_string( $filters ), mysql_real_escape_string( $tabela ), mysql_real_escape_string( $indicador ) ) ;
+		
+		$results = $connection->execute( $sql, true ) ;
+		return $results ;
+	}
+	
+	public function get_media_by_indicador($indicador, $tabela, $ano, $id){
+		global $connection, $list_indicadores_tables;
+		$where = null ;
+		
+		if(is_numeric($tabela)){
+			$tabela = $list_indicadores_tables[$tabela];
+		}
+		
+		$where = $this->set_default_options($tabela,null,null,$ano);
+		
+		$filters = ( is_array($where) ? " and " . implode(" and ", $where ) : "" ) . " ORDER BY valor DESC"  ;
+		
+		$sql = sprintf( "select id_pais, id_uf, cd_ibge, valor from %s i where id_indicador = %d AND (id_uf = 35 OR id_pais = 0 OR cd_ibge = " .mysql_real_escape_string( $id ) . ") ". $filters, $tabela, $indicador ) ;
+
+		$results = $connection->execute( $sql, true ) ;
+		return $results ;
+		
+	}
+	
+	/*
+	* pegar localidades por faixa populacional
+	*/
+	public function get_localidade_faixa_populacional( $faixa_pop = null ){
+		
+		global $connection, $list_faixa_populacional ;
+		$indicador	= 1 ; // população total
+		$tabela		= "tb_demografia" ;
+		
+		$last_year = $this->get_anos_by_indicador( $indicador,$tabela ) ; 
+		
+		switch( $faixa_pop ){
+			case 0 :
+				$faixa = "is not null" ;
+			break ;
+			case 1 :
+				$faixa = "<= " . $list_faixa_populacional[$faixa_pop]{"max"} ;
+			break ;
+			case 5 : 
+				$faixa = ">=" . $list_faixa_populacional[$faixa_pop]{"min"} ;
+			break ;			
+			default :
+				$faixa = "between " . $list_faixa_populacional[$faixa_pop]{"min"} . " and " . $list_faixa_populacional[$faixa_pop]{"max"} ;
+			break ; 
+					
+		}		
+		$sql = sprintf( "select * from " . $tabela . " where ano = '%s' and id_idade=20 and valor " . $faixa . " and cd_ibge is not null and id_indicador=%d", mysql_real_escape_string( $last_year[0]{"ano"} ), mysql_real_escape_string( $indicador ) ) ;
+		
+		$results = $connection->execute( $sql, true ) ;
+		return $results ;		
+	}
+	
+	/*
+	* consolidados - ideb
+	* author tiagoamemiya 2001-06-16
+	*/
+	public function get_ideb_consolidados( $indicador, $tabela, $abrangencia, $localidade ){
+		
+		# variáveis globais
+		global $connection, $default_dependencias ;
+		$where = null ;
+
+		// pegar anos disponiveís
+		$avaliable_years	= $this->get_anos_by_indicador( $indicador, $tabela ) ;
+		$periodo			= $avaliable_years[0]{"ano"} ;	
+
+		$sql = "
+			SELECT SQL_CACHE  c.cd_ibge, c.nm_cidade, i.ano, i.valor, p.proj_2009, p.proj_2011, p.proj_2013, p.proj_2015, p.proj_2017, p.proj_2019, p.proj_2021
+			FROM ideb i
+			LEFT JOIN tb_cidades c
+			USING(cd_ibge)
+			LEFT JOIN projecoes p
+			USING(cd_ibge)
+			WHERE" . ( $abrangencia == "estado" ? " LEFT(i.cd_ibge, 2) = "  :  " i.cd_ibge = " ) . mysql_real_escape_string( $localidade ) . "
+			AND i.id_dependencia = 5
+			AND i.id_indicador = " . mysql_real_escape_string( $indicador )  . "
+			AND p.id_dependencia = 5
+			AND i.valor > 0 
+			AND p.id_serie = " . mysql_real_escape_string( $indicador )  . "			
+			ORDER BY i.valor desc" ;
+		//print $sql ;
+		$results = $connection->execute( $sql, true ) ;
+		$results{"avaliable_years"} = $avaliable_years ;
+		
+		return $results ;		
+	}
+	
+	/*
+	* consolidados - ideb-escolas
+	* author tiagoamemiya 2001-06-20
+	*/
+	public function get_ideb_escolas_consolidados( $indicador, $localidade, $dependencia ){
+		
+		#variáveis globais
+		global $connection ;
+		
+		// dados do indicador
+		$sql = "
+		SELECT SQL_CACHE
+			DISTINCT e.ds_escola, i.cd_ibge, i.id_escola, i.valor, i.ano, p.proj_2009, p.proj_2011, p.proj_2013, p.proj_2015, p.proj_2017, p.proj_2019, p.proj_2021
+		FROM 
+			ideb_escolas i
+		INNER JOIN
+			tb_escolas e
+		USING(id_escola)
+		INNER JOIN projecoes_escolas p
+		USING(id_escola)
+		WHERE
+			i.id_indicador		= " . mysql_real_escape_string( $indicador ) . " 
+		AND i.id_dependencia	= " . mysql_real_escape_string( $dependencia )  . "
+		AND i.cd_ibge			= " . mysql_real_escape_string( $localidade ) . "
+		AND i.valor > 0
+		AND e.id_serie			= " . mysql_real_escape_string( $indicador ) . "
+		AND p.id_serie			= " . mysql_real_escape_string( $indicador ) . "
+		ORDER BY i.valor DESC" ;
+		//print $sql ;
+		$results{"list"}			= $connection->execute( $sql, true ) ;
+		$results{"localidade_info"} = list_cidades( $localidade ) ;
+		
+		return $results ;	
+	}
+	
+}
+?>

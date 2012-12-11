@@ -1,0 +1,35 @@
+	<div class="detail-images"><span class="tip">(Clique no arquivo para selecionar)</span></div>
+	<div style="clear:both;"></div>
+	<div class="search-images">
+	<input type="text" value="<?=utf8_encode(htmlspecialchars(get_vars("search_content")))?>" class="input_search" name="search_content" size="10" />
+	<input type="button" name="search" onclick="javascript:reload_paginate( 'arquivos_thumb_listar.php?search_content=' + $('.input_search').val() );" value="buscar" />
+	<input type="button" name="search" onclick="javascript:reload_paginate( 'arquivos_thumb_listar.php' );" value="limpar" />
+	</div>
+	<div style="clear:both;"></div>
+	<div id="paginate"><? print render_paginate( $page , $total_pages , $url , $results_per_page, "", false, false, true, "" ); ?></div>
+	<div style="clear:both;"></div>
+	<div class="grid-files">
+	<?
+	if( $records ){
+		$i = 0 ;			
+		$user = new user ;
+		foreach( $records as $item ){
+			$titulo_arquivo = str_replace("'","\'",utf8_encode( htmlspecialchars( $item{"titulo_arquivo"} ) ) ) ;
+			?>
+			<p class="file_container <?php print ( $i % 2 ?  'ops-p' : "" )?>">
+			<b><a href="javascript:get_file('<?=htmlspecialchars($item{"id_arquivo"})?>', '<?=$titulo_arquivo?>');void(0);""><?=utf8_encode( htmlspecialchars($item{"titulo_arquivo"}) )?></a></b><br /><br />
+			<?=( $item{"legenda_arquivo"} ? utf8_encode( htmlspecialchars($item{"legenda_arquivo"}) ) . "<br /><br />" : "" )?>
+			<span class="tip">Tipo: <?=strtoupper(htmlspecialchars($item{"type"}))?><br />
+			Tamanho: <?=format_bytes( $item{"size"} )?><br /></span>
+			</p>
+			<?
+			$i++ ;
+		}
+	}
+	else{
+		?><p><b>Nenhum resultado encontrado para a busca.</b></p><?
+	}
+	?>
+	</div>
+	<div id="paginate"><? print render_paginate( $page , $total_pages , $url , $results_per_page, "", false, false, true, "" ); ?></div>
+	<div style="clear:both;"></div>

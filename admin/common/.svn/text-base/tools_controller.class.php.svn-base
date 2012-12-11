@@ -1,0 +1,157 @@
+<?
+class tools_controller{
+	
+	public $model = null ;
+	
+	public function  __construct(){
+		
+	}
+	
+	/*
+	* Redirecionar para URL passada por parâmetro
+	*/
+	public function redir( $data, $args ){
+		redir_page( $args{"url"} ) ;		
+	}
+	
+	/*
+	* imprimir conteúdo
+	*/
+	public function print_content( $data, $args ){
+		
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		$dir_levels = count(  $args{"levels"} ) ;
+
+		switch( $data{"content_type"} ){
+			
+			case "noticias" :
+				
+				$content_id = (int)$data{"content_id"} ;
+			
+				$noticias = new noticias ;
+				$result = $noticias-> get_news_info( $content_id ) ;
+				if( $result ){
+					$complement_title = htmlspecialchars( $result[0]{"titulo"} ) ;
+					include( $template_directory . "header_print.inc.php" ) ;
+					include( $template_directory . "noticias_print.inc.php" ) ;
+					include( $template_directory . "footer_print.inc.php" ) ;
+				}
+				else{
+					$this->redir( null , array( "url" => $page_not_found ) ) ;
+				}				
+				
+			break ;
+		
+		}
+	}
+	
+	/*
+	* enviar conteúdo por e-mail
+	*/
+	public function mail( $data ){
+		
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		$errors = null ;
+		$itens_mail = null ;
+		$default_message = "" ;
+		
+		switch( $data{"slug"} ){
+			case "audios" :
+				$default_message = "Você recebeu um Podcast enviado" ;
+			break ;
+			case "noticias" :
+				$default_message = "Você recebeu uma Notícia enviada" ;
+			break ;
+			case "albuns" :
+				$default_message = "Você recebeu um Álbum enviado" ;
+			break ;
+			default:
+				$default_message = "Conteúdo enviado";
+			break;
+		}
+				
+		// Input validation on POST
+		if( ( !get_vars('token1') || get_vars('token1') != strrev( get_vars('token2') ) ) || ( get_vars('mail') != "" )  ){
+		   $errors[] = utf8_encode( '<b style="color:#DD5040;">Problemas no envio do e-mail, tente mais tarde.</b>' ) ;
+		}
+		
+		if( !get_vars('your-name') || strlen(get_vars('your-name'))<=1 || get_vars('your-name') == "" ){
+			$errors[] = 'Campo "Seu nome" está em branco.'  ;
+		}
+		if( !get_vars('your-mail') || strlen(get_vars('your-mail')) <=1 || get_vars('your-mail') == "" || !check_email(get_vars('your-mail')) ){
+			$errors[] = 'Campo "Seu e-mail" está em branco ou é inválido.'  ;
+		}
+		if( !get_vars('mails')  || strlen(get_vars('mails')) <=1 || get_vars('mails') == "" ){
+			$errors[] = 'Campo "E-mail(s) para enviar" está em branco ou é inválido.'  ;			
+		}
+		else{
+			$list_mail = explode( ',', get_vars("mails") ) ;
+			$i = 0 ;
+			foreach( $list_mail as $itens ){
+				if( strlen($itens) >1 && $itens != "" && check_email( $itens ) ){
+					$itens_mail[] = $itens ;
+					$i++ ;
+				}else{
+					$errors[] = 'E-mail e/ou lista de destinatários está incorreta.'  ;
+				}
+			}
+			
+			if( !is_array($itens_mail) ){
+				$errors[] = 'E-mail e/ou lista de destinatários está incorreta.'  ;
+			}
+			
+			if( $i > 3 ){
+				$errors[] = 'Você pode enviar no máximo para apenas 3 e-mails por vez.'  ;
+			}
+			
+		}
+		if( is_array($errors) ){
+			print utf8_encode( '<b style="color:#DD5040;">' . implode( '<br />', $errors ) . '</b>' ) ;
+			unset( $errors ) ;
+			exit() ;
+		}
+		else{
+			
+			foreach( $itens_mail as $emails ){
+			
+				$mail = new PHPMailer();
+
+				$mail->IsSMTP(); // Define que a mensagem será SMTP
+				$mail->Host = $mail_server ; // Endereço do servidor SMTP
+				$mail->SMTPAuth = true ; // Usa autenticação SMTP? (opcional)
+				$mail->Username = $mail_website ; // Usuário do servidor SMTP
+				$mail->Password = $mail_pass_server ; // Senha do servidor SMTP
+				$mail->CharSet = 'utf-8' ;
+				$mail->IsHTML(true) ;				
+				$mail->From = get_vars('your-mail') ; // Seu e-mail
+				$mail->FromName = get_vars('your-name') ; // Seu nome
+				
+				$mail->AddAddress( $emails ) ;
+				$mail->Subject  =  utf8_encode( $website_name . " - Mensagem enviada enviada por " ) . get_vars('your-name') ; // Assunto da mensagem
+				
+				$mail->Body =  "<p>" .get_vars('mensagem') . "</p>" . utf8_encode(  "<p>" . $default_message . " por " )  . get_vars("your-name") . "</p><p><h2>" . get_vars("title")  . "</h2><p>" . get_vars("description") . 	'</p><p><a href="'. get_vars("url") .  utf8_encode( '">Clique aqui</a> para acessar.');				
+				
+				if( $mail->Send() ){
+					$send_success++ ;
+				}
+				
+			}
+
+			if( $send_success>0 ){
+				print '<b style="color:#7BBA71;">Dados enviados!</b>' ;
+			}
+			else{
+				print utf8_encode( '<b style="color:#DD5040;">Problemas no envio do e-mail, tente mais tarde.</b>' ) ;
+				exit() ;
+			}
+			
+		}
+		
+	}
+		
+}
+?>

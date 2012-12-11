@@ -1,0 +1,157 @@
+<?=$css_files = write_css_header( array( "pesquisas_print" ), "print" ) ;?>
+<!-- LOCALIDADE INFO -->
+<h1 class="breadcrumb">Pesquisa Simples / Dados da pesquisa</h1>
+<div id="container-search">	
+	<div class="simple-column-left">
+		<h4>Indicadores</h4>
+		<ul id="list-indicador">
+			<?
+			$i=0;
+			$input_indicadores = "" ; 
+			foreach( $info as $item ){ 
+				$input_indicadores .= '<input type="checkbox" checked="checked" class="hide-box" name="indicadores[]" value="' . $item{"id"} . '" />' ;
+			?>
+				<li id="<?=$item{"id"}?>" class="border-radius aba-indicador <?=( $i == 0 ? "current-indicador" : "" )?>"><span style="color:#<?=$list_colors[$i]?>;" class="indicador-color-marker">•</span><p class="list-name-item indicadores-titles"><?="<b>" . implode("</b><br />" , explode( " / ", $item{"nome"} ) )?></p><br class="clean" /></li>
+			<? $i++ ; }?>			
+		</ul>
+		<div class="border-radius localidade-info">
+			<b>Tipo de pesquisa:</b><br />Pesquisa Simples<br /><br />
+			<b>Abrangência:</b><br />
+			<?=ucfirst($abrangencia)?><br /><br />
+			<b>Localidade consultada:</b><br />
+			<?=$localidade_label?>
+		</div>
+	</div>
+	<div class="simple-column-right">
+
+		<h4>Filtros da Pesquisa</h4>
+		<div class="filter-simple-search border-radius">
+			<!-- FILTROS PARA A PEQUISA -->
+			<form name="form" id="form" action="<?=$alias?>indicadores/pesquisa/simples/dados" method="post">
+				<input type="hidden" name="abrangencia" value="<?=get_vars("abrangencia")?>" />
+				<input type="hidden" name="localidade" value="<?=get_vars("localidade")?>" />
+				<?=$input_indicadores;?>
+				<p class="form-filters"><b>Ano:</b> <? print gui_render_select( "periodo[]" , $combo_avaliable_years , ( $_POST{"periodo"} ? $_POST{"periodo"} : $avaliable_years ), null, 'id="periodo" multiple="multiple" size="7"' ) ;?></p>	
+				<p class="form-filters">
+				<b>*Dependência: </b><? print gui_render_select( "dependencia" , $list_dependendencia , ( get_vars("dependencia") ? get_vars("dependencia") : $dep_init ), "-", 'id="dependencia" ' ) ;?><br /><br />
+				<b>*Faixa etária: </b><? print gui_render_select( "faixa" , $list_faixa_etaria , ( get_vars("faixa") ? get_vars("faixa") : $fax_init ), "-", 'id="faixa" ' ) ;?><br /><br />
+				* Utilize estes filtros se aplicáveis ao(s) indicador(es).<br />
+				Obs.: Na primeira vez que a pesquisa é exibida sempre<br />são usados os filtros mais abrangentes.
+				</p>
+				<p class="form-filters" style="text-align:right;float:right;">
+					<input type="submit" class="form-submit-search border-radius"  name="send" value="Filtrar Dados" /><br /><br />					
+					<a href="#TB_inline?height=330&width=350&inlineId=hiddenModalContent" class="thickbox print-button border-radius"  title="">Imprimir</a><br /><br />
+					<input id="back-search" type="button" class="back-search border-radius" name="back" value="Fechar" />
+					
+				</p>				
+			</form>
+			<div class="clean"></div>
+		</div>
+		<br />
+		<div id="info-indicador" class="border-radius">			
+			<!-- INFO - INDICADORES -->
+			<?
+			$i=0 ;
+			foreach( $info as $item ){ 
+			?>
+			<div id="<?=$item{"id"}?>-container" <?=( $i==0 ? 'style="display:block"' : "" )?>>
+				<p id="<?=$item{"id"}?>-container-itens" class="list-sub-menu">
+					<a href="javascript:void(0);" class="container-itens-selected" name="conceito">Conceito</a> | <a href="javascript:void(0);" name="fonte">Fonte</a> |
+					<a href="javascript:void(0);" name="calculo">Cálculo</a> | <a href="javascript:void(0);" name="uso">Uso</a> | <a href="javascript:void(0);" name="metodologia">Metodologia</a> 
+				</p>
+				<ul class="content-indicador">
+					<li style="display:block;" class="conceito content-info-indicador"><?=( $item{"conceito"} ? $item{"conceito"} : "Dados indisponíveis." )?></li>
+					<li class="calculo content-info-indicador"><?=( $item{"calculo"} ? $item{"calculo"} : "Dados indisponíveis." )?></li>
+					<li class="uso content-info-indicador"><?=( $item{"uso"} ? $item{"uso"} : "Dados indisponíveis." )?></li>
+					<li class="fonte content-info-indicador"><?=( $item{"fonte"} ? $item{"fonte"} : "Dados indisponíveis." )?></li>
+					<li class="metodologia content-info-indicador"><?=( $item{"metodologia"} ? $item{"metodologia"} : "Dados indisponíveis." )?></li>
+				</ul>
+			</div>
+			<? $i++; }?>
+		</div>
+	</div>
+	<br class="clean" />	
+	<div id="simple-chart-box">		
+		
+		<!-- CHART -->
+		<? print $chart ; ?>
+		<a id="end-data" name="end-data" href="#"></a>
+		<? if( $chart ){ ?>
+		
+		<!-- GRID -->
+		<table id="main-grid" width="100%" align="center">
+			<thead>
+				<tr>						
+					<th width="35%">Indicador</th>
+					<? foreach( $avaliable_years as $item ){?>
+						<th><?=$item?></th>				
+					<?}?>
+				</tr>
+			</thead>
+			<tbody>
+				<? $i=0; foreach( $results_indicador_values as $key => $value ){ ?>
+					<tr <?=( $i%2==0 ? 'class="odd"' : "" )?>>
+						<td>
+						<span style="color:#<?=$list_colors[$i]?>;" class="indicador-color-marker">•</span>
+						<p class="list-name-item  indicadores-titles"><?="<b>" . implode("</b><br />" , explode( " / ", $info[$key]{"nome"} ) )?></p><br class="clean" />
+						</td>
+						<? 
+							
+							foreach( $avaliable_years as $years ) {
+								if( $avaliable_values[$key][$years] ){
+									print '<td class="value">' . indicadores_values( $info[$key]{"tp_valor"}, $avaliable_values[$key][$years] ) . "</td>" ;
+								}
+								else{
+									print '<td class="value"> - </td>' ;
+								}
+							}
+						 ?>
+					</tr>
+				<? $i++;}?>
+			</tbody>
+		</table>
+		<?}else{?>
+		<div class="error">Dados indisponíveis para o Indicador e localidade selecionados.</div>
+		<?}?>
+	</div>
+</div>
+<?php include( $template_directory . "box_print_help.inc.php" );?>
+<br class="clean"/>
+<script language="javascript" type="text/javascript"><!--
+$('#list-indicador li').each(function(){
+	
+	$(this).click(function(){
+		$('#list-indicador li').removeClass("current-indicador");
+		$(this).addClass('current-indicador');
+		$('#info-indicador div').hide();
+		$( '#' + $(this).attr("id") + '-container' ).show();
+	});
+	
+});
+
+$('.list-sub-menu a').each(function(){
+	var father =  $(this).parent().attr("id") ;
+	father = father.replace( "-container-itens", "") ;
+	
+	$(this).click(function(){			
+		$('#' + father + '-container p.list-sub-menu a').removeClass("container-itens-selected");
+		$(this).addClass("container-itens-selected");
+		$( '#' + father + '-container ul.content-indicador li' ).hide();
+		$( '#' + father + '-container ul.content-indicador li.' + $(this).attr("name") ).show();
+	}) ;
+}) ;
+$("#end-data").focus();
+$("#back-search").click(function(){
+	window.close();
+});
+$("#print-search").click(function(){
+	window.print();
+});
+	
+$("#form").submit(function(){
+	if( $("#periodo option:selected").length >5 ){
+	alert("Selecione no máximo 5 anos para consultar!") ;
+	return false ;
+	}
+});
+//--></script>

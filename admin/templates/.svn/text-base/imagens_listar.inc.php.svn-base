@@ -1,0 +1,88 @@
+<h2 class="page-title">Listagem de Imagens</h2>
+<p>Gerencie as imagens disponibilizadas no Portal. (Para buscar use palavras e no minímo 4 letras para o termo buscado)</p>
+<form name="form" method="POST" action="imagens_listar.php">
+<!-- ACTIONS BUTTONS -->
+<p class="action-buttons">
+	<input type="submit" class="btn-form" name="new" style="float:left;" value="Inserir novo" />
+	
+	<?
+	$selected_categ = ( get_vars("categoria") ? get_vars("categoria") : null ) ;
+	$list_categ = $image_category_list ;	
+	$item_categ = array() ;
+	foreach( $list_categ as $key => $value ){
+		$item_categ{$key} = $value ;		
+	}
+	print  "<b>Categoria: </b>" . gui_render_select( "categoria" , $item_categ , ( $selected_categ ? $selected_categ : null ) , "-" ) ;
+	?>
+	
+	
+	<input type="text" name="search_content" value="<?=htmlspecialchars(get_vars("search_content"))?>" size="50" />
+	<input type="submit" class="btn-form" name="search" value="Buscar" />
+	<input type="submit" class="btn-form" name="clear_search" value="Limpar" /><span class="tip"></span>
+
+	<input type="submit" class="btn-form" name="delete" value="Apagar" />
+</p>
+
+<!-- LIST DATA -->
+<div id="paginate"><? print render_paginate( $page , $total_pages , $url , $results_per_page ); ?></div>
+<?if( $records ){?>
+	<table id="main-grid" width="98%" align="center">
+		<thead>
+			<tr>						
+				<th width="5%">Editar</th>
+				<th width="10">Imagem</th>
+				<th width="60%">Info</th>
+				<th width="20%">Categoria</th>
+				<th width="5%">Apagar</th>
+			</tr>
+		</thead>
+		<tbody>
+			<?
+			$i = 0 ;			
+			$user = new user ;
+			foreach( $records as $item ){
+				$user_edicao = null ;
+				$user_publicacao = null ;
+				$user_publicacao = $user->get_user_info( $item{"usuario_publicacao"} ) ;
+				if($item{"usuario_edicao"}){
+					$user_edicao = $user->get_user_info( $item{"usuario_edicao"} ) ;
+					$user_edicao = "<br /><br />Última alteração por: " . htmlspecialchars($user_edicao[0]{"nm_usuario"}) . "<br />em " . date("d/m/Y H:i", strtotime( htmlspecialchars($item{"dt_modificacao"}) ) ) ;
+				}
+				
+				?>
+				<tr <?php print ( $i % 2 ?  'class="ops"' : "" )?>>
+					<td class="check-action">
+					<a href="imagens.php?id=<?=htmlspecialchars($item{"id_imagem"})?>"><img src="furniture/images/icn-edit.png" alt="Editar" title="Editar" /></a>
+					</td>
+					<td class="check-action"><img src="<?=htmlspecialchars($images_directory . $item{"id_imagem"})?>-120x90.jpg" class="thumb" alt="<?=htmlspecialchars($item{"legenda_imagem"})?>"/></td>
+					<td><b><?=htmlspecialchars($item{"legenda_imagem"})?> <?=htmlspecialchars(($item{"credito_imagem"} ? "(Crédito: " .$item{"credito_imagem"} . ")" : "" ))?></b><br/><br />
+					<span class="tip">Inserido por: <?=htmlspecialchars($user_publicacao[0]{"nm_usuario"})?><br />em <?=htmlspecialchars(date("d/m/Y H:i", strtotime( $item{"dt_criacao"} ) )) . $user_edicao?></span>
+					<br /><br />
+					</td>
+					<td class="check-action"><?=$image_category_list{$item{"categoria"}}?></td>
+					<td class="check-action"><input type="checkbox" name="action_item[]" value="<?=$item{"id_imagem"}?>"></td>
+				</tr>			
+				<?
+				$i++ ;
+			}
+			?>
+		</tbody>
+	</table>
+	<div id="paginate"><? print render_paginate( $page , $total_pages , $url , $results_per_page ); ?></div>
+<?
+}
+else{
+	
+	?><h3>Nenhum resultado encontrado!</h3><?
+}
+?>
+
+<!-- ACTIONS BUTTONS -->
+<p class="action-buttons">
+	<input type="submit" class="btn-form" name="new" style="float:left;" value="Inserir novo" />
+	<input type="submit" class="btn-form" name="delete" value="Apagar" />
+</p>
+</form>
+
+
+		

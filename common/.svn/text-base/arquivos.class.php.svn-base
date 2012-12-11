@@ -1,0 +1,124 @@
+<?php
+/**
+* Classe arquivos
+* 
+* Classe para manipulação de arquivos
+* @author tamemiya 2011-03-16
+* @version 1.0
+*/
+class arquivos{
+	
+	
+	public function list_categoria(){
+		
+		global $connection ;
+		
+		$sql = sprintf( "select * from tb_categoria_conteudo where active = '1' order by ds_categoria asc" ) ;
+		$results = $connection->execute( $sql, true ) ;
+		return $results ;
+	}
+	
+	public function list_subcategoria(){
+		
+		global $connection ;
+		
+		$sql = sprintf( "select * from tb_subcategoria_conteudo where active = '1' order by ds_subcategoria asc" ) ;
+		$results = $connection->execute( $sql, true ) ;
+		return $results ;
+	}
+	
+	public function insert_file( $data ){
+		
+		global $connection ;
+		
+		$sql = "insert into tb_arquivos (titulo_arquivo, legenda_arquivo, categoria, subcategoria, size, type, file_name, active, dt_criacao, usuario_publicacao) values (
+				'" . mysql_real_escape_string( $data{"titulo_arquivo"} ) . "',
+				'" . mysql_real_escape_string( $data{"legenda_arquivo"} ) . "',
+				'" . mysql_real_escape_string( $data{"categoria"} ) . "',
+				'" . mysql_real_escape_string( $data{"subcategoria"} ) . "',
+				'" . mysql_real_escape_string( $data{"size"} ) . "',
+				'" . mysql_real_escape_string( $data{"type"} ) . "',
+				'" . mysql_real_escape_string( $data{"file_name"} ) . "',
+				1,
+				NOW(),
+				'" . mysql_real_escape_string( $data{"usuario_publicacao"} ) . "'
+				)" ;
+			
+		$connection->execute( $sql ) ;	
+			
+	}
+	
+	/**
+	 * método para deletar arquivos
+	 */
+	public function delete_file( $data ){
+		
+		global $connection, $files_directory, $user_info ;
+		
+		// apagar arquivos fisicos
+		$sql = sprintf( "select file_name from tb_arquivos where id_arquivo in (" . $data . ") and active= '1' " , $data ) ;
+		$results = $connection->execute( $sql, true ) ;
+		foreach( $results as $item ){
+			
+			if( is_file( $files_directory . $item{"file_name"} ) && file_exists( $files_directory . $item{"file_name"} ) ){
+				unlink( $files_directory . $item{"file_name"} ) ;
+			}
+		}	
+		
+		$sql = "update tb_arquivos set active = '0', usuario_edicao = '" . mysql_real_escape_string( $user_info{"user_key"} ) . "', dt_modificacao = NOW() where id_arquivo in(" . $data . ") " ;
+		$connection->execute( $sql ) ;		
+	}
+	
+	/**
+	 * recuperar dados do arquivo
+	 */
+	public function get_file_info( $data, $list = false, $all = false ){
+		
+		global $connection ;
+		
+		if( $list ){
+			$sql = sprintf( "select * from tb_arquivos where id_arquivo in (%s) " . ( $all ? "" : "and active='1'" ) , "'" .implode( "','" ,$data ) . "'" ) ;
+		}
+		else{
+			$sql = sprintf( "select * from tb_arquivos where id_arquivo = %d " . ( $all ? "" : "and active='1'" ), mysql_real_escape_string ( $data ) ) ;
+		}
+
+		$result = $connection->execute( $sql, true ) ;
+		
+		return $result ;
+
+	}
+	
+	public function edit_file_info( $data ){
+		
+		global $connection ;
+		
+		$sql = "update tb_arquivos set 
+				titulo_arquivo = '" . mysql_real_escape_string( $data{"titulo_arquivo"} ) . "' ,
+				legenda_arquivo = '" . mysql_real_escape_string( $data{"legenda_arquivo"} ) . "',
+				categoria = '" . mysql_real_escape_string( $data{"categoria"} ) . "',
+				subcategoria = '" . mysql_real_escape_string( $data{"subcategoria"} ) . "',
+				dt_modificacao = now(),
+				usuario_edicao = '" . mysql_real_escape_string( $data{"usuario_id"} ) . "' 
+				where id_arquivo = '" . mysql_real_escape_string( $data{"id_arquivo"} ) . "'" ;
+				
+		$connection->execute( $sql ) ;
+		
+	}
+	
+	public function increment_download_file( $id = null){
+		
+		global $connection ;
+		
+		if( $id ){
+			
+			$sql = sprintf( "update tb_arquivos set qtd_downloads = qtd_downloads+1 where id_arquivo = %d and active='1'", mysql_real_escape_string( $id ) ) ;
+			$connection->execute( $sql ) ;
+			
+		}
+		
+		
+	}
+	
+}
+?>

@@ -1,0 +1,85 @@
+$(document).ready(function(){	
+	 // # menu de navegação da ADM
+	 var items_menu = $("#header-adm ul > li") ;
+	 
+	 // on click
+	 items_menu.click(function(){
+		
+		if( !$(this).hasClass( "selected" ) ){
+			items_menu.removeClass( "selected" );
+			$(this).addClass( "selected" );			
+		}
+		
+	 // on mouseover
+	 }).mouseover(function(){
+		
+		if( !$(this).hasClass( "mouseover" ) ){
+			$(this).addClass( "mouseover" );
+		}
+		
+	 // on mouseout
+	 }).mouseout(function(){
+		
+		$(this).removeClass( "mouseover" );	
+		
+	 });
+	 
+	 // # Grid default da ADM
+	 var list_table = $("table#main-grid tbody > tr");
+	 $.each(list_table, function(i) {
+
+	 $(this).mouseover(function(){
+		if($(this).hasClass("ops") ){
+			$(this).removeClass("ops");			
+		}
+		$(this).addClass("mouseover-grid");
+	 }).mouseout(function(){
+		if($(this).hasClass("mouseover-grid")){
+			$(this).removeClass("mouseover-grid");
+			if( eval(i%2) == 1 ){
+				$(this).addClass("ops");
+			}
+		}
+	 });
+	 
+	 
+    });
+
+	$('.url-image-select').click(function() { 
+		$(this).focus();
+		$(this).select();
+	});	
+
+	 
+});
+
+
+function reload_paginate( url ){
+	
+	$.get( url, function(data) {
+		  $('.box-form-content').html(data);
+	});
+}
+
+function get_file( item_id, titulo ){
+	var exists = false ;
+	$('#file-container li').each(function(){
+		if($(this).attr("id")==item_id){
+			exists = true ;
+		}
+	});
+	if(!exists){
+		var item = '<li id="' + item_id + '"><span class="tip">' + titulo + '</span><input type="checkbox" style="display:none;" checked="checked" name="files[]" value="' + item_id + '" /><del>(excluír)</del></li>' ;
+		$('#file-container').append( item ) ;
+	}
+	else{
+		alert("Item já adicionado! Selecione outro.");
+	}
+}
+var hide = false ;
+function clean_box_image(){	
+	$('.box-form-content').html('');
+	if(hide){
+		$('.box-form-content').fadeOut();
+	}
+}

@@ -1,0 +1,161 @@
+/*
+consolidado
+author: rafhael 2011-03-23
+*/
+#main{
+	font-size:9px;
+	margin:0 auto;
+	width:980px;
+	margin-top:30px
+}
+
+#barraInfo {
+width:921px
+}
+
+#barraInfo .borda_curvada{
+	float:left
+}
+
+#barraInfo ul li img,
+#barraInfoFooter img {
+	vertical-align:middle;
+	padding-right:3px
+}
+
+#barraInfoContent{
+	float:left;
+	width:895px;
+	color:#999;
+	font-weight:bold;
+	background-color:#f4f0eb;
+	border-top:1px solid #CCC;
+	border-bottom:1px solid #CCC;
+	height:38px;
+	padding-left:0px;
+	line-height:38px
+}
+
+#barraInfoContent ul{
+	padding-left:50px
+}
+
+#barraInfoContent ul li{
+	float:left;
+	text-align:left;
+	margin-right:50px;
+	cursor:pointer
+}
+
+#barraInfoFooter{
+	height:35px;
+	line-height:35px;
+	width:871px;
+	border-top:solid 1px #cccccc;
+	border-bottom:solid 1px #cccccc;
+	background-color:#cccccc;
+	clear:both;
+	text-align:left;
+	padding-left:50px;
+	color:#FFFFFF;
+	font-weight:bold
+}
+
+#mainDados{
+	clear:both;
+	width:919px;
+	border-right:1px solid #CCC;
+	border-left:1px solid #CCC;
+	text-align:center
+}
+
+#idebIniciais {
+	margin:0 auto;
+	width: 800px;
+	text-align:center;
+	padding:30px 0;
+}
+
+#idebIniciais #header {
+	background-color:#f5f5f5;
+	border:1px solid #EBEBEB;
+	height:85px;
+	width:680px;
+	margin:0 auto;
+	text-align:left;
+	padding:15px 0 0 15px;
+}
+
+#idebIniciais #header img {
+	vertical-align:middle;
+	padding-right:4px
+}
+
+#idebIniciais .header_title {
+	color:#999999;
+	font-weight:bold;
+	font-size:12px
+}
+
+#idebIniciais .title_cinza {
+	color:#666666;
+	font-weight:bold;
+	margin-left:20px;
+	font-size:10px
+}
+
+#idebIniciais #header ul li {
+	float:left;
+	padding-right:20px
+}
+
+#idebIniciais table{
+	width:700px;
+	margin:5px auto;
+	color:#999
+}
+
+#idebIniciais .lineMetas,
+#idebIniciais .backgroundGrey {
+	background-color:#f5f5f5;
+	font-weight:bold;
+	color:#999;
+	text-align:center;
+	font-size:11px
+}
+
+#idebIniciais td {
+	text-align:center
+}
+
+#idebIniciais tr.backgroundGrey td{
+	border-left:1px solid #EBEBEB;
+	border-top:1px solid #EBEBEB;
+	border-bottom:1px solid #EBEBEB;
+}
+
+#idebIniciais  td.borderLess{
+	border-right:1px solid #EBEBEB
+}
+
+#idebIniciais tr.result td,
+#idebIniciais .lineMetas td{
+	border-left:1px solid #EBEBEB;
+	border-bottom:1px solid #EBEBEB;
+}
+
+#idebIniciais .lineMetas .borderLess{
+	border-left:1px solid #EBEBEB;
+}
+
+#idebIniciais tr.result td{
+	color:#666666
+}
+
+#idebIniciais .backBlue{
+	background-color: #A5D3ED;
+}
+
+#idebIniciais td.resultName{
+	text-align:left
+}

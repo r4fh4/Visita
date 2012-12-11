@@ -1,0 +1,35 @@
+<?php
+require_once( "scripts/init.php" ) ;
+
+// checar acesso a pagina
+get_page_access() ;
+
+$noticia = new noticias ;
+$arquivo = new arquivos ;
+
+
+
+// id inválido
+if( get_vars("id") ){
+
+	$noticia_info = array();
+	$noticia_info = $noticia->get_news_info( get_vars("id") ) ;	
+	if(!$noticia_info ){
+		redir_page( "noticias_listar.php" ) ;
+		exit();
+	}
+	else{	
+		include( $template_directory . "header_preview.inc.php" ) ;
+		include( $template_directory . "noticias_preview.inc.php" ) ;
+		//fechar conexao
+		$connection->desconnect() ;
+		include( $template_directory . "footer_preview.inc.php" ) ;	
+	}
+}
+else{
+	redir_page( "noticias_listar.php" ) ;
+	exit();
+}
+
+?>
+

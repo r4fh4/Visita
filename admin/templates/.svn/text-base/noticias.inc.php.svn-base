@@ -1,0 +1,196 @@
+<script type="text/javascript" src="furniture/editor/ckeditor.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	$('#btn-box-image').click(function(){	
+		$.get('imagens_thumb_listar.php', function(data) {
+			$('.box-form-content').html(data);
+		});
+	});
+	$("#titulo").keyup(function(){				
+		$('#title-preview').text( $("#titulo").val() ) ;
+	});
+	$("#chamada").keyup(function(){				
+		$('#chamada-preview').text( $("#chamada").val() ) ;
+	});
+	$('#title-preview').text( $("#titulo").val() ) ;
+	$('#chamada-preview').text( $("#chamada").val() ) ;
+});
+
+function select_content( element ){
+	$(element).focus();
+	$(element).select();
+
+}
+function get_item( item, content_credit ){
+	if( content_credit == "" ){
+		content_credit = "Divulgação" ;
+	}
+	<?
+	$item = array() ;
+	foreach( $image_custom_sizes as $key => $value ){
+		$item[] = '"' . $value{"desc"} . '":"' . $value{"sufix"} . "." . $default_image_format . '"' ;		
+	}
+	?>
+	
+	list_images = '<span class="tip">(Copie a URL da imagem para incluír na matéria)</span><br />' ;
+	list_images += '<br /><h3>Dados da imagem</h3><img src="<?=$base_url_site?>data/images/' + item + '-120x90.<?=$default_image_format?>" alt="" class="image-selected" /><div style="clear:both;"></div>' ;
+	list_images += '<b>Crédito da imagem: </b>' + content_credit + '<br />' ;
+	list_images += '<input type="button" name="insert" value="Definir como imagem de Destaque" onclick="set_image_destaque(\'' + item + '\',\'' + content_credit + '\');" /><br /><br /><h3>Links da imagem</h3>' ;
+	list_sizes = { <?=implode( ",", $item )?> } ;
+	$.each( list_sizes, function( key, value ) { 
+		list_images += '<b>' + key + ':</b><br /><input type="text" onclick="javascript:select_content(this);" class="url-image-select" readonly="readonly" value="<?=$images_directory?>' + item + value + 	'" /><br />' ; 
+	});
+	list_images += "<br /><br />" ;
+	$(".detail-images").html(list_images) ;
+	
+}
+
+function set_image_destaque( item, content_credit ){
+	$("input[name='imagem']").val( item + '|' +  content_credit ) ;
+	if ($("#img-destaque").length > 0){
+		$("#img-destaque ,#btn-remove").remove();
+	}
+	$('<img id="img-destaque" style="border:1px solid #ccc;margin:5px;vertical-align:middle;float:left;" src="<?=$base_url_site?>data/images/' + item + '-120x90.jpg" alt="" /><input id="btn-remove" type="button" name="Remover" value="Remover Imagem" onclick="javascript:reset_image_destaque();" />').insertBefore("input[name='imagem']");
+}
+
+function reset_image_destaque(){
+	$("#img-destaque").remove();
+	$("input[name='imagem']").val('');
+	$("#btn-remove").remove();
+}
+</script>
+<h2 class="page-title">Incluír/Editar Notícia</h2>
+<p>
+Digite a notícia, defina o título, chamada e texto para sua notícia. Caso tenha dúvidas acesse o Assistente do Admin: 
+<a href="templates/noticias_help.html?keepThis=true&TB_iframe=true&height=400&width=600" title="Ajuda - Publicação de Notícias" class="thickbox"><img class="middle-align" src="furniture/images/icn-help.jpg" alt="Ajuda" title="Ajuda"/></a>
+</p>
+
+<form id="form" name="form" class="input-form" method="POST" action="noticias.php" target="response-form">
+	
+	<div class="box-form">
+		<!-- TITULO -->
+		<label>
+			<b>Título*:</b><span class="tip"> (Padrão: 2 linhas - vide preview ao lado)</span><br />
+			<input type="text" id="titulo" name="titulo" value="<?=htmlspecialchars($noticia_info[0]{"titulo"})?>" class="text" />
+		</label>
+		
+		<!-- CHAMADA -->
+		<label>
+			<b>Chamada*:</b><span class="tip"> (Padrão: 4~5 linhas - vide preview ao lado)</span><br />
+			<input type="text" id="chamada" name="chamada" value="<?=htmlspecialchars($noticia_info[0]{"chamada"})?>" class="text" />
+		</label>
+		
+		<!-- IMAGEM -->
+		<div>
+			<b>Imagem de destaque*:</b><span class="tip"> (Selecione e clique em "Destacar imagem")</span><br />
+			<?if( isset($noticia_info[0]{"id_noticia"}) && $noticia_info[0]{"imagem"}!="" ){
+				$image_parts = explode( "|", $noticia_info[0]{"imagem"} ) ;
+				echo '<img id="img-destaque" style="border:1px solid #ccc;margin:5px;clear:both;vertical-align:middle;float:left;" id="selected_image" src="' . $base_url_site . 'data/images/' . $image_parts[0] . '-120x90.jpg" alt="" title="' . html_entity_decode( $image_parts[1] ) . '" /><input id="btn-remove" type="button" name="Remover" value="Remover Imagem" onclick="javascript:reset_image_destaque();" />' ;					
+			}?>
+			<input type="hidden" style="width:350px;"name="imagem" value="<?=htmlspecialchars($noticia_info[0]{"imagem"})?>" class="text" />
+			<input id="btn-box-image" title="Lista de imagens" type="button" value="Buscar Imagem" />  
+		</div>
+		<br style="clear:both;"/>
+		<!-- CATEGORIA/SUBCATEGORIA -->
+		<div>
+		
+			<p style="float:left;">
+				<b>Categoria:</b><br />
+				<?
+				$selected_categ = ( isset($noticia_info[0]{"categoria"}) ? $noticia_info[0]{"categoria"} : null ) ;
+				$list_categ = $arquivo->list_categoria() ;	
+				$item_categ = array() ;
+				foreach( $list_categ as $item_ctg ){
+					$item_categ{$item_ctg{"id_categoria"}} = $item_ctg{"ds_categoria"} ;		
+				}
+				print gui_render_select( "categoria" , $item_categ , ( $selected_categ ? $selected_categ : null ), "-" ) ;
+				?>
+			</p>
+			
+			<p style="float:left;margin-left:20px;">
+				<b>Sub-Categoria:</b><br />
+				<?
+				$selected_subcateg =  ( isset($noticia_info[0]{"subcategoria"}) ? $noticia_info[0]{"subcategoria"} : null ) ;
+				$list_subcateg = $arquivo->list_subcategoria() ;	
+				$item_aubcateg = array() ;
+				foreach( $list_subcateg as $item_subctg ){
+					$item_subcateg{$item_subctg{"id_subcategoria"}} = $item_subctg{"ds_subcategoria"} ;		
+				}
+				print gui_render_select( "subcategoria" , $item_subcateg , ( $selected_subcateg ? $selected_subcateg : null ), "-" ) ;
+				?>
+			</p>
+			
+			<br style="clear:both;"/>
+			<br style="clear:both;"/>
+		</div>
+		
+		<?if( isset($noticia_info[0]{"id_noticia"}) ){?>	
+			<input type="hidden" name="id_noticia" value="<?=$noticia_info[0]{"id_noticia"}?>" />
+		<?}?>
+		
+		<!-- PUBLICADA -->
+		<label>
+			<?
+			if( $user_info{"user_level"} == $level_municipal_manager ){
+			?>
+			<span class="tip"> (A matéria será publicada mediante aprovação do Gerenciador Geral)</span><br /><input type="checkbox" <?=( $noticia_info[0]{"publicada"}==1 ? "checked" : "" )?> style="width:10px;vertical-align:middle;border:none;background:none;" name="publicadas" disabled="disabled" class="text" />   Notícia publicada<br /><br />
+			<input type="hidden" name="publicada" value="<?=$noticia_info[0]{"publicada"}==1?>" />
+			<?
+			}
+			else{
+			?>
+			<b>Publicada:</b><span class="tip"> (A matéria só será publicada caso este campo esteja marcado)</span><br /><input type="checkbox" style="width:10px;vertical-align:middle;border:none;background:none;" name="publicada" <?=( $noticia_info[0]{"publicada"}==1 ? "checked" : "" )?> class="text" /> Notícia publicada
+		
+			<?}?>
+		</label>
+		
+		<!-- DESTAQUE -->
+		<label>
+			<b>Destaque:</b><br /><input type="checkbox" style="width:10px;vertical-align:middle;border:none;background:none;" name="destaque" <?=( $noticia_info[0]{"destaque"}==1 ? "checked" : "" )?> class="text" /> Notícia como Destaque
+		</label>		
+		
+		<!-- TEXTO -->
+		<label>
+			<b>Texto*:</b> <span class="tip">(Ao inserir imagens no texto não esqueça de mencionar os créditos das mesmas)</span><br />
+			<textarea style="width:250px;" cols="40" id="texto" name="texto" rows="5"><?=html_entity_decode($noticia_info[0]{"texto"})?></textarea>
+			<script type="text/javascript">
+			//<![CDATA[
+				CKEDITOR.replace( 'texto',
+					{
+						skin : 'kama'
+					});
+
+			//]]>
+			</script>
+		</label>
+		
+		<!-- FONTE -->
+		<label>
+			<b>Fonte/Autoria:</b><br />
+			<input type="text" name="autor" value="<?=($noticia_info[0]{"autor"} ? htmlspecialchars($noticia_info[0]{"autor"}) : "Portal SGDSP" )?>" class="text" />
+		</label>
+
+		
+		<!-- BOTÕES/AÇÕES -->
+		<p>
+			<input type="submit" class="btn-form" name="<?=(isset($noticia_info[0]{"id_noticia"}) ? "edit" : "insert");?>" value="<?=(isset($noticia_info[0]{"id_noticia"}) ? "Editar" : "Inserir");?>" />
+			<?if(!isset($noticia_info[0]{"id_noticia"})){?><input type="reset" class="btn-form" name="limpar" value="Limpar" /><?}?>
+			<input type="button" class="btn-form" onclick="javascript:$(location).attr('href', 'noticias_listar.php' ) ;" name="back_to_list" value="Voltar para a lista" />
+		</p>
+		
+	</div>	
+	
+	<div class="box-form-content"><span class="tip">(Clique em "Inserir imagem" para selecionar imagens)</span></div>
+	<div class="box-destaque-preview">
+		<span class="tip">(Preview para Título/chamada)</span><br /><br />
+		<div class="title-destaque"><h2 id="title-preview"></h2></div>
+		<div class="chamada-destaque" id="chamada-preview"></div>
+		<div></div>
+	</div>
+	<div style="clear:both;"></div>
+	
+</form>
+
+<div style="clear:both;"><br /></div>
+
+<iframe id="response-form" name="response-form" frameborder="0" class="iframe"></iframe>

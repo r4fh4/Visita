@@ -1,0 +1,6 @@
+<?php
+require_once( "scripts/init.php" ) ;
+
+// salvar log de ação do usuário
+$authentication->logout() ;
+?>

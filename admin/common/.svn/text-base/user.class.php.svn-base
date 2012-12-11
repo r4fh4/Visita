@@ -1,0 +1,199 @@
+<?php
+/**
+* Classe user
+* 
+* Classe para autenticação
+* @author tamemiya 2011-03-16
+* @version 1.0
+*/
+class user{
+	
+	function __construct(){
+	
+	}
+	
+	/**
+	 * método para repuperar dados do usuário
+	 */	
+	function get_user_info( $data ){
+		
+		global $connection ;
+		
+		$row = null ;
+		$sql = sprintf( "select * from tb_usuario where id_usuario = %d and active='1'", $data ) ;
+		$result = $connection->execute( $sql, true ) ;
+		
+		return $result ;
+		
+	}
+	
+	/**
+	 * método para inserir usuário
+	 */
+	function insert_user( $data ){
+		
+		global $connection ;
+		$error_msg = array() ;
+		
+		$sql = sprintf( "select * from tb_usuario where login = '%s' and active = 1", mysql_real_escape_string( trim($data{"login"}) ) ) ;
+		if( $connection->get_num_rows( $sql ) > 0 ){
+			
+			$error_msg[] = "Login digitado já está sendo utilizado!" ;
+			
+			if( isset( $data{"check_login"} ) ){
+				print "Login digitado já está sendo utilizado!" ;
+				return false ;
+				exit ;
+			}			
+		}
+		
+		$sql = sprintf( "select * from tb_usuario where email = '%s' and active = 1", mysql_real_escape_string( trim($data{"email"}) ) ) ;
+		if( $connection->get_num_rows( $sql ) > 0 ){
+
+			$error_msg[] = "E-mail digitado já está sendo utilizado!" ;
+			
+			if( isset( $data{"check_email"} ) ){
+				print "E-mail digitado já está sendo utilizado!" ;
+				return false ;
+				exit ;
+			}			
+		}
+		
+		if( count( $error_msg ) > 0 ){
+			show_message_html( implode( "<br />" , $error_msg ), false ) ;
+			exit() ;	
+		}
+		else{
+			
+			// dados do usuário para gravar
+			$sql  = "insert into tb_usuario 
+					( nm_usuario, login, email, password_content, id_grupo, id_uf, id_cidade, active, dt_criacao) values(
+					'" . mysql_real_escape_string( trim($data{"nm_usuario"}) ) . "',
+					'" . mysql_real_escape_string( trim($data{"login"}) ) . "',
+					'" . mysql_real_escape_string( trim($data{"email"}) ) . "',
+					'" . md5( mysql_real_escape_string( trim($data{"password_content"}) ) ) . "',
+					'" . mysql_real_escape_string( trim($data{"id_grupo"}) ) . "',
+					'" . mysql_real_escape_string( trim($data{"id_uf"}) ) . "',
+					'" . mysql_real_escape_string( trim($data{"id_cidade"}) ) . "',
+					'1' ,
+					NOW()
+					)" ;
+			
+			$connection->execute( $sql ) ;
+			$id_user = $connection->last_insert_id() ;
+			return $id_user ;
+		}
+		return false ; 		
+	
+	}
+	
+	/**
+	 * método para editar usuário
+	 */
+	function edit_user( $data ){
+		
+		global $connection ;
+		
+		$change_pass = "" ;
+		if( $data{"password"} ){
+			$change_pass = " , password_content = '" . md5( mysql_real_escape_string( trim($data{"password"}) ) ) . "'" ;
+		}
+		
+		$sql = "
+		update tb_usuario set 
+		nm_usuario = '" . mysql_real_escape_string( $data{"nm_usuario"} )  . "' ,
+		email = '" . mysql_real_escape_string( $data{"email"} )  . "' ,
+		id_grupo = '" . mysql_real_escape_string( $data{"id_grupo"} )  . "',
+		id_uf = '" . mysql_real_escape_string( $data{"id_uf"} )  . "',
+		id_cidade = '" . mysql_real_escape_string( $data{"id_cidade"} )  . "',
+		dt_modificacao = now()
+		" .$change_pass. "
+		where id_usuario = " . mysql_real_escape_string( $data{"id_usuario"} ) ;
+	
+		$connection->execute( $sql ) ;
+	
+	}
+	
+	/**
+	 * método para remover usuário
+	 */
+	function delete_user( $data ){
+		
+		global $connection ;
+		$sql = "update tb_usuario set active = '0', dt_modificacao = NOW() where id_usuario in(" . $data . ") " ;
+		$connection->execute( $sql ) ;
+	
+	}
+	
+	/**
+	 * método para  listar grupos e respectivos modulos do usuario
+	 */
+	function list_grupo_modulo( $data ){
+		
+		global $connection ;
+		
+		$sql = "
+			select
+			g.id_grupo,
+			g.ds_grupo,
+			mg.id_modulo,
+			mg.ds_modulo
+			from
+			tb_grupo g
+			inner join tb_modulo_grupo mg on mg.id_grupo = g.id_grupo
+			where g.active='1' and mg.active='1' order by(g.ds_grupo)asc, (mg.ds_modulo)asc
+		" ;
+		$result = $connection->execute( $sql, true ) ;
+		return $result ;
+	
+	}
+
+	/**
+	 * método para  listar grupos
+	 */	
+	function list_grupo( $data = null ){
+		
+		global $connection ;
+		
+		if( $data ){
+			$data = " id_grupo = '" . mysql_real_escape_string( $data ) . "' and " ;
+		}
+		
+		$sql = "select * from tb_grupo where " . $data . " active ='1' order by ds_grupo asc" ;
+		$results = $connection->execute( $sql, true ) ;
+		return $results ;
+	
+	}
+		
+	/**
+	 * método para  checar disponibilidade de login/email
+	 */
+	function check_login_email_avaliable( $data ){
+		
+		global $connection ;
+		
+		if( isset( $data{"check_login"} ) ){
+			$sql = sprintf( "select * from tb_usuario where login = '%s' and active=  1", mysql_real_escape_string( trim($data{"login"}) ) ) ;
+			if( $connection->get_num_rows( $sql ) > 0 ){			
+				return false ;		
+			}			
+		}
+		else if( isset( $data{"check_email"} ) ){
+			$sql = sprintf( "select * from tb_usuario where email = '%s' and active=  1", mysql_real_escape_string( trim($data{"email"}) ) ) ;
+			if( $connection->get_num_rows( $sql ) > 0 ){			
+				return false ;
+			}
+		}
+		
+		return true ;
+	
+	}
+	
+	/**
+	 * método para  retornar dados do usuario
+	 */
+
+	
+
+}
+?>

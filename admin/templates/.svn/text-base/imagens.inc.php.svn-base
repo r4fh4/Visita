@@ -1,0 +1,81 @@
+<h2 class="page-title">Incluír/Editar image</h2>
+<p>Inclua ou edite os dados das imagens gravadas no sistema.<br />Para incluír imagens só serão aceitas imagens nos formatos <b>JPG, PNG</b> ou <b>GIF</b>.</p>
+<form id="form" name="form" class="input-form" method="POST" action="imagens.php" enctype="multipart/form-data" target="response-form">
+	
+	<!-- LEGENDA -->
+	<label>
+		<b>Legenda/Título da Imagem*:</b><br />
+		<input type="text" name="legenda" value="<?=htmlspecialchars($image_info[0]{"legenda_imagem"})?>" class="text" />
+	</label>
+	
+	<!-- CREDITO -->
+	<label>
+		<b>Crédito da imagem:</b><br />
+		<input type="text" name="credito" value="<?=htmlspecialchars($image_info[0]{"credito_imagem"})?>" class="text" />
+	</label>
+	
+	<!-- CATEGORIAS -->
+	<label>
+		<p style="float:left;">
+			<b>Categoria:</b><br />
+			<?
+			$selected_categ =  ( isset($image_info[0]{"categoria"}) ? $image_info[0]{"categoria"} : null ) ;
+			$item_categ = array() ;
+			foreach( $image_category_list as $key => $value ){
+				$item_categ{$key} = $value ;		
+			}
+			print gui_render_select( "categoria" , $item_categ , ( $selected_categ ? $selected_categ : null ), false ) ;
+			?>
+		</p>
+	</label>
+	<div style="clear:both;"><br /></div>
+	
+	<!-- SELECIONAR ARQUIVO -->
+	<?if(!isset($image_info[0]{"id_imagem"})){?>
+		<label>
+			<b>Selecionar arquivo*:</b><br />
+			<input type="file" name="imagem" /><span class="tip"> ( somente arquivos do tipo ".jpg", ".png" ou ".gif" com no máximo <?=(IMAGE_LIMIT_SIZE/1024)?>KB )</span>
+		</label>	
+	<?}?>
+	
+	<!-- BOTÕES/AÇÕES -->
+	<p>
+		<input type="submit" class="btn-form" name="<?=(isset($image_info[0]{"id_imagem"}) ? "edit" : "insert");?>" value="<?=(isset($image_info[0]{"id_imagem"}) ? "Editar" : "Inserir");?>" />
+		<?if(!isset($image_info[0]{"id_imagem"})){?><input type="reset" class="btn-form" name="limpar" value="Limpar" /><?}?>
+		<input type="button" class="btn-form" onclick="javascript:$(location).attr('href', 'imagens_listar.php' ) ;" name="back_to_list" value="Voltar para a lista" />
+	</p>
+	
+	<!-- LISTAR TAMANHOS -->
+	<?
+	if(isset($image_info[0]{"id_imagem"})){
+	?>
+	<input type="hidden" name="id_imagem" value="<?=$image_info[0]{"id_imagem"}?>" />
+	<br />
+	<h3>Tamanhos disponíveis para uso:</h3><br />
+	<img src="<?=$images_directory . $image_info[0]{"id_imagem"} ."-230x156.jpg";?>" alt=""/>
+	<p><br /><span class="tip">Copie a URL desejada para inserir nos textos.</span><br /></p>
+	<?
+	
+		foreach( $image_custom_sizes as $key => $value ){			
+			if(isset($value{"w"})){
+				?>
+				<p><b><?=$value{"desc"}?>:</b> <input type="text" class="url-image-select" readonly="readonly" value="<?=$base_url_site_data . "images/" . $image_info[0]{"id_imagem"} . $value{"sufix"};?>.jpg" /> <span class="tip"> <a href="<?=$base_url_site_data . "images/" . $image_info[0]{"id_imagem"} . $value{"sufix"}.".jpg";?>" target="_blank">Visualizar</a></span></p>
+				<?				
+			}
+			else{
+				?>
+				<p><b><?=$value{"desc"}?>:</b> <input type="text" class="url-image-select" readonly="readonly" value="<?=$base_url_site_data . "images/" . $image_info[0]{"id_imagem"} . $value{"sufix"};?>.jpg" /> <span class="tip"> <a href="<?=$base_url_site_data . "images/" . $image_info[0]{"id_imagem"} . $value{"sufix"}.".jpg";?>" target="_blank">Visualizar</a></span></p>
+				<?
+			}			
+		}
+	
+	}
+	?>
+	
+	<div style="clear:both;"><br /></div>
+	
+</form>
+
+<div style="clear:both;"><br /></div>
+
+<iframe id="response-form" name="response-form" frameborder="0" class="iframe"></iframe>

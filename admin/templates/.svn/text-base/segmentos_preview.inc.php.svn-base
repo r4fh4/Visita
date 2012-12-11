@@ -1,0 +1,9 @@
+<p><?=html_entity_decode($segmento_info[0]{"texto"})?></p>
+<hr style="clear:both;" />
+<p>
+<?
+print build_map( html_entity_decode( $segmento_info[0]{"endereco"} ) ) ;
+?>
+</p>
+
+

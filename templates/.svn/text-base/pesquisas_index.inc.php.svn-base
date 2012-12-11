@@ -1,0 +1,47 @@
+<h1 class="breadcrumb">Indicadores</h1>
+<div id="container-search">
+	<div class="search-description">
+		<div>
+			<h4><span class="icn-pesquisa-index topic01"></span>Infográficos e evolução de indicadores do Estado</h4>
+			<p>Os indicadores são valiosos instrumentos para acompanhar o desenvolvimento de um estado ou município. Ajudam o cidadão a ter uma visão mais qualitativa sobre a realidade, compreendendo melhor a dinâmica local. Da mesma forma, são fundamentais para gestores públicos que, com base nas informações, podem direcionar ações e políticas mais eficazes.
+			</p>
+		</div>
+		<div>
+			<h4><span class="icn-pesquisa-index topic02"></span>Consultas simples ou cruzamentos avançados de dados</h4>
+			<p>
+			O sistema de pesquisa foi desenvolvido para facilitar o acesso e entendimento dos dados. Além da apresentação gráfica o sistema disponibiliza o conceito da informação, sua utilidade, o método de cálculo, a fonte e parâmetros nacionais e estaduais. Faça desde uma simples consulta até cruzamentos avançados de indicadores municipais e estaduais.
+			</p>
+		</div>		
+		<br class="clean"/>
+	</div>	
+	<div id="box-type-search">
+	<ul  id="aba-type-search">
+		<li class="border-radius">
+			<span class="icn-simple-search"></span>
+			<h2><a href="<?=$alias?>indicadores/pesquisa/simples"><?=$list_tipos_pesquisas{"simples"}{"title"};?></a></h2>
+			<p><a href="<?=$alias?>indicadores/pesquisa/simples"><?=$list_tipos_pesquisas{"simples"}{"description"};?></a></p>
+		</li>
+		<li class="border-radius">
+			<span class="icn-advanced-search"></span>
+			<h2><a href="<?=$alias?>indicadores/pesquisa/avancada"><?=$list_tipos_pesquisas{"avancada"}{"title"};?></a></h2>
+			<p><a href="<?=$alias?>indicadores/pesquisa/avancada"><?=$list_tipos_pesquisas{"avancada"}{"description"};?></a></p>
+		</li>
+		<li class="border-radius">
+			<span class="icn-maiores-menores-search"></span>
+			<h2><a href="<?=$alias?>indicadores/pesquisa/maiores-menores"><?=$list_tipos_pesquisas{"maiores-menores"}{"title"};?></a></h2>
+			<p><a href="<?=$alias?>indicadores/pesquisa/maiores-menores"><?=$list_tipos_pesquisas{"maiores-menores"}{"description"};?></a></p>
+		</li>
+		<li class="border-radius">
+			<span class="icn-mapas-search"></span>
+			<h2><a href="<?=$alias?>mapas"><?=$list_tipos_pesquisas{"mapas"}{"title"};?></a></h2>
+			<p><a href="<?=$alias?>mapas"><?=$list_tipos_pesquisas{"mapas"}{"description"};?></a></p>
+		</li>
+		<li class="border-radius last">
+			<span class="icn-consolidados-search"></span>
+			<h2><a href="<?=$alias?>indicadores/consolidados"><?=$list_tipos_pesquisas{"consolidados"}{"title"};?></a></h2>
+			<p><a href="<?=$alias?>indicadores/consolidados"><?=$list_tipos_pesquisas{"consolidados"}{"description"};?></a></p>
+		</li>
+	</ul>
+	</div>
+</div>
+<br class="clean"/>

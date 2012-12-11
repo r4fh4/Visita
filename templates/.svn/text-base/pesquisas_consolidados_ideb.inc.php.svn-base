@@ -1,0 +1,179 @@
+<h1 class="breadcrumb"><a href="<?=$alias?>indicadores">Indicadores</a> / Consolidados</h1>
+<div id="container-search">
+	<div id="simple-chart-box">
+		<p>
+			<br />
+			<h3>Dados sobre o Ideb (Índice de Desenvolvimento da Educação Básica)</h3>
+			<b><?=$title_page?></b>	
+			<br /><br />		
+		</p>
+		<p>
+			<?foreach( $ideb_faixas_classificacao as $item_legenda ){?>
+				<span class="consolidado-ideb-legenda" style="background-color:<?=$item_legenda{"color"}?>">&nbsp;</span><?=$item_legenda{"label"}?> 
+			<?}?>
+		</p>
+	</div>
+
+	<ul id="aba-consolidados">
+		<li id="maiores-aba" class="selected-aba-consolidados">Maiores</li>
+		<li id="menores-aba">Menores</li>
+	</ul>
+
+	<div id="main-consolidado-ideb">
+	<!-- MAIORES -->
+	<table id="maiores-grid" width="100%" class="grid-maiores-menores table-main-grid grid-consolidados-ideb">
+		<thead>
+			<tr>
+				<th width="5%" rowspan="2">Pos.</th>							
+				<th width="30%" rowspan="2">Cidades</th>
+				<?foreach( $avaliable_years as $itens ){?>
+					<th width="10%" style="background-color:#D8D6D6;" rowspan="2">IDEB<br /><?=$itens?></th>
+				<?}?>
+				<th class="value" width="35%" colspan="<?=count($ideb_projecoes)?>">Metas pactuadas</th>
+			</tr>
+			<tr>
+				<?foreach( $ideb_projecoes as $item ){?>
+				<th width="5%" class="value"><?=str_replace( "proj_", "", $item )?></th>	
+				<?}?>			
+			</tr>
+		</thead>
+		<tbody>				
+			<? $i=0; foreach( $line_maiores as $k => $v ){ ?>
+				<tr <?=( $i%2==0 ? 'class="odd"' : "" )?> <?=( $v{"mark"} ? 'style="font-weight:bold !important;" ' : '' )?>>
+					<td class="value"><?=$v{"posicao"}?></td>
+					<td><?=$v{"localidade"}?></td>
+					<?foreach( $avaliable_years as $y ){?>
+						<td class="value" style="background-color:<?=classificate_ideb( $idebs_por_ano[$y][$k] )?>;"><?=($idebs_por_ano[$y][$k] ? number_format( $idebs_por_ano[$y][$k], 1, ".", "" ) : "-" )?></td>
+					<?}?>
+					<?foreach( $ideb_projecoes as $proj ){?>
+						<td class="value" style="background-color:<?=classificate_ideb( $v{$proj} )?>;"><?=number_format( $v{$proj}, 1, ".", "" )?></td>
+					<?}?>
+				</tr>
+			<?$i++; }?>
+		</tbody>
+	</table>
+	<!-- MENORES -->
+	<table id="menores-grid"  class="grid-maiores-menores table-main-grid grid-consolidados-ideb" width="100%" style="display:none;">
+		<thead>
+			<tr>
+				<th width="5%" rowspan="2">Pos.</th>							
+				<th width="30%" rowspan="2">Cidades</th>
+				<?foreach( $avaliable_years as $itens ){?>
+					<th width="10%" style="background-color:#D8D6D6;" rowspan="2">IDEB<br /><?=$itens?></th>
+				<?}?>
+				<th class="value" width="35%" colspan="<?=count($ideb_projecoes)?>">Metas pactuadas</th>
+			</tr>
+			<tr>
+				<?foreach( $ideb_projecoes as $item ){?>
+				<th width="5%" class="value"><?=str_replace( "proj_", "", $item )?></th>	
+				<?}?>			
+			</tr>
+		</thead>
+		<tbody>				
+			<? $i=0; foreach( $line_menores as $k => $v ){ ?>
+				<tr <?=( $i%2==0 ? 'class="odd"' : "" )?> <?=( $v{"mark"} ? 'style="font-weight:bold !important;" ' : '' )?>>
+					<td class="value"><?=$v{"posicao"}?></td>
+					<td><?=$v{"localidade"}?></td>
+					<?foreach( $avaliable_years as $y ){?>
+						<td class="value" style="background-color:<?=classificate_ideb( $idebs_por_ano[$y][$k] )?>;"><?=($idebs_por_ano[$y][$k] ? number_format( $idebs_por_ano[$y][$k], 1, ".", "" ) : "-" )?></td>
+					<?}?>
+					<?foreach( $ideb_projecoes as $proj ){?>
+						<td class="value" style="background-color:<?=classificate_ideb( $v{$proj} )?>;"><?=number_format( $v{$proj}, 1, ".", "" )?></td>
+					<?}?>
+				</tr>
+			<?$i++; }?>
+		</tbody>
+	</table>
+	</div>
+	<br class="clean"/>
+	<!-- CAPITAL -->
+	<table class="grid-maiores-menores table-main-grid grid-consolidados-ideb">
+		<thead>
+			<tr>
+				<th width="5%" rowspan="2">Pos.</th>							
+				<th width="30%" rowspan="2">Capital<?=( $idebs_info_localidade ? " e <br />Localidade selecionada" : "" )?></th>
+				<?foreach( $avaliable_years as $itens ){?>
+				<th width="10%" rowspan="2" style="background-color:#D8D6D6;">IDEB<br /><?=$itens?></th>
+				<?}?>
+				<th class="value" width="35%" colspan="<?=count($ideb_projecoes)?>">Metas pactuadas</th>
+			</tr>
+			<tr>
+				<?foreach( $ideb_projecoes as $item ){?>
+				<th  width="5%" class="value"><?=str_replace( "proj_", "", $item )?></th>	
+				<?}?>			
+			</tr>
+		</thead>
+		<tbody>		
+			<!-- CAPITAL -->	
+			<tr>
+				<td class="value"><?=$idebs_info_capital{"posicao"}?></td>
+				<td><?=$idebs_info_capital[$idebs_info_capital{"cd_ibge"}]{"localidade"}?></td>
+				<?foreach( $avaliable_years as $y ){?>
+					<td class="value" style="background-color:<?=classificate_ideb( $idebs_por_ano[$y][$idebs_info_capital{"cd_ibge"}] )?>;"><?=($idebs_por_ano[$y][$idebs_info_capital{"cd_ibge"}] ? number_format( $idebs_por_ano[$y][$idebs_info_capital{"cd_ibge"}], 1, ".", "" ) : "-" )?></td>
+				<?}?>
+				<?foreach( $ideb_projecoes as $proj ){?>
+					<td class="value" style="background-color:<?=classificate_ideb( $idebs_info_capital[$idebs_info_capital{"cd_ibge"}]{$proj} )?>;"><?=number_format( $idebs_info_capital[$idebs_info_capital{"cd_ibge"}]{$proj}, 1, ".", "" )?></td>
+				<?}?>
+			</tr>
+			<?if( $idebs_info_localidade ){?>
+			<!-- LOCALIDADE -->	
+			<tr class="odd">
+				<td class="value"><?=$idebs_info_localidade{"posicao"}?></td>
+				<td><?=$idebs_info_localidade[$idebs_info_localidade{"cd_ibge"}]{"localidade"}?></td>
+				<?foreach( $avaliable_years as $y ){?>
+					<td class="value" style="background-color:<?=classificate_ideb( $idebs_por_ano[$y][$idebs_info_localidade{"cd_ibge"}] )?>;"><?=($idebs_por_ano[$y][$idebs_info_localidade{"cd_ibge"}] ? number_format( $idebs_por_ano[$y][$idebs_info_localidade{"cd_ibge"}], 1, ".", "" ) : "-" )?></td>
+				<?}?>
+				<?foreach( $ideb_projecoes as $proj ){?>
+					<td  class="value" style="background-color:<?=classificate_ideb( $idebs_info_localidade[$idebs_info_localidade{"cd_ibge"}]{$proj} )?>;"><?=number_format( $idebs_info_localidade[$idebs_info_localidade{"cd_ibge"}]{$proj}, 1, ".", "" )?></td>
+				<?}?>
+			</tr>
+	<?}?>
+		</tbody>
+	</table>
+	
+	<br class="clean"/>
+	<div class="form-consolidados-ideb">
+		<b>Busque por localidade dentro do Estado de SP</b><br /><br />
+		<form id="form-cidade" method="GET" action="<?=$alias?>indicadores/consolidados/ideb/<?=$data{"search_type"}?>">
+			<div id="box-municipal"></div><input id="form-consolidados-ideb-button" class="form-submit-search border-radius" type="button" name="ok" value="ok" />
+		</form>		
+	</div>
+	<div class="form-consolidados-ideb">
+		<?if( $idebs_info_localidade ){?>
+		<b>Localidade consultada:</b><br /><br />
+		<?=$idebs_info_localidade[$idebs_info_localidade{"cd_ibge"}]{"localidade"}?> (<?=$uf_list[substr( $idebs_info_localidade{"cd_ibge"}, 0, 2 )]{"sigla"}?>)
+		<?}?>
+	</div>
+</div>
+<br class="clean"/>
+<script language="javascript">
+$("#maiores-aba").click(function(){
+	$(this).addClass("selected-aba-consolidados") ;	
+	$("#menores-aba").removeClass("selected-aba-consolidados") ;	
+	$("#menores-grid").hide() ;
+	$("#maiores-grid").fadeIn('slow') ;
+	return false ;
+});
+$("#menores-aba").click(function(){
+	$(this).addClass("selected-aba-consolidados") ;	
+	$("#maiores-aba").removeClass("selected-aba-consolidados") ;
+	$("#maiores-grid").hide() ;
+	$("#menores-grid").fadeIn('slow') ;
+	return false ;
+});
+$(document).ready(function(){
+	$("#form-consolidados-ideb-button").click(function(){
+
+		if( $("input[name='localidade']").val() == "-" ){
+			alert("Selecione uma localidade!") ;
+			return false ;
+		}
+		$("#form-cidade").submit();
+	});
+	$.get( "<?=$alias?>indicadores/cidades/35?template=select_box", function(data) { $('#box-municipal').html(data) ; }) ;
+});
+function set_localidade( value ){
+	$("input[name='localidade']").attr( "value", value ) ;
+}
+</script>
+<? unset( $line_maiores ) ; unset(  $line_menores ) ; unset( $avaliable_years ) ; unset( $ideb_projecoes ) ; ?>

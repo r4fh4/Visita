@@ -1,0 +1,16 @@
+		</div>
+	</div>
+	<script language="javascript" type="text/javascript">
+		$(document).ready(function(){
+			
+			try{
+                document.execCommand('print', false, null) ;
+            }
+            catch(e){
+                window.print() ;
+            }
+
+		});
+		</script>
+</body>
+</html>

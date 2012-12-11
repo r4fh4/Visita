@@ -1,0 +1,18 @@
+<h1><?=htmlspecialchars($relatorio_info[0]{"titulo"})?></h1>
+<span class="tip">Data de criação: <?=convert_data( $relatorio_info[0]{"dt_criacao"} )?></span>
+<p>
+<?=set_break_page( html_entity_decode($relatorio_info[0]{"texto"}) )?>
+</p>
+<?
+if( ($relatorio_info[0]{"master"}) == 1 && ( is_array( $relatorio_info[0]{"relatorios_filhos"} ) ) ){
+	
+	foreach( $relatorio_info[0]{"relatorios_filhos"} as $item ){
+		
+		print '<div style="page-break-after: always;"><span style="display: none;">&nbsp;</span></div>' ;
+		print '<h2>' . $item{'titulo'} . '</h2><span class="tip">Data de criação: ' . convert_data( $item{'dt_criacao'} ,true ) . '</span><p>' . set_break_page(  html_entity_decode( $item{'texto'} ) ) . '</p>' ;
+		
+	}
+	
+}
+?>
+

@@ -1,0 +1,84 @@
+<?php
+
+if (basename($_SERVER["PHP_SELF"]) == "config.php") {
+    die("Acesso negado.");
+}
+
+// conexões e variáveis por ambiente
+if( $context == "dev" ){
+	 
+	$db_server	= "serverlcm" ;
+	$db_user	= "sgdsp_user" ;
+	$db_pass	= "admin0526" ;
+	$db_name	= "new_sgd_sp_dbo" ;
+	$alias = "../" ;
+	
+	$common_directory = "../common/" ;
+	$template_directory = "templates/" ;
+	$base_url_site = "http://" . $_SERVER["SERVER_NAME"] . "/sgdsp/" ;
+	$base_url_adm = "http://" . $_SERVER["SERVER_NAME"] . "/sgdsp/administrator/" ;
+	$base_url_site_data =  $base_url_site . "data/" ;
+	
+}
+else if( $context == "note" ){
+	 
+	$db_server	= "localhost" ;
+	$db_user	= "root" ;
+	$db_pass	= "root" ;
+	$db_name	= "new_sgd_sp_dbo" ;
+	$alias = "../" ;
+	
+	$common_directory = "../common/" ;
+	$template_directory = "templates/" ;
+	$base_url_site = "http://" . $_SERVER["SERVER_NAME"] . "/sgdsp/" ;
+	$base_url_adm = "http://" . $_SERVER["SERVER_NAME"] . "/sgdsp/administrator/" ;
+	$base_url_site_data =  $base_url_site . "data/" ;
+	
+}
+else if( $context == "prod" ){
+
+	error_reporting(0) ;
+	
+	$db_server	= "174.123.46.42" ;
+	$db_user	= "sgdsp_user" ;
+	$db_pass	= "2131@#dfsQW@" ;
+	$db_name	= "new_sgd_sp_dbo" ;
+	$alias = "../" ;
+
+	$common_directory = "../common/" ;
+	$template_directory = "templates/" ;
+	$base_url_site = "http://" . $_SERVER["SERVER_NAME"] . "/sgdsp/" ;
+	$base_url_adm = "http://" . $_SERVER["SERVER_NAME"] . "/sgdsp/administrator/" ;
+	$base_url_site_data =  $base_url_site . "data/" ;
+	
+}
+
+// paths
+$images_directory	= $base_url_site . "data/images/" ;
+$images_relative_directory = "../data/images/" ;
+$files_directory	= $alias . "data/arquivos/" ;
+$audios_directory	= $base_url_site . "data/audios/" ;
+
+// variáveis padrões
+define( ADM_LABEL, "Portal SGD" ) ;
+define( OWNER_SYSTEM, "LC&amp;M Consult &reg; " . date("Y") . " - Todos os direitos reservados" ) ;
+define( EXPIRATION_TIME, 30 ) ; // em minutos
+
+define( IMAGE_DEFAULT_FORMAT , "jpg" ) ;
+define( IMAGE_LIMIT_SIZE, 50000 * 1024 ) ; //500 kb em bytes
+define( FILE_LIMIT_SIZE, 25000 * 1024 ) ; //500 kb em bytes
+define( AUDIO_LIMIT_SIZE, 50000 * 1024 ) ; //500 kb em bytes
+
+$results_per_page = 10 ;
+$sgd_uf = 35 ;
+
+$secury_key		= "86e2fa7775afab01a7fa91b817fe4866" ;
+$secury_key2	= "LC&M CONSULT asdadadad876a5d76a5d$#534asdadasd" ;
+//$google_maps_key_api = "ABQIAAAAr4hu08ZUl_CjRShXXgSRtxS6d4nN4VG2Q3-YYzTYXbXqTPvTWBRwjoZXhoncNgHTcdb8eptHUOL55w" ; //domínio: http://portalnacionalsgd.com.br
+$google_maps_key_api = "ABQIAAAAr4hu08ZUl_CjRShXXgSRtxTRM6uVJ59YgOv3zxjzFYlDo_8MHxS0uZLqTdVtpdo5ill1b96zyQdqLg" ; //domínio: http://lcmconsult.com.br
+
+$level_municipal_manager = 3 ;
+
+// Tamanhos de imagens
+$default_image_format = "jpg" ;
+?>

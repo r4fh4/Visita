@@ -1,0 +1,170 @@
+<?php
+/**
+ * Classe Albuns controller
+ * 
+ * Classe para manipulação de albuns
+ * @author tamemiya 2011-07-18
+ * @version 1.0
+ */
+
+class albuns_controller{
+
+	public $model = null ;
+	
+	function __construct( $data = null ){
+		$this->model = new albuns ; 
+	}
+	
+	/**
+	 * recuperar lista de álbuns
+	*/
+	public function get_list( $data, $itens ){
+		
+		// carregar variáveis globais
+		require_once( ROOT_WEBSITE . "scripts/load_globals.php" ) ;		
+		
+		// Obtém variáveis para consulta
+		$url = $_SERVER{"REQUEST_URI"} ;
+		$term_search = false ;
+		$results_per_page = 15 ;
+		$selected_categ = false ;
+		
+		if( get_vars("clear_search") ){
+			redir_page( set_url( $url, array("q" => null, "sr" => null, "categoria" => null, "clear_search" => null ) ) ) ;
+		}
+		
+		if( get_vars("categoria")  && get_vars("categoria") != "-" && !get_vars("clear_search") ){
+			$selected_categ = get_vars("categoria") ;
+			$where[] = "a.categoria = " .  get_vars("categoria") ;
+			$url = set_url( $url, array( "categoria" => get_vars("categoria") ) ) ;
+		}
+		if( get_vars("q") && !get_vars("clear_search") ){	
+			$term_search =  htmlspecialchars( get_vars("q") ) ;
+			$terms = explode( " ", get_vars("q") ) ;
+			$terms = implode( " ", $terms ) ;
+			$where[] = "MATCH ( titulo_album ) AGAINST ('" . str_replace( " ", "* ", mysql_real_escape_string( $terms ) ) . "*' IN BOOLEAN MODE)" ;
+			$url = set_url( $url, array( "q" => get_vars("q") ) ) ;
+		}
+
+		// parametros para query
+		$where[] = "a.active='1' AND a.publicado='1' AND i.active='1'" ;
+
+		list( $r , $records , $page , $total_pages ) = default_search( "tb_albuns AS a inner join tb_albuns_imagens AS i USING(id_album)" , $where, "a.id_album", "dt_criacao DESC", "a.*, i.id_imagem, i.legenda_imagem, i.credito_imagem" ) ;		
+
+		$complement_title = "Álbuns" ;
+		$meta_description = "Listagem de álbuns do Portal." ;	
+		// chamar template
+		include( $template_directory . "header.inc.php" ) ;
+		include( $template_directory . "albuns_listar.inc.php" ) ;
+		include( $template_directory . "footer.inc.php" ) ;		
+		$connection->disconnect() ;			
+		
+	}
+	
+	/**
+	 * visualizar álbum
+	*/
+	public function get_info( $data ){
+	
+		// carregar variáveis globais
+		require_once( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		// Obtém variáveis para consulta
+		$url = $_SERVER{"REQUEST_URI"} ;
+		$term_search = false ;
+		
+		// controle de cache
+		$cache = new cache() ;
+		$cache_id = "album-" . strip_tags( $data{"id_album"} . ( $data{"slug"} ? "-" . $data{"slug"} : "" ) ) ;
+		$cache_content = $cache->read( $cache_id ) ;
+		
+		if( !$cache_content ){
+		
+			$album = $this->model->get_album_info( strip_tags( $data{"id_album"} ) ) ;			
+			if( $album ){
+				
+				$album_id = strip_tags( $data{"id_album"} ) ;
+				ob_start() ;
+				$title = normalize_text( $album[$album_id]{"titulo_album"} ,true ) ;
+				$short_url =  $base_url_site . "albuns/" . $data{"id_album"} . "-" . $title ;
+				if( $data{"slug"} ){
+					if( $title != $data{"slug"} ){
+						header( "Location: " . $base_url_site  . "albuns/" . $data{"id_album"} . "-" . $title ) ;
+						exit();
+					}
+				}
+				
+				$list_js_images		= array() ;
+				$list_html_images	= array() ;
+				$first_image_id		= null ;
+				// montar lista para js
+				$i = 1 ;			
+				foreach( $album[$album_id]{"item_album"} as $item ){
+					$list_html_images[]	= '<li id="'. $i . '"><img name="' . $item["id_imagem"] . '" ' . ( $i==1 ? 'class="image-thumb-mouseover"' : '' ) . ' src="'. $images_directory . $item["id_imagem"] . '-100x70.jpg" title="' . htmlspecialchars( $item["legenda_imagem"] ) . '" alt="' . htmlspecialchars( $item["credito_imagem"] ) . '" /></li>' ;
+					if($i==1){
+						$first_image_id	 = $item["id_imagem"] ;
+					}
+					//$list_js_images[]	= 'list_images[' . $i . '] = new Array( "' . $item["id_imagem"] . '","' . htmlspecialchars( utf8_decode( $item["credito_imagem"] . " | " . $item["legenda_imagem"] ) ) . '" ) ;' ;
+					$i++ ;
+				}
+				
+				$complement_title = "Álbum - " . $album[$album_id]{"titulo_album"} ;
+				$meta_description = "Listagem de álbuns do Portal." ;	
+				// chamar template
+				include( $template_directory . "header.inc.php" ) ;
+				include( $template_directory . "albuns.inc.php" ) ;
+				include( $template_directory . "footer.inc.php" ) ;		
+				$connection->disconnect() ;
+				
+				// gerar cache
+				$content = ob_get_contents() ;
+				$cache->save(  "album-" . strip_tags( $data{"id_album"} . ( $data{"slug"} ? "-" . $data{"slug"} : "" ) ), $content . "<!-- cached in " . date("Y-m-d H:i:s") . " -->" ) ;
+				ob_end_flush() ;
+			}
+			else{
+				header( "Location: " . $base_url_site . "albuns/listar" ) ;
+				exit();
+			}
+		
+		}
+		print $cache_content ;
+	
+	}	
+	
+	
+	/**
+	* feed
+	*/
+	public function feed(){		
+	
+		// carregar variaveis globais
+		require( ROOT_WEBSITE . "scripts/load_globals.php" ) ;
+		
+		//Monta a lista de audios da direita, retirando a audio ja exibida
+		$results_per_page = 20 ;
+		$where[] = "a.active='1' AND a.publicado='1' AND i.active='1'" ;
+				
+		// controle de cache
+		$cache = new cache() ;
+		$cache_id = "album-feed" ;
+		$cache_content = $cache->read( $cache_id ) ;
+		
+		if( !$cache_content ){	
+		
+			list( $r , $records , $page , $total_pages ) = default_search( "tb_albuns AS a inner join tb_albuns_imagens AS i USING(id_album)" , $where, "a.id_album", "dt_criacao DESC", "a.*, i.id_imagem, i.legenda_imagem, i.credito_imagem" ) ;
+			ob_start() ;
+			header('Content-Type: text/xml') ;
+			print '<?xml version="1.0" encoding="ISO-8859-1"?>' ;
+			include( $template_directory . "albuns_rss.inc.php" ) ;
+			
+			// gerar cache
+			$content = ob_get_contents() ;
+			$cache->save(  $cache_id, $content . "<!-- cached in " . date("Y-m-d H:i:s") . " -->" ) ;
+			ob_end_flush() ;
+			
+		}
+		print $cache_content ;		
+	}
+	
+}
+?>

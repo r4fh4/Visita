@@ -1,0 +1,132 @@
+<?php
+/**
+* Classe Politicas
+* 
+* Classe para manipulação de políticas
+* @author tamemiya 2011-03-31
+* @version 1.0
+*/
+class politicas{
+	
+	function __construct(){
+	
+	}
+	
+	/**
+	 * listar categorias
+	 */
+	public function list_categoria( $data = null ){
+	
+		global $connection, $user_info ;		
+		$sql = sprintf( "select * from tb_politicas_categoria where active ='1'" . ( $data ? " and id_categoria=" . mysql_real_escape_string( $data ) : "" ) ) ;
+		$results = $connection->execute( $sql, true ) ;
+		return $results ;
+	}
+	
+	/**
+	 * listar subcategorias
+	 */
+	public function list_subcategoria( $restrict = false, $data = null ){
+		
+		global $connection, $user_info ;
+		
+		$where = "" ;
+		// Adminsitrador e gerenciador geral
+		if( $restrict ){
+			if( $user_info{"user_level"} == 2 ){
+				$where = "usuario_grupo = 1 and" ;
+			}
+			else if( $user_info{"user_level"} == 3 ){
+				$where = "usuario_grupo = 2 and" ;
+			}
+			else if( $user_info{"user_level"} == 1 ){
+				$where = "" ;
+			}
+		}
+		
+		$sql = sprintf( "select * from tb_politicas_subcategoria where " . $where . "  active ='1'" . ( $data ? " and id_subcategoria=" . mysql_real_escape_string( $data ) : "" ) ) ;
+		$results = $connection->execute( $sql, true ) ;
+		return $results ;	
+	}
+	
+	/**
+	 * listar dados da politica
+	 */
+	public function get_politica_info( $data ){
+		
+		global $connection ;
+		$sql = sprintf( "select * from tb_politicas where id_politica = %d and active = '1'", mysql_real_escape_string( $data ) ) ;
+		$results = $connection->execute( $sql, true ) ;
+		return $results ;	
+	}
+	
+	public function insert_politica_info( $data ){
+		
+		global $connection ;
+		
+		$sql = "insert into tb_politicas ( texto, categoria, subcategoria, id_uf, id_cidade, arquivos, dt_criacao, usuario_publicacao) values (
+				'" . mysql_real_escape_string( $data{"texto"} ) . "',
+				" . mysql_real_escape_string( $data{"categoria"} ) . ",
+				" . mysql_real_escape_string( $data{"subcategoria"} ) . ",
+				" . ( $data{"id_uf"} ? "'".mysql_real_escape_string( $data{"id_uf"} )."'" : 'null' ) . ",
+				" . ( $data{"id_cidade"} ? "'".mysql_real_escape_string( $data{"id_cidade"} )."'" : 'null' ) . ",
+				'" . mysql_real_escape_string( $data{"arquivos"} ) . "',
+				now(),
+				'" . mysql_real_escape_string( $data{"usuario_id"} ) . "'
+				)" ;
+							
+		$connection->execute( $sql ) ;		
+			
+	}
+	
+	public function edit_politica_info( $data ){
+		
+		global $connection ;
+		
+		$sql = "update tb_politicas set 
+				texto = '" . mysql_real_escape_string( $data{"texto"} ) . "',
+				categoria = " . mysql_real_escape_string( $data{"categoria"} ) . ",
+				subcategoria = " . mysql_real_escape_string( $data{"subcategoria"} ) . ",
+				arquivos = '" . mysql_real_escape_string( $data{"arquivos"} ) . "',
+				dt_modificacao = now(),
+				usuario_edicao = '" . mysql_real_escape_string( $data{"usuario_id"} ) . "' 
+				where id_politica = '" . mysql_real_escape_string( $data{"id_politica"} ) . "'" ;
+
+		$connection->execute( $sql ) ;
+		
+	}
+	
+	public function verify_politica_avaliabity( $categoria = null, $subcategoria = null, $id_uf = null, $id_cidade = null ){
+		
+		global $connection ;
+		$where = array() ;
+		if( $categoria ){
+			$where[] = " categoria = " . mysql_real_escape_string( $categoria ) ;
+		}
+		if( $subcategoria ){
+			$where[] = " subcategoria = " . mysql_real_escape_string( $subcategoria ) ;
+		}
+		if( $id_uf ){
+			$where[] = " id_uf = " . mysql_real_escape_string( $id_uf ) ;
+		}
+		if( $id_cidade ){
+			$where[] = " id_cidade = " . mysql_real_escape_string( $id_cidade ) ;
+		}
+		$where = implode( " and", $where ) ;
+		
+		$sql = "select * from tb_politicas where " . $where . " and active = 1" ;
+		
+		$results = $connection->execute( $sql, true ) ;
+		return $results ;		
+	}
+	
+	public function delete_politica( $data ){
+		
+		global $connection, $user_info ;		
+	
+		$sql = "update tb_politicas set active = '0', usuario_edicao = '" . mysql_real_escape_string( $user_info{"user_key"} ) . "', dt_modificacao = NOW() where id_politica in(" . $data . ") " ;
+		$connection->execute( $sql ) ;		
+	}
+	
+}
+?>

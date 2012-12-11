@@ -1,0 +1,151 @@
+<?php
+/**
+ * Classe Albuns
+ * 
+ * Classe para manipulação de albuns
+ * @author tamemiya 2011-07-15
+ * @version 1.0
+ */
+
+class albuns{
+	
+	var $list_sixes			= array() ;
+	var $default_format		= "" ;
+	
+	function __construct(){
+			
+	}
+	
+	/**
+	 * método para inclusão de dados do album
+	 */
+	public function insert_album( $data = null ){
+		
+		global $connection ;
+		
+		if( $data ){
+			
+			$sql = 
+			"INSERT INTO tb_albuns ( titulo_album, categoria, publicado, usuario_publicacao, active, dt_criacao ) 
+			VALUES ( '" . 
+			mysql_real_escape_string( $data{"titulo_album"} ) . "','" . 
+			mysql_real_escape_string( $data{"categoria"} ) . "', '" . 
+			mysql_real_escape_string( $data{"publicado"} ) . "', '" . 
+			mysql_real_escape_string( $data{"usuario_publicacao"} ) . 
+			"', '1', NOW() )" ;
+					
+			$connection->execute( $sql ) ;
+			return $connection->last_insert_id() ;
+								
+		}
+		return false ;	
+	}
+	
+	/**
+	 * método de inclusão de fotos no álbum
+	 */
+	public function insert_images_album( $id_album, $item_album, $user_info, $edit = null ){
+		
+		global $connection ;
+		$line_query = array() ;
+		
+		foreach( $item_album as $item ){
+			$line_query[] = 
+			"( '" . 
+			mysql_real_escape_string( $id_album ) . "', '" . 
+			mysql_real_escape_string( $item{"id"} ) ."','" . 
+			mysql_real_escape_string( $item{"credit"} ) . "','" . 
+			mysql_real_escape_string( $item{"legend"} ) . "', 
+			1, NOW(), " . 
+			mysql_real_escape_string( $user_info ) . ")" ;
+		}
+		
+		$sql = "INSERT INTO tb_albuns_imagens ( id_album, id_imagem, credito_imagem, legenda_imagem, active, " . ( $edit ? "dt_modificacao" : "dt_criacao" ) . ", " . ( $edit ? "usuario_edicao" : "usuario_publicacao" ) . " ) VALUES " . implode( ",", $line_query )  ;
+		$connection->execute( $sql ) ;
+	}
+	
+	/**
+	 * método de edição de informações do album
+	 */
+	public function edit_album_info( $data, $item_album ){
+		
+		global $connection ;
+		
+		// dados do álbum
+		$sql  = "UPDATE tb_albuns SET 
+				titulo_album = '" . mysql_real_escape_string( $data{"titulo_album"} ) . "' , 
+				categoria = '" . mysql_real_escape_string( $data{"categoria"} ) . "' , 
+				publicado = '" . mysql_real_escape_string( $data{"publicado"} ) . "' ,
+				usuario_edicao = '" . mysql_real_escape_string( $data{"usuario_publicacao"} ) . "' ,
+				dt_modificacao = NOW() 
+				WHERE id_album = "  . mysql_real_escape_string( $data{"id_album"} ) ;		
+		$connection->execute( $sql ) ;
+		
+		// itens do álbum antigos
+		$sql2 = "UPDATE tb_albuns_imagens SET active = '0', dt_modificacao = NOW(), usuario_publicacao = '" .  mysql_real_escape_string( $data{"usuario_publicacao"} ) . "' WHERE id_album = " . mysql_real_escape_string( $data{"id_album"} ) ;
+		$connection->execute( $sql2 ) ;
+		
+		// itens novos
+		$this->insert_images_album( $data{"id_album"}, $item_album, $data{"usuario_publicacao"}, 'edit' ) ;		
+			
+	}
+	
+	/**
+	 * método para deletar albuns
+	 */
+	public function delete_album( $data ){
+		
+		global $connection, $user_info ;
+		
+		$sql = "UPDATE tb_albuns SET active = '0', publicado='0', dt_modificacao = NOW(), usuario_edicao = '" . mysql_real_escape_string( $user_info{"user_key"} ) . "' WHERE id_album IN(" . $data . ") " ;
+		$connection->execute( $sql ) ;
+
+		$sql = "UPDATE tb_albuns_imagens SET active = '0', dt_modificacao = NOW(), usuario_edicao = '" . mysql_real_escape_string( $user_info{"user_key"} ) . "' WHERE id_album IN(" . $data . ") " ;
+		$connection->execute( $sql ) ;		
+	}
+	
+	
+	/**
+	 * recuperar dados do album
+	 */
+	public function get_album_info( $data ){
+		
+		global $connection ;
+		$album_info = array() ;
+		
+		$sql = sprintf( "SELECT a.*, i.id_album_imagem, i.id_imagem, i.legenda_imagem, i.credito_imagem FROM tb_albuns as a INNER JOIN tb_albuns_imagens as i USING(id_album) WHERE a.id_album = %d AND a.active='1' AND i.active='1'", mysql_real_escape_string( $data ) ) ;
+		$result = $connection->execute( $sql, true ) ;
+		if( $result ){			
+			foreach( $result as $item ){
+				$album_info[$item{"id_album"}]{"id_album"}			= $item{"id_album"} ;
+				$album_info[$item{"id_album"}]{"titulo_album"}		= $item{"titulo_album"} ;
+				$album_info[$item{"id_album"}]{"categoria"}			= $item{"categoria"} ;
+				$album_info[$item{"id_album"}]{"publicado"}			= $item{"publicado"} ;
+				$album_info[$item{"id_album"}]{"dt_criacao"}		= $item{"dt_criacao"} ;
+				$album_info[$item{"id_album"}]{"item_album"}[$item{"id_album_imagem"}]{"id_imagem"}		= $item{"id_imagem"} ;
+				$album_info[$item{"id_album"}]{"item_album"}[$item{"id_album_imagem"}]{"legenda_imagem"} = $item{"legenda_imagem"} ;
+				$album_info[$item{"id_album"}]{"item_album"}[$item{"id_album_imagem"}]{"credito_imagem"} = $item{"credito_imagem"} ;				
+			}
+			
+			return $album_info ;
+			
+		}
+		
+		return false ;	
+	}
+	
+	
+	/**
+	 * editar informação da imagem no álbum
+	*/
+	public function edit_image_info( $data ){
+	
+		global $connection ;
+		
+		$sql = "UPDATE tb_albuns_imagens SET credito_imagem = '" . mysql_real_escape_string( $data{"credito_imagem"} ) . "', legenda_imagem = '" . mysql_real_escape_string( $data{"legenda_imagem"} ) . "' WHERE active = 1 AND id_imagem =  " . mysql_real_escape_string( $data{"id_imagem"} ) ;
+
+		$connection->execute( $sql ) ;
+	
+	}
+}
+?>

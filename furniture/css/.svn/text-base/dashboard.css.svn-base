@@ -1,0 +1,291 @@
+/*
+Dashboard CSS
+author: rafhael 2011-05-03
+*/
+#content{
+	text-align:center!important;
+	position:relative
+}
+
+#content-container{
+	height:1030px;
+	*height:1160px; /* Hack IE 7 */
+	padding:0!important;
+	width:958px!important
+}
+
+#main{
+	position:relative
+}
+
+#menu{
+	margin:35px 33px 0;
+	float:left;
+	width:739px;
+	background-color:#E0EAFC;
+	height:30px;
+	border-top-left-radius:5px;
+	border-top-right-radius:5px;
+	color:#666666;
+	font-weight:bold;
+	line-height:30px;
+	border:1px solid #CCC;
+	border-bottom:0
+}
+#submenu{
+	margin:0 auto;
+	width:890px;
+	background-color:#FFFFFF;
+	height:30px;
+	color:#666666;
+	font-weight:bold;
+	line-height:30px;
+	border:1px solid #CCC
+}
+
+.footer{
+	width:95%;
+	text-align:center;
+	clear:both
+}
+
+.bolder{
+	font-weight:bold
+}
+
+.navMenu{
+	position:absolute;
+	display:none;
+	z-index:1001;
+	width:891px;
+	text-align:center;
+	left:4%
+}
+
+.navMenu ul{
+	border:1px solid #CCC;
+	border-bottom:0;
+	width:460px;
+	background-color:#FFFFFF;
+	margin:0 auto!important
+}
+
+.navMenu li{
+	float:none!important;
+	text-align:left;
+	border-right:0px!important;
+	border-bottom:1px solid #CCC;
+	width:450px!important;
+	color:#666666
+}
+
+.navMenu li.selected{
+	background-color:#90BDD2!important
+}
+
+#nav li{
+	float:left;
+	font-size:10px;
+	border-right:1px solid #CCC;
+	padding:0 5px;
+	cursor:pointer;
+	height:30px;
+	width:137px
+}
+
+#nav li.first{
+	border-top-left-radius:3px
+}
+
+#nav li.selected{
+	background-color:#006699;
+	color:#FFFFFF!important;
+	font-size:11px
+}
+
+#subnav li{
+	float:left;
+	font-size:10px;
+	border-right:1px solid #CCC;
+	padding:0 5px;
+	cursor:pointer;
+	width:137px
+}
+
+#subnav li:hover div.navMenu{
+	display:block
+}
+
+#subnav li.first{
+	border-left:0
+}
+
+#subnav li.last{
+	border-right:0;
+	width:140px!important
+}
+
+#subnav li.selected{
+	background-color:#90BDD2;
+	color:#FFFFFF!important;
+	font-size:10px
+}
+
+#nav li:hover,
+#subnav li:hover{
+	color:#333333
+}
+
+
+
+#flash{
+	margin:-10px 0 10px 10px
+}
+
+#hiddenSubmitContent,
+#hiddenModalContent{
+	display:none
+}
+
+#box-send-mail{
+	display:block
+}
+
+#box-send-mail fieldset input, textarea {
+	border: 1px solid #CCCCCC;
+	background-color: #F2F2F2
+}
+
+#box-send-mail fieldset {
+	border: 1px solid #CCCCCC
+}
+
+#box-send-mail fieldset legend {
+	color:#333333
+}
+
+.title{
+	font-size:12px;
+	font-weight:bold;
+	color:#666666;
+	padding-top:15px
+}
+
+.bName{
+	padding:6px;
+	border-bottom:1px solid #CCC;
+	background-color:#FFFFFF;
+	text-align:center
+}
+
+.boxColor{
+	width:30px;
+	height:20px
+}
+
+.boxBacia{
+	float:left;
+	margin-left:10px
+}
+
+.boxBacia table{
+	text-align:left;
+	background-color:#F2F2F2;
+	font-size:9px;
+	border:1px solid #CCC;
+	border-radius:5px;
+	padding:5px;
+	width:305px
+}
+
+.boxBacia .mName{
+	padding:0 4px
+}
+
+.boxBacia .mValue{
+	padding-right:2px;
+	text-align:right
+}
+
+.boxBacia table td{
+	line-height:20px;
+	height:20px
+}
+
+.boxBacia .last{
+	padding:15px 6px
+}
+
+.zLine{
+	background-color:#FFFFFF
+}
+
+.lineFinal .line{
+	background-color:#666666;
+	color:#FFFFFF;
+	text-align:center;
+	width:20px
+}
+
+.lineFinal{
+	background-color:#999999;
+	color:#FFFFFF
+}
+
+.ampMap span:hover{
+	color:#FEBC23
+}
+
+.ampMap{
+	font-size:10px;
+	float:left;
+	text-align:left
+}
+
+#anos{
+	font-size:9px
+}
+
+.ampMap {
+	border-radius:10px;
+	border:1px solid #CCC;
+	background-color:#F2F2F2;
+	padding:15px;
+	position:absolute;
+	top:60px;
+	left:645px;
+	margin-left:10px;
+	width:250px
+}
+
+#dados{
+	position:absolute;
+	top:195px;
+	left:655px;
+	text-align:left;
+	font-size:9px;
+	border-radius:10px;
+	border:1px solid #CCC;
+	background-color:#e4eef6;
+	width:250px;
+	padding:15px;
+	display:none
+}
+
+#container-title{
+	float:left;
+	text-align:center;
+	margin-left:50px
+}
+
+.imgBoxOne{
+	position:absolute;
+	top:920px;
+	left:8px
+}
+
+.imgBoxTwo{
+	position:absolute;
+	top:920px;
+	right:11px
+}

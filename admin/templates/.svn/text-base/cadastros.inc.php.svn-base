@@ -1,0 +1,51 @@
+<h2 class="page-title">Cadastro</h2>
+<p>Veja maiores detalhes do cadastro efetuado pelo portal.</p>
+<form id="form" name="form" class="input-form" method="POST" action="cadastros.php" target="response-form">
+	<input type="hidden" name="id_cadastro" value="<?=htmlspecialchars($cadastro_info[0]{"id_cadastro"})?>" />
+	<!-- DATA -->
+	<label>
+		<b>Nome:</b><br />
+		<?=htmlspecialchars($cadastro_info[0]{"nm_cadastro"})?> <span class="tip"> (<?=htmlspecialchars($cadastro_info[0]{"email"})?>)</span>
+	</label>
+	
+	<label>
+		<b>Status/Data do cadastro:</b><br />
+		<?=( $cadastro_info[0]{"active"}==1 ? '<span class="publicada">ativo</span>' : '<span class="tip" style="color:#F79E40;">pendente</span>' )?>  <span class="tip">(cadastro efetuado em: <?=convert_data( $cadastro_info[0]{"dt_cadastro"}, true )?>)</span>
+	</label>
+
+	<label>
+		<b>Órgão/Instituição/Empresa:</b><br />
+		<?=htmlspecialchars($cadastro_info[0]{"empresa"})?>
+	</label>
+	
+	<label>
+		<b>Cargo/Função:</b><br />
+		<?=htmlspecialchars($cadastro_info[0]{"cargo"})?>
+	</label>
+	
+	<label>
+		<b>Profissão:</b><br />
+		<?=htmlspecialchars($cadastro_info[0]{"profissao"})?>
+	</label>
+	<!-- /DATA -->
+	
+	<label>
+		<?
+		$phone_number = preg_replace( "/(\d{2}+) /", "($1) ", htmlspecialchars($cadastro_info[0]{"telefone"} ) ) ;
+		?>
+		<b>Endereço/Localidade/Telefone:</b><br />
+		<?=htmlspecialchars( $cadastro_info[0]{"endereco"} . ( $cadastro_info[0]{"nr_endereco"} !="" ? " nº " . $cadastro_info[0]{"nr_endereco"} : "" ) . ( $cadastro_info[0]{"complemento"} !="" ? " - " . $cadastro_info[0]{"complemento"} : "" ) )?> CEP: <?=htmlspecialchars($cadastro_info[0]{"cep"})?> - <?=htmlspecialchars($cadastro_info[0]{"nm_cidade"}) . "/" . $uf_list[$cadastro_info[0]{"id_uf"}]{"sigla"}?><br />
+		<?=$phone_number?><span class="tip"> (tipo: <?=$tipoTel[$cadastro_info[0]{"id_tipo_telefone"}]?>)</span>
+	</label>
+	
+	
+	<!-- BOTÕES/AÇÕES -->
+	<p>
+		<?if( $cadastro_info[0]{"active"}!=1 ){?><input type="submit" class="btn-form" name="activate" value="ativar" /><?}?>
+		<input type="submit" class="btn-form" name="desactivate" value="desativar" />
+		<input type="button" class="btn-form" onclick="javascript:$(location).attr('href', 'cadastros_listar.php' ) ;" name="back_to_list" value="Voltar para a lista" />
+	</p>
+</form>
+<div style="clear:both;"><br /></div>
+<iframe id="response-form" name="response-form" frameborder="0" class="iframe"></iframe>
+

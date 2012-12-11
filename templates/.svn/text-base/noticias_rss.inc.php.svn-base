@@ -1,0 +1,26 @@
+<rss version="2.0">
+	<channel>
+		<title><?=$website_name?> - Últimas Notícias</title>
+    	<link><?=$base_url_site?>noticias</link>
+    	<description>Listagem das últimas notícias do Portal.</description>
+		<language>pt-br</language>
+		<category>Notícias</category>
+
+		<copyright><?=$website_name . " - " . $website_description?></copyright>
+		<image>
+			<title><![CDATA[<?=$website_name?>]]></title>
+			<url><?=$base_url_site . "noticias/rss"?></url>
+			<link><?=$base_url_site . "noticias/rss"?></link>
+		</image>
+				<?
+				foreach( $records as $item ){
+				?>
+				<item>
+					<title><![CDATA[<?=htmlspecialchars( $item['titulo'] )?>]]></title>
+					<link><![CDATA[<?=$base_url_site . "noticias/" . $item['id_noticia'] . '-' . normalize_text( htmlspecialchars( $item['titulo'] ), true );?>]]></link>
+					<description><![CDATA[<?=htmlspecialchars( $item['chamada'] )?>]]></description>
+					<pubDate><?=date("D, d M Y H:i:s -0300", htmlspecialchars( strtotime( $item['dt_criacao'] ) ) ) ?></pubDate>
+				</item>
+				<?}?>
+	</channel>
+</rss>

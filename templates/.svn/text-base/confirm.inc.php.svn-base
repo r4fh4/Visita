@@ -1,0 +1,8 @@
+<meta http-equiv="REFRESH" content="20;url=<?php echo $base_url_site; ?>cadastro">
+<link href="<?php echo $furniture_directory ; ?>css/confirm.css" type="text/css" rel="stylesheet" />
+<h1>Cadastro Finalizado</h1>
+<div id='mainContato'>
+	<span>Obrigado por confirmar seu cadastro.</span>
+	<br /><br />
+	<span>O administrador do sistema irá avaliar seus dados e caso aprovado, será enviado um email confirmando o cadastro para acesso total ao sistema.</span>
+</div>

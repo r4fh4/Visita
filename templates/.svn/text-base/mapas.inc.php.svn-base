@@ -1,0 +1,111 @@
+<link href="<?php echo $furniture_directory ; ?>css/dashboard.css" type="text/css" rel="stylesheet" />
+<script src="<?php echo $furniture_directory ; ?>js/dashboard.js" type="text/javascript" charset="iso-8859-1"></script>
+<script type="text/javascript">
+	$(document).ready(function(){
+		dashboard.setDHTML();
+	});
+</script>
+<h1 class="home-section content-section">Mapas</h1>
+<div id="content-container">
+	<p class='title'>Ocorrências de Dengue no Estado de São Paulo - Ano 2010</p>
+	<p>Em números absolutos</p>
+	<div id="flash"></div>
+	<?php $fn = array(2,5,7);
+		  $in = array(0,2,5);
+		for($y = 0; $y < 3; $y++) { ?>
+		<div class='boxBacia'>
+			<table cellpadding='0' cellspacing='0'>
+				<?php for($i = $in[$y]; $i < $fn[$y]; $i++) { ?>
+				<tr>
+					<td colspan="3" class='bName'>
+						<b><?=($i == 5 ? 'Região Hidrog. da Vertente Paulista do Paranapanema' : $listBacia[$i]['ds_bacia']);?></b>
+					</td>
+				</tr>
+				<?php 
+					$sum = 0;
+					$x = 0;
+					foreach($listBacia[$i]['ugrhi'] as $value){ 
+					$sum += $value['valor'];
+					$x++;
+				?>
+					<tr <?php if($x % 2 == 0) echo 'class="zLine"'; ?>>
+						<td>
+							<div class='boxColor' style='background-color:#<?=$color_list[$value['id_comite']];?>'></div>
+						</td>
+						<td class='mName'>
+							<?=$value['ds_comite'];?>
+						</td>
+						<td class='mValue'>
+							<?=number_format($value['valor'],0,',','.');?>
+						</td>
+					</tr>	
+				<?php } ?>
+				<tr class='lineFinal'>
+					<td class='line'>
+						Total
+					</td>
+					<td></td>
+					<td class='mValue'>
+						<b><?=number_format($sum,0,',','.');?></b>
+					</td>
+				</tr>
+			<?php } ?>
+			</table>
+		</div>
+	<?php } ?>
+	<br class='clean' />
+	<div id="hiddenModalContent">
+		<h3>Dicas de impressão</h3>
+		<p>
+			<b>• Impressão do gráfico:</b>
+			<br />
+			Para imprimir os gráficos ou salvá-los como imagem clique com o botão direito sobre o gráfico para visualizar as opções.
+		</p>
+		<p>
+			<b>• Impressão da página de pesquisa:</b>
+			<br />
+			Para imprimir a página de pesquisa recomendamos utilizar o navegador <b>Internet Explorer</b>.
+		</p>
+		<p>
+			<b>• Dica de retirar rodapé e cabeçalho no Internet Explorer:</b>
+			<br />
+			Para imprimir sem cabeçalhos e legendas colocadas pelo Internet Explorer, vá em Ferramentas, Imprimir, Configurar Página. Na opção de Cabeçalho e Rodapé, deixe tudo com o valor <b>-vazio-</b>.
+		</p>
+		<p>
+			<b>• Obs.:</b>
+			<br />
+			Mantenha sempre seu navegador e plugins do Flash sempre atualizados para uma melhor utilização do sistema.
+		</p>
+		<p>
+			<input type="button" value="Imprimir" name="print" class="back-search border-radius" id="print-search">
+		</p>
+	</div>	
+	<div id='hiddenSubmitContent'>
+		<div id="box-send-mail">
+			<form id="send-mail" name="send-mail" action="" method="post">
+				<input type="hidden" name="title" value="Mapa Portal SGD" />
+				<input type="hidden" name="description" value="Visualize indicadores em um mapa totalmente interativo" />
+				<?
+				$token1 = md5(uniqid(rand(), TRUE));
+				$token2 = strrev($token1);
+				$unq = create_unique_code();
+				?>
+				<input type="hidden" name="token1" value="<?=$token1;?>" />
+				<input type="hidden" name="token2" value="<?=$token2;?>" />
+				<input type="text" name="mail" class="my-mail" value="" />
+				<input type="hidden" name="url" value="<?=$base_url_site?>mapas/?token=<?=$unq;?>" />
+				<fieldset>
+					<legend>Enviar por E-mail</legend><br />
+					<label>Seu nome:<br /><input type="text" name="your-name" maxlength="150" id="your-name"/></label> 
+					<label>Seu e-mail:<br /><input type="text" name="your-mail" maxlength="150" /></label>
+					<label>E-mail para enviar:<br /><input type="text" name="mails" maxlength="250" /><br /><span class="tip">Para mais de um e-mail, separe por vírgula. São permitidos 3 no máximo.</span></label>
+					<label>Mensagem:<br /><textarea name="mensagem" cols="37" rows="3" id="mensagem"></textarea></label><br />
+					<p class="result-mail"></p>
+					<input type="reset" name="reset" value="Limpar" class="button" />
+					<input type="button" name="sender" id="sender" value="Enviar" onclick="sendMail('<?=$unq;?>');tools('send-mail', '<?=$alias?>tools/mail/');" class="button" />
+				</fieldset>
+			</form>		
+			<br class="clean" />
+		</div>
+	</div>
+</div>

@@ -1,0 +1,87 @@
+<?php
+require_once( "scripts/init.php" ) ;
+
+// checar acesso a pagina
+get_page_access() ;
+
+include( $template_directory . "header.inc.php" ) ;
+
+$url = $_SERVER{"REQUEST_URI"} ;
+
+// parametros para query
+$where[] = "active = '1'" ;
+
+// filtro por nível de usuário
+if( $user_info{"user_level"} == $level_municipal_manager ){ // ( municipal )
+	$where[] = "usuario_publicacao = " . $user_info{"user_key"} ;
+}
+
+if( get_vars("categoria")  && get_vars("categoria") != "-" ){
+	$where[] = "categoria = " .  get_vars("categoria") ;
+	$url = set_url( $url, array( "categoria" => get_vars("categoria") ) ) ;
+}
+if( get_vars("subcategoria")  && get_vars("subcategoria") != "-" ){
+	$where[] = "subcategoria = " .  get_vars("subcategoria") ;
+	$url = set_url( $url, array( "subcategoria" => get_vars("subcategoria") ) ) ;
+}
+
+if( get_vars("search_content") ){	
+	$terms = explode( " ", get_vars("search_content") ) ;
+	$terms = implode( " ", $terms ) ;
+	$where[] = "MATCH ( titulo_arquivo,legenda_arquivo ) AGAINST ('" . str_replace( " ", "* ", $terms ) . "*' IN BOOLEAN MODE)" ;
+	$url = set_url( $url, array( "search_content" => get_vars("search_content") ) ) ;
+}
+
+list( $r , $records , $page , $total_pages ) = default_search( "tb_arquivos" , $where, "", "dt_criacao desc" ) ;
+$arquivos = new arquivos() ;
+$category_list		= $arquivos->list_categoria() ;
+$subcategory_list	= $arquivos->list_subcategoria() ;
+foreach( $category_list as $item_ctg ){
+	$ctg{ $item_ctg{"id_categoria"} } = $item_ctg{"ds_categoria"} ;
+}
+foreach( $subcategory_list as $item_subctg ){
+	$sub_ctg{ $item_subctg{"id_subcategoria"} } = $item_subctg{"ds_subcategoria"} ;
+}
+
+if( get_vars("clear_search") ){
+	redir_page( set_url( $url, array("search_content" => null, "sr" => null, "categoria" => null, "subcategoria" => null ) ) ) ;
+}
+
+// deletar arquivos
+if( get_vars("delete") ){
+	
+	if( get_vars("action_item") ){
+		$arquivos = new arquivos() ;
+		$list_itens = $_POST{"action_item"} ;
+		$arquivos->delete_file( "'" . implode( "','", $list_itens ) . "'" ) ;
+		
+		// salvar log de ação do usuário
+		$authentication->save_log_access( 'User delete files: (' .  "'" . implode( "','", $list_itens ) . "')" ) ;
+		show_message( "Itens excluídos com sucesso!" ) ;		
+		redir_page( $url ) ;
+	}
+	else{
+		show_message( "Nenhum item selecionado para exclusão, favor selecionar.", false ) ;
+		redir_page( $url ) ;
+	}
+}
+
+
+// redirecionar para tela de inclusão
+if( get_vars("new") ){
+	redir_page( "arquivos.php" ) ;
+}
+
+
+
+include( $template_directory . "arquivos_listar.inc.php" ) ;
+
+// salvar log de ação do usuário
+$authentication->save_log_access( "" ) ;
+
+//fechar conexao
+$connection->desconnect() ;
+
+include( $template_directory . "footer.inc.php" ) ;
+?>
+

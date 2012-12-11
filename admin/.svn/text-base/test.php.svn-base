@@ -1,0 +1,135 @@
+<?php
+include("../tools/mpdf.php");
+
+$mpdf=new mPDF( 'c','A4' ); 
+
+$mpdf->allow_charset_conversion = false ;
+
+$mpdf->mirrorMargins = 0 ;	// Use different Odd/Even headers and footers and mirror margins
+
+$stylesheet = file_get_contents('furniture/css/global-pdf.css');
+$mpdf->WriteHTML($stylesheet,1); // The parameter 1 tells that this is css/style only and no
+
+# Default info
+$document_type = "Relatório" ;
+$system_owner =  "Portal SGD - São Paulo" ;
+$image_capa = "furniture/images/capa-pdf.jpg" ;
+
+$header_info =   utf8_encode( $system_owner . " / " . $document_type ) ;
+$footer_info =  utf8_encode( "Pag. {PAGENO} - Impresso pelo " . $system_owner . " em {DATE d/m/Y H:i}" ) ;
+$footer_font_size = 8 ;
+$footer_font_color = "#ccc" ;
+
+# Cabeçalho
+$mpdf->DefHTMLHeaderByName( 
+	'headerDocument',
+	'<htmlpageheader name="headerDocument">
+		<div class="header-top-pdf"></div>
+		<div class="header-pdf">' . $header_info . '</div>
+		<div class="header-bottom-pdf"></div>
+	</htmlpageheader>'
+) ;
+
+# Rodapé
+$footer = array (
+    'C' => array (
+      'content' => $footer_info ,
+	  'font-size' => 8 ,
+	  'color' => $footer_font_color ,
+    ),
+    'line' => 1,
+);
+
+
+
+
+
+
+# Capa
+$mpdf->WriteHTML( utf8_encode( '
+	<div style="width:100%;text-align:center;"><img src="' . $image_capa . '" style="margin-top:250pt" /></div>
+' ) );
+
+$mpdf->SetHTMLHeaderByName( 'headerDocument' ) ;
+$mpdf->DefFooterByName( 'footerDocument', $footer ) ;
+
+/* Índice
+Após a quebra e página "<pagebreak /><br /><br />"
+no título da página colocar a tag: <tocentry content="titulo da página" />
+*/
+$html .= '
+<tocpagebreak toc-orientation="portrait" toc-margin-top="80" indent="3" paging="on" links="on" resetpagenum="1" suppress="off" pagenumstyle="1" orientation="portrait" toc-even-header-name="html_headerDocument" toc-even-header-value="-1" toc-odd-footer-name="footerDocument" toc-odd-footer-value="-1"  even-header-name="html_headerDocument" even-header-value="1" odd-footer-name="footerDocument" odd-footer-value="1" />
+' ;
+
+# Conteúdo
+$html .= '<br /><br />
+<h1>relatório geral 2<tocentry content="relatório geral 2" /></h1>
+<span class="tip">Data de criação: 07/04/2011</span>
+<p>
+<p>
+	sdfsfsfsdfsdfsdfsfsfsdf</p>
+</p>
+<div style="page-break-after: always;"><span style="display: none;">&nbsp;</span></div><h2>Relatório de teste</h2><span class="tip">Data de criação: 07/04/2011 10:32</span><p><p style="text-align: justify;">
+	O Portal SGD do municipio de S&atilde;o Paulo disponibiliza relat&oacute;rios de an&aacute;lise situacional das &aacute;reas de Sa&uacute;de, Educa&ccedil;&atilde;o, Assist&ecirc;ncia Social, Direitos, de segmentos como Promotoria e Defensoria P&uacute;blica que tornam os dados mais transparentes e asseguram maior compreens&atilde;o da realidade.</p>
+
+<p>
+	<img alt="" src="http://localhost/sgdsp/data/images/54-510x300.jpg" style="width: 510px; height: 290px;" /></p>
+<p style="text-align: justify;">
+	<br />
+	O Portal SGD do municipio de S&atilde;o Paulo disponibiliza relat&oacute;rios de an&aacute;lise situacional das &aacute;reas de Sa&uacute;de, Educa&ccedil;&atilde;o, Assist&ecirc;ncia Social, Direitos, de segmentos como Promotoria e Defensoria P&uacute;blica que tornam os dados mais transparentes e asseguram maior compreens&atilde;o da realidade.</p>
+
+<p style="text-align: justify;">
+	<br />
+	O Portal SGD do municipio de S&atilde;o Paulo disponibiliza relat&oacute;rios de an&aacute;lise situacional das &aacute;reas de Sa&uacute;de, Educa&ccedil;&atilde;o, Assist&ecirc;ncia Social, Direitos, de segmentos como Promotoria e Defensoria P&uacute;blica que tornam os dados mais transparentes e asseguram maior compreens&atilde;o da realidade.</p>
+</p>
+
+<pagebreak /><br /><br />
+
+<div style="page-break-after: always;"><span style="display: none;">&nbsp;</span></div>
+<h2>Relatório de teste 02<tocentry content="Relatório de teste 02" /></h2><span class="tip">Data de criação: 07/04/2011 10:36</span><p><p>
+
+	<strong>Conferindo o que &eacute; destinado e o que &eacute; gasto</strong></p>
+<p style="text-align: justify;">
+	O or&ccedil;amento p&uacute;blico &eacute; o instrumento que define quanto e em que o governo deve gastar para o bem de todos. Portanto, dele depende a execu&ccedil;&atilde;o das pol&iacute;ticas p&uacute;blicas que s&atilde;o fundamentais para o acesso aos direitos j&aacute; previstos na legisla&ccedil;&atilde;o. Todo or&ccedil;amento p&uacute;blico precisa ser elaborado a partir de tr&ecirc;s etapas, que se chama &ldquo;ciclo or&ccedil;ament&aacute;rio&rdquo;. As tr&ecirc;s etapas s&atilde;o: o Plano Plurianual (PPA), a Lei de Diretrizes Or&ccedil;ament&aacute;rias (LDO) e a Lei Or&ccedil;ament&aacute;ria Anual (LOA).</p>
+
+<p style="text-align: justify;">
+	O PPA define as prioridades do governo nos pr&oacute;ximos quatro anos. J&aacute; a LDO define metas e prioridades a partir de programas que ser&atilde;o executados pelos governos. A &uacute;ltima a ser feita &eacute; a LOA, que define todos os gastos, ou seja, se n&atilde;o existe previs&atilde;o de gasto aprovado pelo legislativo, nenhum &oacute;rg&atilde;o poder&aacute; gastar no ano seguinte.</p>
+
+<p style="text-align: center;">
+	<img alt="" src="http://localhost/sgdsp/data/images/35-510x300.jpg" /></p>
+<p style="text-align: justify;">
+	Por sua import&acirc;ncia &eacute; necess&aacute;rio que cada cidad&atilde;o tenha consci&ecirc;ncia da relev&acirc;ncia de sua participa&ccedil;&atilde;o no processo de discuss&atilde;o das prioridades e na cobran&ccedil;a de execu&ccedil;&atilde;o de projetos e programas necess&aacute;rios ao bem-estar da comunidade.<br />
+
+	Vale ressaltar que os valores do or&ccedil;amento s&atilde;o previs&otilde;es e n&atilde;o significa que exista este dinheiro &agrave; disposi&ccedil;&atilde;o do governo, para realizar tudo que est&aacute; no or&ccedil;amento, o que refor&ccedil;a a necessidade de seu acompanhamento.</p>
+<p style="text-align: justify;">
+	Aqui voc&ecirc; vai conhecer quanto est&aacute; destinado para os gastos deste ano para cada &aacute;rea em seu estado, acompanha a evolu&ccedil;&atilde;o dos recursos, com base nos anos anteriores e confere a previs&atilde;o de receita.</p>
+
+	<pagebreak /><br /><br />
+	
+</p><div style="page-break-after: always;"><span style="display: none;">&nbsp;</span></div>
+<h2>Relatório de teste 03<tocentry content="Relatório de teste 03" /></h2><span class="tip">Data de criação: 07/04/2011 10:51</span><p><p>
+	<img alt="" src="http://localhost/sgdsp/data/images/33-510x300.jpg" style="width: 510px; height: 300px;" /></p>
+<p style="text-align: justify;">
+	<span class="verdana_11_cinza_claro">Este projeto &eacute; uma chamada a esse compromisso e para tanto oferece a estrutura e o suporte t&eacute;cnico e tecnol&oacute;gico necess&aacute;rio &agrave; implementa&ccedil;&atilde;o, dessa nova maneira de atuar num determinado territ&oacute;rio, ao mesmo tempo em que se coloca articulado com diversos respons&aacute;veis pela transforma&ccedil;&atilde;o social da na&ccedil;&atilde;o brasileira. Assim, aproxima o munic&iacute;pio das inst&acirc;ncias federativas enquanto executa seu planejamento local, interferindo diretamente na perspectiva de sustentabilidade do micro e macro a&ccedil;&otilde;es em favor das Crian&ccedil;as e dos Adolescentes</span></p>
+	
+<pagebreak /><br /><br />
+
+</p><div style="page-break-after: always;"><span style="display: none;">&nbsp;</span></div>
+<h2>Análise de indicadores<tocentry content="Análise de indicadores" /></h2><span class="tip">Data de criação: 07/04/2011 14:46</span><p><p style="text-align: justify;">
+	<span class="verdana_10_cinza_claro"><img alt="" src="http://localhost/sgdsp/data/images/55-original.jpg" style="width: 237px; height: 232px; float: left; margin: 5px;" />&nbsp;Aqui vai o texto da &aacute;rea selecionada do eixo x e do paragrafo primeiro. Segue a sequ&ecirc;ncia de texto para completar um n&uacute;mero razo&aacute;vel para testar.Aqui vai o texto da &aacute;rea selecionada do eixo x e do paragrafo primeiro. Segue a sequ&ecirc;ncia de texto para completar um n&uacute;mero razo&aacute;vel para</span></p>
+<p style="text-align: justify;">
+	<span class="verdana_10_cinza_claro">testar.&nbsp;Aqui vai o texto da &aacute;rea selecionada do eixo x e do paragrafo primeiro. Segue a sequ&ecirc;ncia de texto para completar um n&uacute;mero razo&aacute;vel para testar.&nbsp;Aqui vai o texto da &aacute;rea selecionada do eixo x e do paragrafo primeiro. Segue a sequ&ecirc;ncia de texto para completar um n&uacute;mero razo&aacute;vel para testar.&nbsp;Aqui vai o texto da &aacute;rea selecionada do eixo x e do paragr</span></p>
+
+<p>
+	&nbsp;</p>
+<p style="text-align: justify;">
+	<img alt="" src="http://localhost/sgdsp/data/images/56-original.jpg" style="width: 84px; height: 84px; float: right; margin: 5px;" /><span class="verdana_10_cinza_claro">Aqui vai o texto da &aacute;rea selecionada do eixo x e do paragrafo primeiro. Segue a sequ&ecirc;ncia de texto para completar um n&uacute;mero razo&aacute;vel para testar.Aqui vai o texto da &aacute;rea selecionada do eixo x e do paragrafo primeiro. Segue a&nbsp;</span> <span class="verdana_10_cinza_claro">Aqui vai o texto da &aacute;rea selecionada do eixo x e do paragrafo primeiro. Segue a sequ&ecirc;ncia de texto para completar um n&uacute;mero razo&aacute;vel para testar.</span></p>
+
+</p>
+';
+
+$mpdf->WriteHTML( utf8_encode( $html ) );
+$mpdf->Output();
+exit;
+
+?>

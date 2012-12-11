@@ -1,0 +1,30 @@
+<script type="text/javascript" src="<?php echo $furniture_directory ; ?>js/contato.js"></script>
+<script type="text/javascript">
+	$(document).ready(function(){
+		contato.setDHTML();
+	});
+</script>
+<h1>Fale Conosco</h1>
+<div id='mainContato'>
+	<span>Utilize este espaço para enviar-nos uma mensagem de apoio, sugestões, críticas.</span>
+	<br /><br />
+	<b>Nome completo *</b>
+	<br />
+	<input type="text" name="nome" id="nome" class="campoContato"/>
+	<br /><br />
+	<b>Email *</b>
+	<br />
+	<input type="text" name="email" id="email" class="campoContato"/>
+	<br /><br />
+	<b>Assunto *</b>
+	<br />
+	<input type="text" name="assunto" id="assunto" class="campoContato"/>
+    <br /><br />
+	<b>Mensagem *</b>
+	<br />
+	<textarea name="mensagem" id="mensagem" cols="77" rows="9" class="campoContato"></textarea>
+	<br />
+	* campos obrigatórios
+	<br /><br />
+	<button type="button" class="buttonPesquisa" title="Enviar"/>Enviar Mensagem</button>
+</div>

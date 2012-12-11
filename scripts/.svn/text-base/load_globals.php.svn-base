@@ -1,0 +1,5 @@
+<?
+	global $results_per_page, $base_website_root, $base_url_site, $website_name, $website_description, $temas_indicadores, $page_not_found, $base_url_site_data, $audio_category_list, $audios_directory, $alias, $region_list, $capital_list, $uf_list, $list_dependendencia, $list_faixa_etaria, $list_indicadores_tables, $connection, $list_colors, $list_tipos_pesquisas, $uri, $list_faixa_populacional, $default_dependencias, $default_faixas, $list_indicadores_deny_access, $ideb_projecoes, $ideb_faixas_classificacao  ;
+	global $template_directory, $common_directory, $furniture_directory, $images_directory, $files_directory ;
+	global $mail_server, $mail_website, $mail_pass_server ;
+?>

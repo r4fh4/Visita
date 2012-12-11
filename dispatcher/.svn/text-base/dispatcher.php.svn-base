@@ -1,0 +1,64 @@
+<?
+require_once( "../scripts/init.php" ) ;
+
+// Normalize environment
+Environment::disableMagicQuotes () ;
+
+// Get and normalize request
+$request = new Request ;
+$uri = str_replace( array( "'", '"', '%' ), "", $request->getPathInfo () ) ;
+$levels = $request->getLevelsPathInfo () ;
+
+$dispatcher = new Dispatcher ( $uri , $levels ) ;
+
+// http_method , regex_pattern , class , method , [action] , [method_args]	
+
+# regras para noticias
+$dispatcher->rules ( 'GET' , '(noticias/rss|noticias/rss/)' , 'noticias' , 'feed' ) ;
+$dispatcher->rules ( 'GET' , '(noticias|noticias/|noticias/listar/)' , 'tools' , 'redir', null, array( "url" => $base_url_site . "noticias/listar" ) ) ;
+$dispatcher->rules ( 'GET' , 'noticias/(?P<id_noticia>[0-9]+)(-?(?<slug>.+))?' , 'noticias' , 'get_info' ) ;
+$dispatcher->rules ( 'GET' , '(noticias/listar)' , 'noticias' , 'get_list', null, array( "search" => ( get_vars("search") ? get_vars("search") : null ), "categoria" => ( get_vars("categoria") ? get_vars("categoria") : null ), "sr" =>  ( get_vars("sr") ? get_vars("sr") : null ) ) ) ;
+
+# regras para audios
+$dispatcher->rules ( 'GET' , '(audios/rss|audios/rss/)' , 'audios' , 'feed' ) ;
+$dispatcher->rules ( 'GET' , 'audios/(?P<id_audio>[0-9]+)(-?(?<slug>.+))?' , 'audios' , 'get_info' ) ;
+$dispatcher->rules ( 'GET' , '(audios|audios/|audios/listar/)' , 'tools' , 'redir', null, array( "url" => $base_url_site . "audios/listar" ) ) ;
+$dispatcher->rules ( 'GET' , '(audios/listar)' , 'audios' , 'get_list', null, array( "search" => ( get_vars("search") ? get_vars("search") : null ), "categoria" => ( get_vars("categoria") ? get_vars("categoria") : null ), "sr" =>  ( get_vars("sr") ? get_vars("sr") : null ) ) ) ;
+$dispatcher->rules ( 'GET' , 'audios/embed/(?P<id_audio>[0-9]+)' , 'audios' , 'set_embed' ) ;
+
+#regras para videos
+$dispatcher->rules ( 'GET' , '(videos|videos/|videos/listar/)' , 'tools' , 'redir', null, array( "url" => $base_url_site . "videos/listar" ) ) ;
+$dispatcher->rules ( 'GET' , '(videos/listar)' , 'videos' , 'get_list' ) ;
+
+# regras para tools
+$dispatcher->rules ( 'POST' , 'tools/mail/(?<slug>.+)?' , 'tools' , 'mail' ) ;
+$dispatcher->rules ( 'GET' , 'tools/print/(?P<content_type>noticias|relatorios)/(?P<content_id>[0-9]+)' , 'tools' , 'print_content', null, array( "levels" => $levels ) ) ;
+$dispatcher->rules ( 'GET' , '(tools).*' , 'tools' , 'redir', null, array( "url" => $page_not_found ) ) ;
+
+# regras para geração de dados para indicadores/pesquisas
+$dispatcher->rules ( 'GET' , 'indicadores/temas/(?P<tema>.+)?' , 'indicadores' , 'get_info_indicadores' ) ;
+$dispatcher->rules ( 'GET' , 'indicadores/cidades/(?P<id_uf>.+)?' , 'indicadores' , 'get_cidades_info_indicador' ) ;
+$dispatcher->rules ( 'GET' , 'indicadores/assuntos/(?P<assunto>.+)?' , 'indicadores' , 'get_info_indicadores' ) ;
+
+# regras para área de pesquisas
+$dispatcher->rules ( 'GET' , '(indicadores)' , 'indicadores' , 'index' ) ;
+$dispatcher->rules ( 'GET' , '(indicadores/pesquisa/(?P<search_type>.+))?' , 'indicadores' , 'generate_search_main' ) ;
+$dispatcher->rules ( 'POST' , '(indicadores/pesquisa/(?P<search_type>.+)/dados)' , 'indicadores' , 'generate_search' ) ;
+
+# regras para consolidados
+$dispatcher->rules ( 'GET' , '(indicadores/consolidados(/(?P<indicador>.+)/(?P<search_type>.+))?)' , 'indicadores' , 'generate_consolidados_main' ) ;
+
+#pesquisa
+$dispatcher->rules ( 'GET', '(busca)', 'search', 'search_main', null, array( "q" => ( get_vars("q") ? get_vars("q") : null ), "type" => ( get_vars("type_search") ? get_vars("type_search") : "noticias" ), "sr" =>  ( get_vars("sr") ? get_vars("sr") : null ) ) ) ;
+
+# autenticações/login
+$dispatcher->rules ( 'POST' , '(authenticate)' , 'cadastro' , 'index' ) ;
+$dispatcher->rules ( 'GET' , '(login)?' , 'cadastro' , 'login_system' ) ;
+$dispatcher->rules ( 'GET' , '(logout)' , 'cadastro' , 'logout_system' ) ;
+$dispatcher->rules ( 'GET' , '(redefinir-acesso)?' , 'cadastro' , 'password_remember' ) ;
+$dispatcher->rules ( 'POST' , '(redefinir-acesso-enviar)?' , 'cadastro' , 'password_remember' ) ;
+
+if( !$dispatcher->exec() ){
+	header( "Location: " . $page_not_found ) ;
+}
+?>

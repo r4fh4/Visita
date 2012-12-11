@@ -1,0 +1,28 @@
+<?
+class imagens_controller{
+	
+	public $model = null ;
+	
+	public function  __construct(){
+		$this->model = new imagens ;
+	}
+	
+	public function index(){
+		
+		$this->model->list_imagens() ;
+		
+	}
+	public function get_info( $data ){
+		
+		print_pre( $this->model->get_image_info( $data{"id_imagem"} ) ) ;
+	}
+	
+	public function insert( $data, $itens ){
+		
+		print_r($itens);
+		print $_POST["nome"];
+		print  $_FILES['file']['name'] ;
+	}
+	
+}
+?>

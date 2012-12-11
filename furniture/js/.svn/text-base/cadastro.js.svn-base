@@ -1,0 +1,78 @@
+cadastro={};
+
+cadastro.setDHTML=function(){
+	$('#estado').change(function(){
+		$.getJSON('tools.php',{action: 'getCidadesByUf', id_uf: $(this).val()}, function(cid){
+			$('#cidade option').remove();
+			for(var i in cid) {
+				$('#cidade').append('<option value="'+i+'">'+cid[i]['nm_cidade']+'</option>');
+			}
+		});
+	});
+	
+	$('#cep').keypress(function(e){
+		cadastro.mascara(this,'#####-###',e)
+	});
+	
+	$('#telefone').keypress(function(e){
+		cadastro.mascara(this,'## ####-####',e)
+	});
+	
+	$('.buttonPesquisa').click(function(){
+		var	nome = $('#nome').val(),
+			email = $('#email').val(),
+			senha = $('#senha').val(),
+			profissao = $('#profissao').val(),
+			cargo = $('#cargo').val(),
+			empresa = $('#empresa').val(),
+			endereco = $('#endereco').val(),
+			numero = $('#numero').val(),
+			complemento = $('#complemento').val(),
+			cep = $('#cep').val(),
+			uf = $('#estado option:selected').val(),
+			cidade = $('#cidade option:selected').val(),
+			tel = $('#telefone').val(),
+			tipoTel = $('#tipoTel').val(),
+			mail = $('#mail').val(),
+			token1 = $('#token1').val(),
+			token2 = $('#token2').val(),
+			param = {action: 'checkSignIn', nome: nome, email: email, senha: senha, profissao: profissao, 
+					cargo: cargo, empresa: empresa, endereco: endereco, numero: numero, mail: mail, token1: token1, token2: token2,
+					complemento: complemento, cep: cep, estado: uf, cidade: cidade, telefone: tel, tipoTel: tipoTel};
+		$.getJSON('tools.php',param,function(result){
+			$('.campoErro').addClass('campoContato').removeClass('campoErro');
+			if(result == 'submit') {
+				alert('Por favor, verifique sua caixa de email para completar o cadastro!');
+				$('input').val('');
+				$('#estado').val(0);
+				$('#cidade option').remove();
+			} else {
+				alert(result['erro']);
+				$('#'+result['campo']).focus().removeClass('campoContato').addClass('campoErro');
+			}			
+		});
+	});
+};
+
+cadastro.mascara=function(src, mascara, e, i) {
+	var tecla;  
+	if (e.keyCode)  // IE  
+	{
+		tecla = e.keyCode;
+	}
+	else if (e.charCode)  // Firefox
+	{
+		tecla = e.charCode;
+	}
+	if (tecla > 47 && tecla < 58 || tecla == 8 || tecla == 9)
+	{
+		var	campo = src.value.length,
+			saida = mascara.substring(0,1),
+			texto = mascara.substring(campo);
+		if(texto.substring(0,1) != saida) {
+			src.value += texto.substring(0,1);
+		}
+	} else {
+		e.returnValue = 0;
+		e.preventDefault(); } 
+}

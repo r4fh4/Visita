@@ -1,0 +1,142 @@
+<script language="javascript">
+$(document).ready(function(){
+	$("#check_email").click(function(){
+		$.post( "administracao.php", {
+			check_email: 1,
+			email: $("input[name=email]").val()
+			}, function (msg){
+				$("p.check_email").html(msg) ;
+			}, "text"
+		);
+	});
+	$("#check_login").click(function(){
+		$.post( "administracao.php", {
+			check_login: 1,
+			login: $("input[name=login]").val()
+			}, function (msg){
+				$("p.check_login").html(msg) ;
+			}, "text"
+		);
+	});
+	$("#check_pass").click(function(){
+		$.post( "administracao.php", {
+			check_pass: 1,
+			password: $("input[name=password]").val(),
+			password_match: $("input[name=password_match]").val()
+			}, function (msg){
+				$("p.check_pass").html(msg) ;
+			}, "text"
+		);
+	});
+	$('#id_uf').change(function(){
+		var selected_val = "" ;
+		$("#id_uf option:selected").each(function () {
+			selected_val = $(this).attr("value")  ;
+		 });
+		$.get( "combo_cidades.php?id_uf=" + selected_val, function(data) { $('#box-cidade').html(data) ; }) ;
+	});
+});
+</script>
+<h2 class="page-title">Incluír/Editar Usuário</h2>
+<p>Inclua ou edite os dados dos usuários do sistema.<br />O <b>login</b> e o <b>e-mail</b> são únicos e não é permitido cadastrá-los caso os mesmos já existam no sistema.<br />Também só devem ser digitados números ou letras, símbolos e/ou sinais não são permitidos.</p>
+<form id="form" name="form" class="input-form" method="POST" action="administracao.php" target="response-form">
+	
+	<!-- HIDDEN INPUTS -->
+	<input type="hidden" name="email_error" value="0" />
+	<input type="hidden" name="login_error" value="0" />
+	<input type="hidden" name="pass_error" value="0" />
+	<input type="hidden" name="id_usuario" value="<?=$user_info[0]{"id_usuario"}?>" />
+	
+	<!-- NOME -->
+	<label>
+		<b>Nome do usuário*:</b><br /><input type="text" name="nm_usuario" value="<?=htmlspecialchars($user_info[0]{"nm_usuario"})?>" class="text" />
+	</label>
+	
+	<!-- EMAIL -->
+	<label>
+		<b>E-mail do usuário*:</b><br /><input type="text" name="email" value="<?=htmlspecialchars($user_info[0]{"email"})?>" class="text" />
+		<input id="check_email" type="button" name="check_email" value="Verificar E-mail digitado" />
+		<p class="check_email"></p>
+	</label>
+	
+	<!-- LOGIN -->
+	<label>
+		<b>Login *:</b>
+		<?if(!isset($user_info[0]{"id_usuario"})){?><span class="tip"> (Digite no mínimo 5 e no máximo 20 digitos e somente letras e números.)</span><?}?><br />
+		<input type="text" name="login"  style="width:150px;" maxlength="20" <?=(isset($user_info[0]{"id_usuario"}) ? "readonly" : "");?> value="<?=htmlspecialchars($user_info[0]{"login"})?>" class="text" />
+		<?if(!isset($user_info[0]{"id_usuario"})){?>
+		<input id="check_login" type="button" name="check_login" value="Verificar Login digitado" />
+		<p class="check_login"></p>
+		<?}?>
+	</label>
+	
+	<!-- SENHA -->
+	<label>
+		<b>Nova senha*:</b><span class="tip"> (Digite no mínimo 5 e no máximo 10 digitos e somente letras e números.)</span><br />
+		<input type="password"  maxlength="10" style="width:150px;" name="password" value="" class="text" />
+	</label>
+	
+	<!-- SENHA CHALENGE -->
+	<label>
+		<b>Repita a nova senha*:</b><br /><input type="password"  maxlength="10" style="width:150px;" name="password_match" value="" class="text" />
+		<input id="check_pass" type="button" name="check_pass" value="Verificar Senha digitada" />
+		<p class="check_pass"></p>
+	</label>
+	
+	<!-- ESTADO -->
+	<p style="float:left;">
+		<b>Estado*:</b><br />
+		<?
+		foreach( list_uf() as $key => $value ){
+			$item_uf[$key] = $value{"ds_uf"} ;
+		}
+		print gui_render_select( "id_uf" , $item_uf , ( $user_info[0]{"id_uf"} ? $user_info[0]{"id_uf"} : null ), "-", 'id="id_uf"' ) ;
+		?>
+	</p>
+	
+	<!-- CIDADE -->
+	<p id="box-cidade" style="float:left;margin-left:20px;">
+		<?if( $user_info[0]{"id_cidade"} ){?>
+		<? $label_cidade = list_cidades( $user_info[0]{"id_cidade"} ); ?>
+		<b>Cidade*:</b><br />
+		<select name="id_cidade">
+			<option value="<?=$user_info[0]{"id_cidade"}?>"><?=$label_cidade[ $user_info[0]{"id_cidade"} ]{"nm_cidade"}?></option>
+		</select>
+		<?}?>
+	</p>
+	
+	<div style="clear:both;"><br /></div>
+	
+	<!-- GRUPO -->
+	<label>
+		<b>Grupo do usuário*:</b><br />
+		<?
+		$selected_value = null ;
+		$list_grupo = $user->list_grupo() ;	
+		$item_grupo_select = array() ;
+		foreach( $list_grupo as $item_grupo ){
+			$item_grupo_select{$item_grupo{"id_grupo"}} = $item_grupo{"ds_grupo"} ;		
+		}
+		print gui_render_select( "id_grupo" , $item_grupo_select , ( $user_info[0]{"id_grupo"} ? $user_info[0]{"id_grupo"} : null ) ) ;
+		?>
+	</label>
+	
+	<!-- BOTÕES/AÇÕES -->
+	<p>
+		<input type="submit" class="btn-form" name="<?=(isset($user_info[0]{"id_usuario"}) ? "edit" : "insert");?>" value="<?=(isset($user_info[0]{"id_usuario"}) ? "Editar" : "Inserir");?>" />
+		<?if(!isset($user_info[0]{"id_usuario"})){?><input type="reset" class="btn-form" name="limpar" value="Limpar" /><?}?>
+		<input type="submit" class="btn-form" name="back_to_list" value="Voltar para a lista" />
+	</p>
+	
+	<div style="clear:both;"><br /></div>
+	
+</form>
+
+<div style="clear:both;"><br /></div>
+
+<iframe id="response-form" name="response-form" frameborder="0" class="iframe"></iframe>
+
+
+
+
+		

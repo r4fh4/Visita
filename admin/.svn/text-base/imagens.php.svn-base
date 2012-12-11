@@ -1,0 +1,142 @@
+<?php
+require_once( "scripts/init.php" ) ;
+
+// checar acesso a pagina
+get_page_access() ;
+
+// inserir novo
+if( get_vars("insert") ){
+	
+	if( get_vars("legenda") || $_FILES["imagem"]["tmp_name"] ){
+
+		$original_image_path = $images_directory . $_FILES["imagem"]["name"] ;
+		$file_system = new Filesystem ;
+		
+		// validar processo de upload
+		if( move_uploaded_file( $_FILES["imagem"]["tmp_name"], $original_image_path ) ){
+			
+			// validar formatos permitidos
+			if( $file_system->isGif( $original_image_path ) || $file_system->isJpeg( $original_image_path ) || $_FILES["imagem"]["type"] == "image/png" ){
+				
+				// validar tamanho permitido
+				if( file_exists( $original_image_path ) && filesize( $original_image_path ) <= IMAGE_LIMIT_SIZE ){
+					
+					$image = new imagens() ;
+					$id_insert = $image->insert_image( array( "legenda" => get_vars("legenda") , "credito" => ( get_vars("credito") ? get_vars("credito") : "" ), "usuario_id" => $user_info{"user_key"} ) ) ;					
+					
+					if( $id_insert ){					
+						
+						// cortar nos tamanhos definidos
+						foreach( $image_custom_sizes as $key => $value ){						
+							
+							$image_tool = new ImageTool( $original_image_path ) ;
+							// salvando nos cortes definidos
+							if( isset($value{"w"}) ){			
+								$image_tool->resizeAndCrop( $value{"w"} , $value{"h"} , $images_directory  . $id_insert . $value{"sufix"} . "." . IMAGE_DEFAULT_FORMAT ) ;
+							}
+							// salvando em tamanho original otimizado
+							else{
+
+								$image_tool->saveImage( $images_directory  . $id_insert . $value{"sufix"} . "." . IMAGE_DEFAULT_FORMAT ) ;
+							}
+						}
+						
+						//remover imagem original
+						$image_tool->remove_original_image_uploaded() ;						
+
+						// salvar log de ação do usuário
+						$authentication->save_log_access( 'User insert image "'.$id_insert .'" details.' ) ;
+						
+						show_message( "Imagem adicionada com sucesso!" ) ;
+						redir_page( "imagens_listar.php", true ) ;						
+
+					}					
+					
+					
+				}
+				else{
+					unlink( $original_image_path ) ;
+					show_message_html( "Tamanho do arquivo é maior que " . round( IMAGE_LIMIT_SIZE / 1024 ) . " KB!" , false ) ;
+					exit() ;				
+				}
+				
+			}
+			else{
+				unlink( $original_image_path ) ;
+				show_message_html( "Formato de imagem inválido!", false ) ;
+				exit() ;
+			}
+			
+			//$image = new imagens() ;
+		}
+		else{
+			show_message_html( "O arquivo selecionado não pode ser gravado, selecione outro!", false ) ;
+			exit() ;				
+		}
+
+		
+		
+		
+	}
+	else{
+		show_message_html( "Dados em branco, favor preencher!", false ) ;
+		exit() ;
+	}	
+	
+}
+
+// id inválido
+if( get_vars("id") ){
+	
+	$image_info = array();
+	$image = new imagens() ;
+	$image_info = $image->get_image_info( get_vars("id") ) ;
+	if( !$image_info ){
+		redir_page( "imagens_listar.php" ) ;
+	}
+	
+	// filtro por nível de usuário
+	if( $user_info{"user_level"} == $level_municipal_manager ){
+		if( $user_info{"user_key"} != $image_info[0]{"usuario_publicacao"} ){
+			redir_page( "imagens_listar.php" ) ;
+		}
+	}
+}
+
+
+// voltar para a lista
+if( get_vars("back_to_list") ){
+	redir_page( "imagens_listar.php" ) ;
+}
+
+// editar
+if( get_vars("edit") ){
+	
+	if( !get_vars("legenda") ){
+		show_message(  'Campo "legenda" é obrigatório, favor preencher!', false ) ;
+		redir_page( "imagens.php?id=" . get_vars("id_imagem") ) ;		
+	}
+	$image = new imagens() ;
+	$image->edit_image_info( array( "id_imagem" => get_vars("id_imagem"), "legenda_imagem" => get_vars("legenda"), "credito_imagem" => get_vars("credito"), "usuario_id" => $user_info{"user_key"} ) ) ;
+	
+	// salvar log de ação do usuário
+	$authentication->save_log_access( 'User edit image "'.get_vars("id_imagem").'" details.' ) ;
+	
+	show_message( "Dados alterados com sucesso." ) ;
+	redir_page( "imagens_listar.php", true ) ;
+	
+}
+
+include( $template_directory . "header.inc.php" ) ;
+
+include( $template_directory . "imagens.inc.php" ) ;
+
+// salvar log de ação do usuário
+$authentication->save_log_access( "" ) ;
+
+//fechar conexao
+$connection->desconnect();
+
+include( $template_directory . "footer.inc.php" ) ;
+?>
+

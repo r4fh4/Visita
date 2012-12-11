@@ -1,0 +1,8 @@
+		</div>
+		<!-- footer -->
+		<div id="footer-adm-preview">
+			<p><br /><? echo OWNER_SYSTEM ; ?><br /></p>
+		</div>
+	</div>
+</body>
+</html>

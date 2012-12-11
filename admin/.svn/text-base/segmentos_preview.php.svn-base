@@ -1,0 +1,35 @@
+<?php
+require_once( "scripts/init.php" ) ;
+
+// checar acesso a pagina
+get_page_access() ;
+
+$segmento = new segmentos ;
+
+
+
+// id inválido
+if( get_vars("id") ){
+
+	$segmento_info = array();
+	$segmento_info = $segmento->get_segmento_info( get_vars("id") ) ;	
+	if(!$segmento_info ){
+		redir_page( "segmentos_listar.php" ) ;
+		exit();
+	}
+	else{	
+		include( $template_directory . "header_preview.inc.php" ) ;
+		include( $template_directory . "segmentos_preview.inc.php" ) ;
+		//fechar conexao
+		$connection->desconnect() ;
+		include( $template_directory . "footer_preview.inc.php" ) ;	
+	}
+}
+else{
+	redir_page( "segmentos_listar.php" ) ;
+	exit();
+}
+
+
+?>
+

@@ -1,0 +1,43 @@
+	<div class="detail-images"><span class="tip">(Clique no item para selecionar)</span></div>
+	<div style="clear:both;"></div>
+	<div class="search-images">
+	<input type="text" value="<?=utf8_encode(htmlspecialchars(get_vars("search_content")))?>" class="input_search" name="search_content" size="10" />
+	<input type="button" name="search" onclick="javascript:reload_paginate( 'relatorios_thumb_listar.php?search_content=' + $('.input_search').val() );" value="buscar" />
+	<input type="button" name="search" onclick="javascript:reload_paginate( 'relatorios_thumb_listar.php' );" value="limpar" />
+	</div>
+	<div style="clear:both;"></div>
+	<div id="paginate"><? print render_paginate( $page , $total_pages , $url , $results_per_page, "", false, false, true, "" ); ?></div>
+	<div style="clear:both;"></div>
+	<div class="grid-files">
+	<?
+	if( $records ){
+		$i = 0 ;			
+		$user = new user ;
+		foreach( $records as $item ){
+			
+			$categoria = null ;
+			$subcategoria = null ;
+			if( $item{"categoria"} ){
+				$categoria = htmlspecialchars($ctg{$item{"categoria"}}) ;
+			}
+			if( $item{"subcategoria"} ){
+				$subcategoria = htmlspecialchars($sub_ctg{$item{"subcategoria"}}) ;
+			}
+			
+			$label_categ = ( $categoria ? $categoria : "" ) . ( $subcategoria ? ( $categoria ? "/" . $subcategoria : "Subcategoria: " . $subcategoria ) : "" ) ;
+			
+			?>
+			<p class="file_container <?php print ( $i % 2 ?  'ops-p' : "" )?>">
+			<b><a href="javascript:get_file('<?=htmlspecialchars($item{"id_relatorio"})?>', '<?=utf8_encode(htmlspecialchars($item{"titulo"}))?>');void(0);""><?=utf8_encode( htmlspecialchars($item{"titulo"}) )?></a></b><br /><span class="tip">(<?=utf8_encode( $label_categ)?>)</span><br /><br />
+			</p>
+			<?
+			$i++ ;
+		}
+	}
+	else{
+		?><p><b>Nenhum resultado encontrado para a busca.</b></p><?
+	}
+	?>
+	</div>
+	<div id="paginate"><? print render_paginate( $page , $total_pages , $url , $results_per_page, "", false, false, true, "" ); ?></div>
+	<div style="clear:both;"></div>

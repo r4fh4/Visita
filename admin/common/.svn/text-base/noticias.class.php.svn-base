@@ -1,0 +1,128 @@
+<?php
+/**
+* Classe Noticias
+* 
+* Classe para manipulação de notícias
+* @author tamemiya 2011-03-16
+* @version 1.0
+*/
+class noticias{
+	/**
+	 * recuperar dados da noticia
+	 */
+	public function get_news_info( $data ){
+		
+		global $connection ;
+		
+		$sql = sprintf( "select * from tb_noticias where id_noticia = %d and active='1'", mysql_real_escape_string( $data ) ) ;
+		$result = $connection->execute( $sql, true ) ;		
+		return $result ;
+
+	}
+	
+	public function insert_news_info( $data ){
+		
+		global $connection ;
+		
+		$sql = "insert into tb_noticias (titulo, chamada, texto, categoria, subcategoria, autor, imagem, publicada, destaque, id_uf, id_cidade, active, dt_criacao, usuario_publicacao) values (
+				'" . mysql_real_escape_string( $data{"titulo"} ) . "',
+				'" . mysql_real_escape_string( $data{"chamada"} ) . "',
+				'" . mysql_real_escape_string( $data{"texto"} ) . "',
+				" . mysql_real_escape_string( $data{"categoria"} ) . ",
+				" . mysql_real_escape_string( $data{"subcategoria"} ) . ",
+				'" . mysql_real_escape_string( $data{"autor"} ) . "',
+				'" . mysql_real_escape_string( $data{"imagem"} ) . "',
+				'" . mysql_real_escape_string( $data{"publicada"} ) . "',
+				'" . mysql_real_escape_string( $data{"destaque"} ) . "',
+				" . ( $data{"id_uf"} ? "'".mysql_real_escape_string( $data{"id_uf"} )."'" : 'null' ) . ",
+				" . ( $data{"id_cidade"} ? "'".mysql_real_escape_string( $data{"id_cidade"} )."'" : 'null' ) . ",
+				1,
+				NOW(),
+				'" . mysql_real_escape_string( $data{"usuario_id"} ) . "'
+				)" ;
+			
+		$connection->execute( $sql ) ;		
+			
+	}
+	
+	public function edit_news_info( $data ){
+		
+		global $connection ;
+		
+		$sql = "update tb_noticias set 
+				titulo = '" . mysql_real_escape_string( $data{"titulo"} ) . "' ,
+				chamada = '" . mysql_real_escape_string( $data{"chamada"} ) . "',
+				texto = '" . mysql_real_escape_string( $data{"texto"} ) . "',
+				categoria = " . mysql_real_escape_string( $data{"categoria"} ) . ",
+				subcategoria = " . mysql_real_escape_string( $data{"subcategoria"} ) . ",
+				autor = '" . mysql_real_escape_string( $data{"autor"} ) . "',
+				imagem = '" . mysql_real_escape_string( $data{"imagem"} ) . "',
+				publicada = '" . mysql_real_escape_string( $data{"publicada"} ) . "',
+				destaque = '" . mysql_real_escape_string( $data{"destaque"} ) . "',
+				dt_modificacao = now(),
+				usuario_edicao = '" . mysql_real_escape_string( $data{"usuario_id"} ) . "' 
+				where id_noticia = '" . mysql_real_escape_string( $data{"id_noticia"} ) . "'" ;
+
+		$connection->execute( $sql ) ;
+		
+	}
+	
+	/**
+	 * método para deletar noticia
+	 */
+	public function delete_news( $data ){
+		
+		global $connection, $user_info ;		
+	
+		$sql = "update tb_noticias set active = '0', usuario_edicao = '" . mysql_real_escape_string( $user_info{"user_key"} ) . "', dt_modificacao = NOW() where id_noticia in(" . $data . ") " ;
+		$connection->execute( $sql ) ;		
+	}
+	
+	public function get_news_destaque() {
+		global $connection ;
+		
+		$sql = "
+		select n.*, c.*, s.*
+		from 
+		tb_noticias as n,
+		tb_categoria_conteudo as c,
+		tb_subcategoria_conteudo as s
+		where n.active='1' and 
+		n.destaque='1' and 
+		n.publicada = '1'  and
+		n.categoria = c.id_categoria and
+		n.subcategoria = s.id_subcategoria 
+		order by n.dt_criacao desc 
+		limit 10" ;
+		//print $sql;
+		$result = $connection->execute( $sql, true ) ;
+		
+		return $result ;
+	}
+	
+	public function get_last_news_cities( $data = null ) {
+		global $connection ;
+		
+		$sql =	"
+		select 
+			a.*, 
+			b.nm_cidade 
+		from 
+			tb_noticias a 
+		inner join 
+			tb_cidades b 
+		on 
+			a.id_cidade = b.cd_ibge 
+		where 
+			active='1' and 
+			destaque='0' and 
+			publicada = '1' and
+			a.id_cidade is not null 
+		order by dt_criacao desc limit 2
+		" ;
+		$result = $connection->execute( $sql, true ) ;
+		
+		return $result ;
+	}
+}
+?>

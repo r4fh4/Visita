@@ -1,0 +1,92 @@
+<script type="text/javascript">
+	$(document).ready(function(){
+		noticias.setDHTML();
+	});
+</script>
+<h1 class="breadcrumb">Notícias</h1>
+<div id="columnLeft550" class='leftNone'>
+	<!-- TOOLS -->
+	<div class="tools">
+		<ul>			
+			<li><a href="http://www.linkedin.com/shareArticle?mini=true&url=<?=$short_url?>&title=<?=urlencode(utf8_encode(htmlspecialchars($noticia[0]{"titulo"})))?>" target="_blank" title="LinkedIn"><span class="icone-tools linkedin"></span></a></li>
+			<li><a href="javascript:void(0);" onclick="tools( 'facebook', '<?=$short_url?>', '<?=urlencode(utf8_encode(htmlspecialchars($noticia[0]['titulo'])))?>' );" title="Facebook"><span class="icone-tools facebook"></span></a></li>
+			<li><a href="javascript:void(0);" onclick="tools( 'orkut', '<?=$short_url?>', '<?=urlencode(utf8_encode(htmlspecialchars($noticia[0]['titulo'])))?>' );" title="Orkut"><span class="icone-tools orkut"></span></a></li>
+			<li><a href="javascript:void(0);" onclick="tools( 'twitter', '<?=$short_url?>', '<?=urlencode(utf8_encode(htmlspecialchars($noticia[0]['titulo'])))?>' );" title="Twitter"><span class="icone-tools twitter"></span></a></li>
+			<li><a href="javascript:void(0);" onclick="tools( 'gmail', '<?=$short_url?>', '<?=urlencode(utf8_encode(htmlspecialchars($noticia[0]['titulo'])))?>', '<?=urlencode(utf8_encode(htmlspecialchars($noticia[0]['chamada'])))?>' );" title="Gmail"><span class="icone-tools gmail"></span></a></li>
+			<li><span class="icone-tools share-redes" title="compartilhe"></span></li>
+			<li><span class="icone-tools separator"></span></li>
+			<li><a href="<?=$alias?>" title="voltar para a Página inicial"><span class="icone-tools home-back"></span></a></li>
+			<li><a href="<?=$alias?>noticias/rss" target="_blank" title="Acessar RSS"><span class="icone-tools rss"></span></a></li>
+			<li><a href="javascript:void(0);" onclick="tools( 'print', '<?=$print_url?>' );" title="Imprimir"><span class="icone-tools print"></span></a></li>			
+			<li><a href="javascript:void(0);" onclick="tools( 'open-mail' );" title="enviar por e-mail"><span class="icone-tools mail"></span></a></li>
+			<li><a href="javascript:void(0);" onclick="tools( 'big-text' );void(0);" title="Aumentar texto"><span class="icone-tools big-text"></span></a></li>
+			<li><a href="<?=$alias?>noticias/listar" title="voltar para a listagem de notícias"><span class="icone-tools listagem-link"></span></a></li>
+		</ul>
+		<iframe name="container-print" id="container-print"></iframe>
+	</div>
+	<!-- /TOOLS -->
+	<!-- BOX SEND-MAIL -->
+	<div id="box-send-mail">
+		<form id="send-mail" name="send-mail" action="" method="post">
+			<input type="hidden" name="title" value="<?=htmlspecialchars($noticia[0]['titulo'])?>" />
+			<input type="hidden" name="description" value="<?=htmlspecialchars($noticia[0]['chamada'])?>" />
+			<?
+			$token1 = md5(uniqid(rand(), TRUE));
+			$token2 = strrev($token1);
+			?>
+			<input type="hidden" name="token1" value="<?=$token1;?>" />
+			<input type="hidden" name="token2" value="<?=$token2;?>" />
+			<input type="text" name="mail" class="my-mail" value="" />
+			<input type="hidden" name="url" value="<?=$short_url?>" />
+			<fieldset>
+				<legend>Enviar por E-mail</legend><br />
+				<label>Seu nome:<br /><input type="text" name="your-name" maxlength="150" /></label> 
+				<label>Seu e-mail:<br /><input type="text" name="your-mail" maxlength="150" /></label>
+				<label>E-mail(s) para enviar:<br /><input type="text" name="mails" maxlength="250" /><br /><span class="tip">Para mais de um e-mail, separe por vírgula. São permitidos 3 no máximo.</span></label>
+				<label>Mensagem:<br /><textarea name="mensagem" cols="37" rows="3" ></textarea></label><br />
+				<p class="result-mail"></p>				
+				<input type="button" name="close" id="close" value="Fechar" onclick="tools('close-mail');" class="button" />
+				<input type="reset" name="reset" value="Limpar" class="button" />
+				<input type="button" name="sender" id="sender" value="Enviar" onclick="tools('send-mail', '<?=$alias?>tools/mail/noticias');" class="button" />
+			</fieldset>
+		</form>		
+		<br class="clean" />
+	</div>
+	<!-- /BOX SEND-MAIL -->
+	<h2 class='title'><?php echo htmlspecialchars($noticia[0]['titulo']); ?></h2>
+	<span class='tip autor'><?php echo convert_data($noticia[0]['dt_criacao']); ?> <?=( $noticia[0]['autor'] ? " - Autor: ".$noticia[0]['autor'] : "" )?></span>
+	<br /><br />
+	<span class='texto'>
+		<?
+			$image_item = explode( "|", htmlspecialchars( $noticia[0]['imagem'] ) ) ;
+			$image_url = $images_directory . $image_item[0] . "-230x156.jpg" ;
+			$image_credit = $image_item[1] ;
+			echo '<p class="imagem-destaque"><img src="' . $image_url . '" alt="' . $image_credit . '" title="' . $image_credit . '" /></p>' ;
+			echo html_entity_decode($noticia[0]['texto']);
+		?>
+	</span>
+	
+</div>
+<div id="columnRight350">
+	<ul id="lastItens">
+		<?php if($records) {
+			foreach($records as $lista) {
+				$image_item = explode( "|", htmlspecialchars( $lista['imagem'] ) ) ;
+				$image_url = $images_directory . $image_item[0] . "-120x90.jpg" ;
+				$image_credit = $image_item[1] ;
+
+		?>
+				<li id="n<?php echo $lista['id_noticia']; ?>">
+					<a href="<?=$base_url_site . "noticias/" . $lista['id_noticia'] . '-' . normalize_text( htmlspecialchars( $lista['titulo'] ), true );?>">
+						<img src="<?=$image_url?>" alt="<?=$image_credit?>" title="<?=$image_credit?>" />
+					</a>
+					<div class='lista'>
+						<div class="lista-title"><a href="<?=$base_url_site . "noticias/" . $lista['id_noticia'] . '-' . normalize_text( htmlspecialchars( $lista['titulo'] ), true );?>" title="<?=htmlspecialchars($lista['titulo'])?>"><b><?=htmlspecialchars($lista['titulo'])?></b></a></div>
+						<div class="lista-chamada"><a href="<?=$base_url_site . "noticias/" . $lista['id_noticia'] . '-' . normalize_text( htmlspecialchars( $lista['titulo'] ), true );?>"><?php echo htmlspecialchars($lista['chamada']); ?></a></div>
+					</div>
+				</li>
+			<?php }
+		} ?>
+	</ul>
+</div>
+<br /><br class="clean" />

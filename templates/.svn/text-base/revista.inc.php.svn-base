@@ -1,0 +1,4 @@
+<h1 class="breadcrumb element-hidden">Página Principal</h1>
+<iframe src ="<?=$alias?>data/arquivos/revista_eletronica.pdf" width="95%" height="700px" frameborder="1" style="border:solid #cccccc 2px" >
+	<p>Seu browser não suporta iFrames.</p>
+</iframe>   

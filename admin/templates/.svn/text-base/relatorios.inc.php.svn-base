@@ -1,0 +1,176 @@
+<script type="text/javascript" src="furniture/editor/ckeditor.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	$('#btn-box-image').click(function(){	
+		$.get('imagens_thumb_listar.php', function(data) {
+			$('.box-form-content').html(data);
+		});
+	});
+	$('#add-file').click(function(){	
+		$.get('relatorios_thumb_listar.php<?=( isset($relatorio_info[0]{"id_relatorio"}) ?  "?id_relatorio=" . $relatorio_info[0]{"id_relatorio"} : "" )?>', function(data) {
+			$('.box-form-content').html(data);
+		});
+	});
+	$("#file-container").click(function( e ){
+		switch(e.target.tagName){
+			case "DEL":
+				$(e.target).parents("li:first").remove();
+			break;
+		
+		}
+	});
+	
+});
+
+function select_content( element ){
+	$(element).focus();
+	$(element).select();
+
+}
+function get_item( item, content_credit ){
+	if( content_credit == "" ){
+		content_credit = "Divulgação" ;
+	}
+	<?
+	$item = array() ;
+	foreach( $image_custom_sizes as $key => $value ){
+		$item[] = '"' . $value{"desc"} . '":"' . $value{"sufix"} . "." . $default_image_format . '"' ;		
+	}
+	?>
+	
+	list_images = '<span class="tip">(Copie a URL da imagem para incluír na matéria)</span><br />' ;
+	list_images += '<img src="<?=$base_url_site?>data/images/' + item + '-120x90.<?=$default_image_format?>" alt="" class="image-selected" /><div style="clear:both;"></div>' ;
+	list_images += '<b>Crédito da imagem: </b>' + content_credit + '<br />' ;
+	list_sizes = { <?=implode( ",", $item )?> } ;
+	$.each( list_sizes, function( key, value ) { 
+		list_images += '<b>' + key + ':</b><br /><input type="text" onclick="javascript:select_content(this);" class="url-image-select" readonly="readonly" value="<?=$images_directory?>' + item + value + 	'" /><br />' ; 
+	});
+	list_images += "<br /><hr /><br />" ;
+	$(".detail-images").html(list_images) ;
+	
+}
+
+</script>
+<h2 class="page-title">Incluír/Editar Relatório</h2>
+<p>Inclua ou edite os dados do seu relatório</p>
+<form id="form" name="form" class="input-form" method="POST" action="relatorios.php" target="response-form">
+	
+	<div class="box-form">
+		<!-- TITULO -->
+		<label>
+			<b>Título*:</b><span class="tip"> (Máximo 255 caracteres)</span><br />
+			<input type="text" name="titulo" value="<?=htmlspecialchars($relatorio_info[0]{"titulo"})?>" class="text" maxlength="255" />
+		</label>
+		
+		<!-- relatorioS/IMAGENS -->
+		<p>
+			<input type="button" id="add-file" name="add-file" value="Adicionar Relatórios" />
+			<input id="btn-box-image" title="Lista de imagens" type="button" value="Buscar Imagem" />
+			<ul id="file-container">
+			<?
+			if( isset( $relatorio_info[0]{"relatorios_filhos"} ) ){
+				
+				$list_files = $relatorio_info[0]{"relatorios_filhos"} ;
+				if( is_array( $list_files ) ){					
+					foreach( $list_files as $item ){
+						if( $item{"active"} == 1 ){
+							print '<li id="' . $item . '"><span class="tip">' . $item{"titulo"} . '</span><input type="checkbox" style="display:none;" checked="checked" name="files[]" value="' . $item{"id_relatorio"} . '" /><del>(excluír)</del></li>' ;
+						}
+						else{
+							print '<li id="' . $item{"id_relatorio"} . '" style="color:#E5765E;"><span class="tip">' . $item{"titulo"} . '</span> (relatório deletado)</li>' ;
+						}
+					}
+				}
+			}
+			?>
+			</ul>
+		</p>		
+		<div style="clear:both;"><br /></div>
+		
+		<!-- TEXTO -->
+		<label>
+			<b>Texto*:</b><br />			
+			<textarea style="width:250px;" cols="40" id="texto" name="texto" rows="5"><?=html_entity_decode($relatorio_info[0]{"texto"})?></textarea><br />
+			<span class="tip">Para adicionar quebra de página para impressão acrescente a tag {BREAKPAGE} na linha desejada.</span>
+			<script type="text/javascript">
+			//<![CDATA[
+				CKEDITOR.replace( 'texto',
+					{
+						skin : 'kama'
+					});
+
+			//]]>
+			</script>
+		</label>
+		
+		<!-- CATEGORIA/SUBCATEGORIA -->
+		<div>
+		
+			<p style="float:left;">
+				<b>Categoria:</b><br />
+				<?
+				$selected_categ = ( isset($relatorio_info[0]{"categoria"}) ? $relatorio_info[0]{"categoria"} : null ) ;
+				$list_categ = $relatorio->list_categoria() ;	
+				$item_categ = array() ;
+				foreach( $list_categ as $item_ctg ){
+					$item_categ{$item_ctg{"id_categoria"}} = $item_ctg{"ds_categoria"} ;		
+				}
+				print gui_render_select( "categoria" , $item_categ , ( $selected_categ ? $selected_categ : null ) ) ;
+				?>
+			</p>
+			
+			<p style="float:left;margin-left:20px;">
+				<b>Sub-Categoria:</b><br />
+				<?
+				$selected_subcateg =  ( isset($relatorio_info[0]{"subcategoria"}) ? $relatorio_info[0]{"subcategoria"} : null ) ;
+				$list_subcateg = $relatorio->list_subcategoria( $restrict = true ) ;	
+				$item_aubcateg = array() ;
+				foreach( $list_subcateg as $item_subctg ){
+					$item_subcateg{$item_subctg{"id_subcategoria"}} = $item_subctg{"ds_subcategoria"} ;		
+				}
+				print gui_render_select( "subcategoria" , $item_subcateg , ( $selected_subcateg ? $selected_subcateg : null ) ) ;
+				?>
+			</p>
+			
+			<br style="clear:both;"/>
+		
+		</div>
+		
+		<?if( isset($relatorio_info[0]{"id_relatorio"}) ){?>	
+			<input type="hidden" name="id_relatorio" value="<?=$relatorio_info[0]{"id_relatorio"}?>" />
+		<?}?>
+
+		<!-- PUBLICADO -->
+		<label>
+			<?
+			if( $user_info{"user_level"} == $level_municipal_manager ){
+			?>
+			<span class="tip"> (O relatório será publicado mediante aprovação do Gerenciador Geral)</span><br /><input type="checkbox" <?=( $relatorio_info[0]{"publicado"}==1 ? "checked" : "" )?> style="width:10px;vertical-align:middle;border:none;background:none;" name="publicados" disabled="disabled" class="text" /><br /><br />
+			<input type="hidden" name="publicado" value="<?=$relatorio_info[0]{"publicado"}==1?>" />
+			<?
+			}
+			else{
+			?>
+			<b>publicado:</b><span class="tip"> (O relatório será publicado caso este campo esteja marcado)</span><br /><input type="checkbox" style="width:10px;vertical-align:middle;border:none;background:none;" name="publicado" <?=( $relatorio_info[0]{"publicado"}==1 ? "checked" : "" )?> class="text" /> Relatório publicado
+		
+			<?}?>
+		</label>
+		
+		<!-- BOTÕES/AÇÕES -->
+		<p>
+			<input type="submit" class="btn-form" name="<?=(isset($relatorio_info[0]{"id_relatorio"}) ? "edit" : "insert");?>" value="<?=(isset($relatorio_info[0]{"id_relatorio"}) ? "Editar" : "Inserir");?>" />
+			<?if(!isset($relatorio_info[0]{"id_relatorio"})){?><input type="reset" class="btn-form" name="limpar" value="Limpar" /><?}?>
+			<input type="button" class="btn-form" onclick="javascript:$(location).attr('href', 'relatorios_listar.php' ) ;" name="back_to_list" value="Voltar para a lista" />
+		</p>
+		
+	</div>	
+	
+	<div class="box-form-content"><span class="tip"></span></div>
+	
+	<div style="clear:both;"></div>
+	
+</form>
+
+<div style="clear:both;"><br /></div>
+
+<iframe id="response-form" name="response-form" frameborder="0" class="iframe"></iframe>

@@ -1,0 +1,47 @@
+<?php
+
+/**
+ * This class manipulate all filesystem
+ * Use magic mime format for identity types in files
+ */
+class Filesystem {
+
+	public static function isPdf ( $path , $init = 0 , $length = 8 ) {
+		return @ preg_match ( '/^%PDF-\d.\d$/' , @ file_get_contents ( $path , false , null , $init , $length ) ) ;
+	}
+
+	public static function isZip ( $path , $init = 0 , $length = 4 ) {
+		return @ preg_match ( '/^PK\003\004$/' , @ file_get_contents ( $path , false , null , $init , $length ) ) ;
+	}
+
+	public static function isFlv ( $path , $init = 0 , $length = 3 ) {
+		return @ file_get_contents ( $path , false , null , $init , $length ) === 'FLV' ;
+	}
+
+	public static function isGif ( $path , $init = 0 , $length = 3 ) {
+		return @ file_get_contents ( $path , false , null , $init , $length ) === 'GIF' ;
+	}
+
+	public static function isJpeg ( $path , $init = 0 , $length = 10 ) {
+		return @ preg_match ( '/^\xff\xd8.{4}JFIF$/' , @ file_get_contents ( $path , false , null , $init , $length ) ) ;
+	}
+
+	public static function isSwf ( $path , $init = 0 , $length = 3 ) {
+		$str = @ file_get_contents ( $path , false , null , $init , $length ) ;
+		return ( $str === 'FWS' ) || ( $str === 'CWS' ) ;
+	}
+
+	public static function isMp3 ( $path , $init = 0 , $length = 3 ) {
+		$str = @ file_get_contents ( $path , false , null , $init , $length ) ;
+
+		// Source bitwise[&] FFFE = FFFA
+		if ( @ preg_match ( '/^(\xFF)(\xFA|\xFB)/i' , $str ) ) {
+			return true ;
+		}
+
+		// With id3 at the beginning
+		else {
+			return $str === 'ID3' ;
+		}
+	}
+}

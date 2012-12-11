@@ -1,0 +1,86 @@
+<link href="<?php echo $furniture_directory; ?>css/cadastro.css" type="text/css" rel="stylesheet" />
+<script type="text/javascript" src="<?php echo $furniture_directory ; ?>js/cadastro.js"></script>
+<script type="text/javascript">	
+	$(document).ready(function(){	
+		cadastro.setDHTML();
+	});
+</script>
+<h1>Cadastro Completo</h1>
+<span>Após completar o cadastro você receberá um email contendo um link que irá completar seu cadastro no site.</span>
+<br /><br /><br />
+<div id='mainContato'>
+	<?
+			$token1 = md5(uniqid(rand(), TRUE));
+			$token2 = strrev($token1);
+	?>
+	<input type="hidden" name="token1" value="<?=$token1;?>" id='token1' />
+	<input type="hidden" name="token2" value="<?=$token2;?>" id='token2'/>
+	<input type='text' name='mail' id='mail' value='' class='my-mail' />
+	<b>Nome completo *</b>
+	<br />
+	<input type="text" name="nome" id="nome" class="campoContato" style="width:500px;"/>
+	<br /><br />
+	<b>Email *</b>
+	<br />
+	<input type="text" name="email" id="email" class="campoContato" style="width:500px;"/>
+	<br /><br />
+	<b>Senha *</b>
+	<br />
+	<input type="password" name="senha" id="senha" class="campoContato" style="width:500px;"/>
+	<br /><br />
+	<b>Profissão *</b>
+	<br />
+	<input type="text" name="profissao" id="profissao" class="campoContato" style="width:500px;"/>
+	<br /><br />
+	<b>Cargo/Função *</b>
+	<br />
+	<input type="text" name="cargo" id="cargo" class="campoContato" style="width:500px;"/>
+	<br /><br />
+	<b>Órgão/Instituição/Empresa *</b>
+	<br />
+	<input type="text" name="empresa" id="empresa" class="campoContato" style="width:500px;"/>
+	<br /><br />
+	<b>Endereço *</b>
+	<br />
+	<input type="text" name="endereco" id="endereco" class="campoContato" style="width:500px;"/>
+	<br /><br />
+	<b>Número *</b>
+	<br />
+	<input type="text" name="numero" id="numero" class="campoContato" style="width:500px;"/>
+	<br /><br />
+	<b>Complemento</b>
+	<br />
+	<input type="text" name="complemento" id="complemento" class="campoContato" style="width:500px;"/>
+	<br /><br />
+	<b>CEP *</b>
+	<br />
+	<input type="text" name="cep" id="cep" class="campoContato" style="width:500px;" maxlength='9'/>
+	<br /><br />
+	<b>Estado *</b>
+	<br />
+	<select name="estado" id="estado" class="campoContato" style="width:500px;">
+		<option value='0'>Selecione ...</option>
+		<?php foreach($estados as $key=>$value) { ?>
+			<option value='<?php echo $key; ?>'><?php echo $value['ds_uf']; ?></option>
+		<?php } ?>
+	</select>
+    <br /><br />
+	<b>Cidade *</b>
+	<br />
+	<select name="cidade" id="cidade" class="campoContato" style="width:500px;">
+		<option value='0'>Selecione um estado ...</option>
+	</select>
+	<br /><br />
+	<b>Telefone *</b>
+	<br />
+	<input type="text" name="telefone" id="telefone" class="campoContato" style="width:300px;margin-right:20px" maxlength='12'/>
+	<select name="tipoTel" id="tipoTel" class="campoContato" style="width:174px;">
+		<?php foreach($tipoTel as $key=>$val) { ?>
+			<option value='<?php echo $key; ?>'><?php echo $val; ?></option>
+		<?php } ?>
+	</select>
+    <br />
+	* campos obrigatórios
+	<br /><br />
+</div>
+<button type="button" class="buttonPesquisa" title="Enviar">Enviar Cadastro</button>

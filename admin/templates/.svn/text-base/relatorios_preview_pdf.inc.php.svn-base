@@ -1,0 +1,21 @@
+<?
+$first_section = '' ;
+if( $relatorio_info[0]{"master"} == 1 ){
+	$first_section = '<tocentry content="' . set_break_page( htmlspecialchars( $relatorio_info[0]{"titulo"} ) , true ) . '" />' ;
+}
+$html .= '
+	<h1>'. htmlspecialchars($relatorio_info[0]{"titulo"}) . $first_section . '</h1>
+	<span class="tip">'. convert_data( $relatorio_info[0]{"dt_criacao"} ) . '</span>
+	<p>' .set_break_page( html_entity_decode($relatorio_info[0]{"texto"}), true ) . '</p>
+' ;
+
+if( ($relatorio_info[0]{"master"}) == 1 && ( is_array( $relatorio_info[0]{"relatorios_filhos"} ) ) ){	
+	foreach( $relatorio_info[0]{"relatorios_filhos"} as $item ){
+	
+		$html .= '<pagebreak />' ;
+		$html .= '<h2>' . $item{'titulo'} . '<tocentry content="' . $item{'titulo'} . '" /></h2><span class="tip">' . convert_data( $item{'dt_criacao'} ,true ) . '</span>' ;
+		$html .= set_break_page( html_entity_decode( $item{'texto'} ) , true ) ;
+	
+	}	
+}
+?>

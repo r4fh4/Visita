@@ -1,0 +1,71 @@
+<h2 class="page-title">Incluír/Editar Áudio</h2>
+<p>Inclua ou edite os dados dos áudios gravadas no sistema.<br />Para incluír áudio só será aceito no formato <b>MP3</b>.</p>
+<form id="form" name="form" class="input-form" method="POST" action="audios.php" enctype="multipart/form-data" target="response-form">
+	
+	<!-- TITULO -->
+	<label>
+		<b>Título do Áudio*:</b><br />
+		<input type="text" name="titulo" value="<?=htmlspecialchars($audio_info[0]{"titulo_audio"})?>" class="text" />
+	</label>
+	
+	<!-- LEGENDA -->
+	<label>
+		<b>Legenda do áudio:</b><br />
+		<input type="text" name="legenda" value="<?=htmlspecialchars($audio_info[0]{"legenda_audio"})?>" class="text" />
+	</label>
+	
+	<!-- CATEGORIAS -->
+	<label>
+		<p style="float:left;">
+			<b>Categoria:</b><br />
+			<?
+			$selected_categ =  ( isset($audio_info[0]{"categoria"}) ? $audio_info[0]{"categoria"} : null ) ;
+			$item_categ = array() ;
+			foreach( $audio_category_list as $key => $value ){
+				$item_categ{$key} = $value ;		
+			}
+			print gui_render_select( "categoria" , $item_categ , ( $selected_categ ? $selected_categ : null ), false ) ;
+			?>
+		</p>
+	</label>
+	<div style="clear:both;"><br /></div>
+	
+	<!-- SELECIONAR ARQUIVO -->
+	<?if(!isset($audio_info[0]{"id_audio"})){?>		
+		<label>
+			<b>Selecionar arquivo*:</b><br />
+			<input type="file" name="audio" /><span class="tip"> ( somente arquivos do tipo ".mp3" com no máximo <?=(AUDIO_LIMIT_SIZE/1024)?>KB )</span>
+		</label>	
+	<?}?>
+	
+	<!-- BOTÕES/AÇÕES -->
+	<p>
+		<input type="submit" class="btn-form" name="<?=(isset($audio_info[0]{"id_audio"}) ? "edit" : "insert");?>" value="<?=(isset($audio_info[0]{"id_audio"}) ? "Editar" : "Inserir");?>" />
+		<?if(!isset($audio_info[0]{"id_audio"})){?><input type="reset" class="btn-form" name="limpar" value="Limpar" /><?}?>
+		<input type="button" class="btn-form" onclick="javascript:$(location).attr('href', 'audios_listar.php' ) ;" name="back_to_list" value="Voltar para a lista" />
+	</p>
+	
+	<!-- PLAYER -->
+	<?
+	if(isset($audio_info[0]{"id_audio"})){
+	?>
+	<input type="hidden" name="id_audio" value="<?=$audio_info[0]{"id_audio"}?>" />
+	<br />
+	<b>Tocar áudio:</b><br />
+	<div class="box-audio-player">	
+	<object type="application/x-shockwave-flash" data="furniture/swf/dewplayer-playlist.swf?mp3=<?=$audios_directory . $audio_info[0]{"file_name"}?>&amp;showtime=1" width="240" height="20" id="dewplayer">
+		<param name="wmode" value="transparent" />
+		<param name="movie" value="furniture/swf/dewplayer-playlist.swf?mp3=<?=$audios_directory . $audio_info[0]{"file_name"}?>&amp;showtime=1" />
+	</object>
+	</div>
+	<?	
+	}
+	?>
+	
+	<div style="clear:both;"><br /></div>
+	
+</form>
+
+<div style="clear:both;"><br /></div>
+
+<iframe id="response-form" name="response-form" frameborder="0" class="iframe"></iframe>
